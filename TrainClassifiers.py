@@ -28,20 +28,6 @@ brs = ["evt",
        #"ak08_chargemap"
 ]
 
-to_plot = [["pt", 800, 1000, "Parton pT [GeV]"],
-           ["eta", -3, 3, "Parton eta"],
-           ["top_size", 0, 3, "Top Size"],
-           ["ak08_tau3_over_tau2",0, 1., "AK08 tau3/tau2"],
-           ["ak08softdropz10b00forbtag_btag", 0, 1., "AK08 b-tag discriminator"],
-           ["ak08softdropz10b00_mass", 0, 300, "AK08 softdrop mass [GeV]"],
-           ["ak08softdropz10b00_masscal", 0, 300, "AK08 softdrop mass [GeV]"],
-
-           ["ak08puppi_tau3_over_tau2",0, 1., "AK08 Puppi tau3/tau2"],
-           ["ak08puppisoftdropz10b00forbtag_btag", 0, 1., "AK08 Puppi b-tag discriminator"],
-           ["ak08puppisoftdropz10b00_mass", 0, 300, "AK08 Puppi softdrop mass [GeV]"],
-           ["ak08puppisoftdropz10b00_masscal", 0, 300, "AK08 Puppi calibrated softdrop mass [GeV]"],
-           ]
-
 default_params = {        
 
     "architecture" : "2dconv",
