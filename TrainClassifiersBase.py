@@ -65,7 +65,7 @@ from sklearn.preprocessing import StandardScaler
 
 print "Imported sklearn"
 
-from TTH.Plotting.joosep.plotlib import *
+from plotlib import *
 
 print "Imports: Done..."
 
