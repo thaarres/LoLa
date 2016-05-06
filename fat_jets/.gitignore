@@ -1,0 +1,6 @@
+*.root
+*.o
+*.a
+fatjets
+HEPTopTagger/example
+*~

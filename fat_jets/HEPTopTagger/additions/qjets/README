@@ -1,0 +1,18 @@
+This code is the Qjet Fast Jet plugin from Stephen D. Ellis, Andrew Hornig, David Krohn, Tuhin S. Roy, and Matthew D. Schwartz with minor modifications to extract the weight of the clustering sequence and the number of clustering steps.
+
+The original Qjet code can be obtained from
+http://jets.physics.harvard.edu/Qjets/html/Welcome.html
+
+References:
+
+\bibitem{Ellis:2012sn} 
+  S.~D.~Ellis, A.~Hornig, T.~S.~Roy, D.~Krohn and M.~D.~Schwartz,
+  %``Qjets: A Non-Deterministic Approach to Tree-Based Jet Substructure,''
+  Phys.\ Rev.\ Lett.\  {\bf 108}, 182003 (2012)
+  doi:10.1103/PhysRevLett.108.182003
+
+\bibitem{Ellis:2014eya} 
+  S.~D.~Ellis, A.~Hornig, D.~Krohn and T.~S.~Roy,
+  %``On Statistical Aspects of Qjets,''
+  JHEP {\bf 1501}, 022 (2015)
+  doi:10.1007/JHEP01(2015)022
