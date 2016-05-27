@@ -92,6 +92,7 @@ tau2_sd = np.zeros(1, dtype=float)
 tau3_sd = np.zeros(1, dtype=float)
 htt_tag = np.zeros(1, dtype=bool)
 img = np.zeros(imgpix**2, dtype=float)
+entry = np.zeros(1, dtype=int)
 
 # create the branches and assign the fill-variables to them
 tout.Branch('fatjet', 'TLorentzVector', fatjet)
@@ -106,6 +107,7 @@ tout.Branch('tau2_sd', tau2_sd, 'tau2_sd/D')
 tout.Branch('tau3_sd', tau3_sd, 'tau3_sd/D')
 tout.Branch('htt_tagged', htt_tag, 'htt_tag/O')
 tout.Branch('img', img, 'img['+str(imgpix**2)+']/D')
+tout.Branch('entry', entry, 'entry/I')
 
 entries = tin.GetEntriesFast()
 for jentry in xrange(entries):
@@ -133,6 +135,7 @@ for jentry in xrange(entries):
     tau2_sd[0]=tin.tau2_sd
     tau3_sd[0]=tin.tau3_sd
     htt_tag[0]=tin.htt_tagged
+    entry[0]=jentry
    
     xin, yin, zin = phi, eta, e
     
