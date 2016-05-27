@@ -72,7 +72,7 @@ tout.Branch('tau2_filt', tau2_filt, 'tau2_filt/D')
 tout.Branch('tau3_filt', tau3_filt, 'tau3_filt/D')
 tout.Branch('tau2_sd', tau2_sd, 'tau2_sd/D')
 tout.Branch('tau3_sd', tau3_sd, 'tau3_sd/D')
-tout.Branch('htt_tag', htt_tag, 'htt_tag/I')
+tout.Branch('htt_tag', htt_tag, 'htt_tag/O')
 tout.Branch('img', img, 'img['+str(imgpix**2)+']/D')
 
 entries = tin.GetEntriesFast()
@@ -100,7 +100,7 @@ for jentry in xrange(entries):
     tau3_filt[0]=tin.tau3_filt
     tau2_sd[0]=tin.tau2_sd
     tau3_sd[0]=tin.tau3_sd
-    htt_tag=tin.htt_tagged
+    htt_tag[0]=tin.htt_tagged
 
     xi, yi, zi = periodic(phi, eta, e)
 
