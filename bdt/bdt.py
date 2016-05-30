@@ -26,20 +26,30 @@ df_sig["is_signal"] = 1
 df_bkg["is_signal"] = 0
 
 # some debugging
-df_test = pandas.DataFrame(root_numpy.root2rec(infname_bkg, branches=["tau2","tau3","fatjet.Pt()","fatjet.M()","tau2_sd","tau3_sd","softdropjet.Pt()","softdropjet.M()","softdropjet.E()","softdropjet.Px()","softdropjet.Py()","softdropjet.Pz()","tau2_filt","tau3_filt","filtered.Pt()","filtered.M()"]))
-#print df_test.loc[127074]
+df_test = pandas.DataFrame(root_numpy.root2rec(infname_sig, branches=["tau2","tau3","fatjet.Pt()","fatjet.M()","tau2_sd","tau3_sd","softdropjet.Pt()","softdropjet.M()","softdropjet.E()","softdropjet.Px()","softdropjet.Py()","softdropjet.Pz()","tau2_filt","tau3_filt","filtered.Pt()","filtered.M()","htt_tagged"]))
+
+#print df_test.loc[152]
 #nans=0
 #for ix, x in enumerate(np.asarray(df_test["tau3_sd"])):
 #    if math.isnan(x):
 #        print ix
 #        nans+=1
-#print nans        
 
 df_sig = np.asarray(df_sig)
 df_bkg = np.asarray(df_bkg)
 
+#np.savetxt('sig.dat',df_sig)
+#np.savetxt('bkg.dat',df_bkg)
+
 X = np.concatenate((df_sig[:,(2,3)],df_bkg[:,(2,3)]))
 y = np.concatenate((df_sig[:,4],df_bkg[:,4]))
+
+#hack: set nans to -0.1
+for (ix, iy), val in np.ndenumerate(X):
+    if math.isnan(val):
+#        print ix, iy
+        X[ix][iy] = -0.1
+
 
 # Create and fit an AdaBoosted decision tree
 clf = DecisionTreeClassifier(max_depth=2)
