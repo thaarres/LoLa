@@ -47,7 +47,7 @@ def aligned_image(z):
     # shift maximum to origin
     z = np.vstack((z,z,z))
     shift = [int(Npix[0]/2)-p1[0]-1, int(Npix[1]/2)-p1[1]-1]
-    zp = scipy.ndimage.interpolation.shift(z, shift)
+    zp = scipy.ndimage.interpolation.shift(z, shift, order=0)
     zp=zp[zp.shape[0]/3:2*zp.shape[0]/3,:]
     if p2[0]-p1[0] < -int(Npix[0]/2): # take care of periodicity in phi
         second[0,1]+=2.
@@ -57,13 +57,13 @@ def aligned_image(z):
        third[0,1]+=2.
     if p3[0]-p1[0] > int(Npix[0]/2):
         third[0,1]-=2.
-   
+
     # rotate 2nd maximum to negativ y-axis
     ex = np.matrix([[0,-1]])
     theta = np.arccos(( (-center+second)*ex.T/np.linalg.norm(center-second)))[0,0]
     if p2[1]<p1[1]:
         theta*=-1.
-    zpp = scipy.ndimage.interpolation.rotate(zp, theta*180./np.pi,reshape=False, cval=10)
+    zpp = scipy.ndimage.interpolation.rotate(zp, theta*180./np.pi,reshape=False, cval=0, order=0)
 
     # flip such that 3rd maximum has positive x
     thirdp=(np.matrix([[np.cos(theta), np.sin(theta)], [-np.sin(theta),  np.cos(theta)]]).dot((third-center).T)).T
