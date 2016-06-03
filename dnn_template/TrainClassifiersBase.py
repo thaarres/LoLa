@@ -38,8 +38,6 @@ print "Imported numpy"
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
-from keras.layers import AutoEncoder
-from keras.layers import containers
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
@@ -155,15 +153,19 @@ def train_keras(clf):
               decay = clf.params["decay"], 
               momentum = clf.params["momentum"], 
               nesterov=True)
-    clf.model.compile(loss='mean_squared_error', optimizer=sgd)
+    clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
                 
+    print "Calling fit_generator"
+
     ret = clf.model.fit_generator(clf.datagen_train,
                                   samples_per_epoch = clf.params["samples_per_epoch"], 
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
                                   validation_data=clf.datagen_test,
-                                  nb_val_samples = clf.params["samples_per_epoch"]/2,
-                                  show_accuracy=True)
+                                  nb_val_samples = clf.params["samples_per_epoch"]/2
+    )
+
+    print "Done"
   
     plt.clf()
     plt.plot(ret.history["acc"])
@@ -202,26 +204,46 @@ def train_keras(clf):
 # Helper: rocplot
 ########################################
 
-def rocplot(clf, tmp_df, classes, class_names):
+def rocplot(clf, classes, class_names):
+
 
     # Predict all probabilities
 
     # TODO: rewrite to use datagen
-    X_test = clf.get_data(tmp_df)
-    all_probs = clf.model.predict_proba(X_test)    
+    #X_test =   clf.datagen_test.next() 
+    #all_probs = clf.model.predict_on_bac(X_test)    
+
+    sgd = SGD(lr = clf.params["lr"], 
+              decay = clf.params["decay"], 
+              momentum = clf.params["momentum"], 
+              nesterov=True)
+
+    clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
+    
+    for i in range(clf.params["n_chunks"]):
+        tmp = clf.datagen_test.next()
+        X=tmp[0]
+        
+        if i == 0:
+            y = tmp[1]
+            all_probs  =  clf.model.predict_on_batch(X)           
+        else:
+            y = np.concatenate([y,tmp[1]])
+            all_probs  =  np.concatenate([all_probs, clf.model.predict_on_batch(X)])
+
 
     # And add them to (copy of) dataframe
-    df = tmp_df.copy()
-    for cls in classes:
-        df[cls] = all_probs[:,cls]
+    #df = tmp_df.copy()
+    #for cls in classes:
+    #    df[cls] = all_probs[:,cls]
         
     for sig_class in classes:
                 
         other_classes = [cls for cls in classes if not cls==sig_class]
 
         nbins = 100
-        min_prob = df[sig_class].min()
-        max_prob = df[sig_class].max()
+        min_prob = all_probs[sig_class].min()
+        max_prob = all_probs[sig_class].max()
         
         if min_prob >= max_prob:
             max_prob = 1.1 * abs(min_prob)
@@ -230,8 +252,10 @@ def rocplot(clf, tmp_df, classes, class_names):
         plt.yscale('log')
 
         # Signal Efficiency
-        sig = df["is_signal_new"]==sig_class
-        probs1 = df[sig][sig_class].values
+        # select signal events
+        mask=np.delete(y, np.s_[sig_class], 1).flatten().astype(bool)
+        probs1 = np.delete(all_probs, np.s_[sig_class], 1)
+
         h1 = make_df_hist((nbins*5,min_prob,max_prob), probs1)
 
         plt.hist(probs1, label=class_names[sig_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
@@ -241,8 +265,9 @@ def rocplot(clf, tmp_df, classes, class_names):
         for bkg_class in other_classes:
 
             # Background efficiency
-            bkg = df["is_signal_new"]==bkg_class
-            probs2 = df[bkg][sig_class].values
+            mask=np.delete(y, np.s_[bkg_class], 1).flatten().astype(bool)
+            probs2 = np.delete(all_probs, np.s_[bkg_class], 1)
+        
             h2 = make_df_hist((nbins*5,min_prob,max_prob), probs2)
 
             plt.hist(probs2, label=class_names[bkg_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
@@ -374,8 +399,8 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
     # Generate data forever
     while True:
         
-        d_sig = root_numpy.root2rec(infname_sig, branches=brs, selection = sel, start=i_start_sig, stop = i_start_sig + step_sig)
-        d_bkg = root_numpy.root2rec(infname_bkg, branches=brs, selection = sel, start=i_start_bkg, stop = i_start_bkg + step_bkg)
+        d_sig = root_numpy.root2array(infname_sig, treename="tree", branches=brs, selection = sel, start=i_start_sig, stop = i_start_sig + step_sig)
+        d_bkg = root_numpy.root2array(infname_bkg, treename="tree", branches=brs, selection = sel, start=i_start_bkg, stop = i_start_bkg + step_bkg)
 
         i_start_sig += step_sig
         i_start_bkg += step_bkg
@@ -385,17 +410,24 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
             i_start_sig = 0
             i_start_bkg = 0
         
-        df_sig = pandas.DataFrame(d_sig)    
+        # We need to do a bit of numpy magic to properly convery the input
+        # an array with heterogenous dimensions (so a int + a list of ints)
+        # makes pandas unhappy. But if we cast the int and the list both as
+        # 'object' it works
+        datatype = [ (br,object) for br in brs ]
+        
+        # and we have to cast astype(object) in between for this to work..
+        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
         df_sig["is_signal_new"] = 1
 
-        df_bkg = pandas.DataFrame(d_bkg)    
+        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
         df_bkg["is_signal_new"] = 0
 
         df = pandas.concat([df_sig, df_bkg], ignore_index=True)
                     
         # Shuffle
         df = df.iloc[np.random.permutation(len(df))]
-    
+
         yield df
 
 
