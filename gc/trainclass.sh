@@ -3,6 +3,8 @@
 # Anaconda
 export PATH=/mnt/t3nfs01/data01/shome/gregor/anaconda2/bin:$PATH
 
+export TTH_STAGEOUT_PATH=/home/gregor/tth/gc
+
 # Get us ROOT
 . /afs/cern.ch/sw/lcg/external/gcc/4.9/x86_64-slc6-gcc49-opt/setup.sh
 . /afs/cern.ch/sw/lcg/app/releases/ROOT/6.06.04/x86_64-slc6-gcc49-opt/root/bin/thisroot.sh
@@ -23,12 +25,22 @@ set -e
 pwd
 ls -al
 
-#go to work directory
-cd $MY_SCRATCH
-
 echo "Run TrainClassifiers.py"
 python /mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/TrainClassifiers.py
 echo "Done TrainClassifiers.py"
+
+#copy output
+OUTDIR=$HOME/deeptop/dnn_test_1/${TASK_ID}/${MY_JOBID}/
+mkdir -p $OUTDIR 
+echo "copying output"
+
+cp -v *.png $OUTDIR 
+cp -v valacc.txt $OUTDIR 
+cp -v maxvalacc.txt $OUTDIR 
+cp -v deltaacc.txt $OUTDIR 
+cp -v *.yaml $OUTDIR 
+cp -v *.h5 $OUTDIR 
+env > $OUTDIR/env.txt
 
 
 
