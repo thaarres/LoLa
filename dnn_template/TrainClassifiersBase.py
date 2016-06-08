@@ -220,7 +220,12 @@ def rocplot(clf, classes, class_names):
 
     clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
     
-    for i in range(clf.params["n_chunks"]):
+    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
+    for i in range(nbatches):
+    #for i in range(20):
+        
+        print "at ", i, "/", nbatches
+        
         tmp = clf.datagen_test.next()
         X=tmp[0]
         
@@ -231,91 +236,82 @@ def rocplot(clf, classes, class_names):
             y = np.concatenate([y,tmp[1]])
             all_probs  =  np.concatenate([all_probs, clf.model.predict_on_batch(X)])
 
+        print len(all_probs)
+
 
     # And add them to (copy of) dataframe
     #df = tmp_df.copy()
     #for cls in classes:
     #    df[cls] = all_probs[:,cls]
         
-    for sig_class in classes:
-                
-        other_classes = [cls for cls in classes if not cls==sig_class]
 
-        nbins = 100
-        min_prob = all_probs[sig_class].min()
-        max_prob = all_probs[sig_class].max()
+    
+    sig_class = 1
+    bkg_class = 0
+
+    # We want signal probab
+    sigprobs = np.array([x[sig_class] for x in all_probs])
+    
+    nbins = 100
+    min_prob = sigprobs.min()
+    max_prob = sigprobs.max()
         
-        if min_prob >= max_prob:
-            max_prob = 1.1 * abs(min_prob)
+    if min_prob >= max_prob:
+        max_prob = 1.1 * abs(min_prob)
         
-        plt.clf()
-        plt.yscale('log')
+    plt.clf()
+    #plt.yscale('log')
+    
 
-        # Signal Efficiency
-        # select signal events
-        mask=np.delete(y, np.s_[sig_class], 1).flatten().astype(bool)
-        probs1 = np.delete(all_probs, np.s_[sig_class], 1)
+    
+    
 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), probs1)
 
-        plt.hist(probs1, label=class_names[sig_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
+    # Signal Efficiency
+    # select signal events
+    mask=np.delete(y, np.s_[bkg_class], 1).flatten().astype(bool)
+    probs1 = sigprobs[mask]
 
-        rocs = []
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), probs1)
+    
+    plt.hist(probs1, label=class_names[sig_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
+    
+    # Background efficiency
+    mask2=np.delete(y, np.s_[sig_class], 1).flatten().astype(bool)
+    probs2 = sigprobs[mask2]
+
+    print len(sigprobs), sum(mask), sum(mask2)
+
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), probs2)
+
+    plt.hist(probs2, label=class_names[bkg_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
+    # And turn into ROC
+    r, e = calc_roc(h1, h2)
+
+
+    pdb.set_trace()
+
+    plt.xlabel("classifier response", fontsize=16)
+    plt.ylabel("entries", fontsize=16)
+    plt.legend(loc=1)
+    plt.xlim(min_prob,max_prob)
+    plt.show()
+    plt.savefig(clf.name + "-proba.png")
+    
+    plt.clf()
         
-        for bkg_class in other_classes:
-
-            # Background efficiency
-            mask=np.delete(y, np.s_[bkg_class], 1).flatten().astype(bool)
-            probs2 = np.delete(all_probs, np.s_[bkg_class], 1)
+    plt.plot(r[:, 0], r[:, 1], lw=1, ls="--")
         
-            h2 = make_df_hist((nbins*5,min_prob,max_prob), probs2)
-
-            plt.hist(probs2, label=class_names[bkg_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
-            # And turn into ROC
-            r, e = calc_roc(h1, h2)
-            rocs.append(r)
-
-
-        plt.xlabel("classifier response", fontsize=16)
-        plt.ylabel("entries", fontsize=16)
-        plt.legend(loc=1)
-        plt.xlim(min_prob,max_prob)
-        plt.show()
-        plt.savefig(clf.name + "-" + str(sig_class) + "-proba.png")
-
-        plt.clf()
-        
-        # Add the ROCs
-        plt.yscale('log')
-        for r,bkg_class in zip(rocs, other_classes):
-            plt.plot(r[:, 0], r[:, 1], label=class_names[sig_class] + " vs " +class_names[bkg_class], lw=1, ls="--")
-
-        if sig_class == 1:
-            sig = rocs[0][:, 0]
-            bkg = rocs[0][:, 1]
-
-            # Integrate:
-            # bin width * value at left edge
-            integral = 0
-            for left_edge, right_edge, y in zip(sig[:-1],sig[1:],bkg[:-1]):
-                integral += abs(right_edge-left_edge) * y
-
-            print "Area under ROC:", integral
-
-            roc_out = open("roc.txt", "w")
-            roc_out.write(str(integral) + "\n")
-            roc_out.close()
-
-        # Setup nicely
-        plt.legend(loc=2)
-        plt.xlabel( class_names[sig_class] + " match efficiency", fontsize=16)
-        plt.ylabel("fake match efficiency", fontsize=16)
-        plt.legend(loc=2)
-        plt.xlim(0,1)
-        plt.ylim(0,1)
-
-        plt.show()
-        plt.savefig(clf.name + "-" + str(sig_class) + "-ROC.png")
+    # Setup nicely
+    plt.legend(loc=2)
+    plt.xlabel( class_names[sig_class] + " match efficiency", fontsize=16)
+    plt.ylabel("fake match efficiency", fontsize=16)
+    plt.legend(loc=2)
+    plt.xlim(0,1)
+    plt.ylim(0,1)
+    
+    plt.show()
+    plt.savefig(clf.name + "-" + str(sig_class) + "-ROC.png")
 
 
 ########################################
