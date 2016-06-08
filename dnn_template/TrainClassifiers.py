@@ -27,7 +27,7 @@ default_params = {
     "n_dense_nodes"  : 40,
 
     # Common parameters
-    "n_chunks"          : 50,
+    "n_chunks"          : 10,
     "batch_size"        : 128,
     "lr"                : 0.01,
     "decay"             : 1e-6,
@@ -43,8 +43,8 @@ class_names = {0: "background",
 
 classes = sorted(class_names.keys())
 
-infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol.root"
-infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol.root"
+infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed.root"
+infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed.root"
 
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
