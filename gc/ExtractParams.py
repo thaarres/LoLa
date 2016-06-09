@@ -84,7 +84,8 @@ else:
 fields = [ "valacc", "maxvalacc", "delacc"] + params    
 
 
-fields = [f for f in fields if not f in ["batch_size", "lr", "decay", "momentum", "n_chunks"]]
+#fields = [f for f in fields if not f in ["batch_size", "lr", "decay", "momentum", "n_chunks"]]
+
 
 def pretty_print(d):
 

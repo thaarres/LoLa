@@ -4,13 +4,22 @@
 
 from TrainClassifiersBase import *
 
-
 ########################################
 # Configuration
 ########################################
 
 brs = ["entry", 
-       "img"
+       "img",
+       "tau2",
+       "tau3",       
+       "tau2_sd",
+       "tau3_sd",       
+       "fatjet.M()",
+       "fatjet.Pt()",
+       "filtered.M()",
+       "filtered.Pt()",
+       "softdropped.M()",
+       "softdropped.Pt()",
 ]
 
 default_params = {        
@@ -19,17 +28,17 @@ default_params = {
 
     # Parameters for 2d convolutional architecture    
     "n_blocks"       : 1,    
-    "n_conv_layers"  : 2,        
-    "conv_nfeat"     : 2,
-    "conv_size"      : 4,
+    "n_conv_layers"  : 8,        
+    "conv_nfeat"     : 3,
+    "conv_size"      : 2,
     "pool_size"      : 0,
-    "n_dense_layers" : 1,
-    "n_dense_nodes"  : 40,
+    "n_dense_layers" : 3,
+    "n_dense_nodes"  : 80,
 
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 128,
-    "lr"                : 0.01,
+    "lr"                : 0.015,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
     "nb_epoch"          : 2,
@@ -38,10 +47,8 @@ default_params = {
 
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
-class_names = {0: "background",
-               1: "signal"}
 
-classes = sorted(class_names.keys())
+
 
 infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed.root"
 infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed.root"
@@ -98,62 +105,35 @@ for fn in [infname_sig, infname_bkg]:
 
 print "Total number of training samples = ", n_train_samples
 params["samples_per_epoch"] = n_train_samples
-#params["samples_per_epoch"] = 10000
+
 
 
 ########################################
 # Prepare data and scalers
 ########################################
 
-datagen_train = datagen(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"])
-datagen_test  = datagen(cut_test, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"])
+datagen_train = datagen_batch(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
+datagen_test  = datagen_batch(cut_test, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
 
 #scaler_emap = StandardScaler()  
-
 ## Don't need full data to train the scaler
 #for _ in range(params["n_chunks"]/4):
 #    scaler_emap.partial_fit(get_data_flatten(datagen_train.next(), ["img"]))
-
-
-
 #print "Preparing Scalers: Done..."
 
-# Define a generator for the inputs we need
-def generate_data(datagen, batch_size):
+def to_image(df):
 
-    X=[]
-    y=[]
-
-    i_start = 0
-
-    while True:
-
+    X = np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)
+                
+    # VERY SIMPLE Normalisation
+    # Highest single value is O(600)
+    # TODO: Improve?
+    # Can also try log scale
+    X = X/600.            
             
-        if len(X)>i_start+batch_size:
-            
-            yield X[i_start:i_start+batch_size], y[i_start:i_start+batch_size]
-            i_start += batch_size
+    return X
 
-        else:
-            # refill data stores
-            
-            df = datagen.next()
-            # transform-expand-reshape-expand
-            #X = np.expand_dims(np.expand_dims(
-            #    scaler_emap.transform(get_data_flatten(df, ["img"])), axis=-1
-            #).reshape(-1,40,40), axis=1)            
-            X = np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)            
-            
-            # VERY SIMPLE Normalisation
-            # Highest single value is O(600)
-            # TODO: Improve?
-            # Can also try log scale
-            X = X/600.
-            
-            y = np_utils.to_categorical(df["is_signal_new"].values)
 
-            i_start = 0
-        
 def model_2d(params):
 
     activ = lambda : Activation('relu')
@@ -192,48 +172,15 @@ def model_2d(params):
 
 classifiers = [
 
-#    Classifier("BDT",
-#               "scikit", 
-#               {},
-#               True,
-#               lambda x :get_data_vars(x, ["ak08_tau3", 
-#                                           "ak08_tau2", 
-#                                           "ak08softdropz10b00forbtag_btag", 
-#                                           "ak08softdropz10b00_mass"]),               
-#               GradientBoostingClassifier(
-#                   n_estimators=200,
-#                   learning_rate=0.1,
-#                   max_leaf_nodes = 6,
-#                   min_samples_split=1,
-#                   min_samples_leaf=1,
-#                   subsample=0.8,
-#                   verbose = True,
-#                )),
-#
-#    Classifier("BDT-nob",
-#               "scikit", 
-#               {},
-#               True,
-#               lambda x :get_data_vars(x, ["ak08_tau3", 
-#                                           "ak08_tau2",                        
-#                                           "ak08softdropz10b00_mass"]),               
-#               GradientBoostingClassifier(
-#                   n_estimators=200,
-#                   learning_rate=0.1,
-#                   max_leaf_nodes = 6,
-#                   min_samples_split=1,
-#                   min_samples_leaf=1,
-#                   subsample=0.8,
-#                   verbose = True,
-#                )),
-
     Classifier("NNXd", 
                "keras",
                params,
                False,
-               generate_data(datagen_train, batch_size = params["batch_size"]),
-               generate_data(datagen_test, batch_size = params["batch_size"]),
-               model_2d(params)
+               datagen_train,
+               datagen_test,               
+               model_2d(params),
+               image_fun = to_image,               
+               class_names = {0: "background", 1: "signal"}               
                )    
 ]
 
@@ -245,8 +192,8 @@ classifiers = [
 ########################################
 
 [clf.prepare() for clf in classifiers]
-#[rocplot(clf, classes, class_names) for clf in classifiers]
-#multirocplot(classifiers, dtest)
+#[analyze(clf) for clf in classifiers]
+
 
  
 

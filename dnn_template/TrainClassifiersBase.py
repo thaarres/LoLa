@@ -81,8 +81,10 @@ class Classifier:
                  datagen_train,
                  datagen_test,
                  model,
+                 image_fun,
+                 class_names,
                  inpath = ".",
-                 plot_name = "",
+                 plot_name = "",                 
              ):
         self.name = name
         self.backend = backend
@@ -91,8 +93,12 @@ class Classifier:
         self.datagen_train = datagen_train
         self.datagen_test  = datagen_test
         self.model = model
+        self.image_fun = image_fun
         self.inpath = inpath
-
+        
+        self.class_names = class_names
+        self.classes = sorted(class_names.keys())
+        
         if plot_name:
             self.plot_name = plot_name
         else:
@@ -157,13 +163,23 @@ def train_keras(clf):
                 
     print "Calling fit_generator"
 
-    ret = clf.model.fit_generator(clf.datagen_train,
+    def generator(dg):
+        while True:
+            df = dg.next()
+            X = clf.image_fun(df)
+            y = np_utils.to_categorical(df["is_signal_new"].values)
+
+            yield X,y
+
+    train_gen = generator(clf.datagen_train)
+    test_gen  = generator(clf.datagen_test)
+    
+    ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"], 
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
-                                  validation_data=clf.datagen_test,
-                                  nb_val_samples = clf.params["samples_per_epoch"]/2
-    )
+                                  validation_data=test_gen,
+                                  nb_val_samples = clf.params["samples_per_epoch"]/2)
 
     print "Done"
   
@@ -204,171 +220,41 @@ def train_keras(clf):
 # Helper: rocplot
 ########################################
 
-def rocplot(clf, classes, class_names):
-
-
-    # Predict all probabilities
-
-    # TODO: rewrite to use datagen
-    #X_test =   clf.datagen_test.next() 
-    #all_probs = clf.model.predict_on_bac(X_test)    
-
-    sgd = SGD(lr = clf.params["lr"], 
-              decay = clf.params["decay"], 
-              momentum = clf.params["momentum"], 
-              nesterov=True)
-
-    clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
-    
-    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
-    for i in range(nbatches):
-    #for i in range(20):
-        
-        print "at ", i, "/", nbatches
-        
-        tmp = clf.datagen_test.next()
-        X=tmp[0]
-        
-        if i == 0:
-            y = tmp[1]
-            all_probs  =  clf.model.predict_on_batch(X)           
-        else:
-            y = np.concatenate([y,tmp[1]])
-            all_probs  =  np.concatenate([all_probs, clf.model.predict_on_batch(X)])
-
-        print len(all_probs)
-
-
-    # And add them to (copy of) dataframe
-    #df = tmp_df.copy()
-    #for cls in classes:
-    #    df[cls] = all_probs[:,cls]
-        
-
-    
-    sig_class = 1
-    bkg_class = 0
-
-    # We want signal probab
-    sigprobs = np.array([x[sig_class] for x in all_probs])
+def rocplot(clf, df):
     
     nbins = 100
-    min_prob = sigprobs.min()
-    max_prob = sigprobs.max()
+    min_prob = min(df["sigprob"])
+    max_prob = max(df["sigprob"])
         
     if min_prob >= max_prob:
         max_prob = 1.1 * abs(min_prob)
         
     plt.clf()
+
     #plt.yscale('log')
+                
+    # Signal 
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob"])    
     
+    # Background
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob"])    
 
-    
-    
-
-
-    # Signal Efficiency
-    # select signal events
-    mask=np.delete(y, np.s_[bkg_class], 1).flatten().astype(bool)
-    probs1 = sigprobs[mask]
-
-    h1 = make_df_hist((nbins*5,min_prob,max_prob), probs1)
-    
-    plt.hist(probs1, label=class_names[sig_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
-    
-    # Background efficiency
-    mask2=np.delete(y, np.s_[sig_class], 1).flatten().astype(bool)
-    probs2 = sigprobs[mask2]
-
-    print len(sigprobs), sum(mask), sum(mask2)
-
-    h2 = make_df_hist((nbins*5,min_prob,max_prob), probs2)
-
-    plt.hist(probs2, label=class_names[bkg_class], bins=np.linspace(min_prob,max_prob,nbins), alpha=0.4)
     # And turn into ROC
     r, e = calc_roc(h1, h2)
 
-
-    pdb.set_trace()
-
-    plt.xlabel("classifier response", fontsize=16)
-    plt.ylabel("entries", fontsize=16)
-    plt.legend(loc=1)
-    plt.xlim(min_prob,max_prob)
-    plt.show()
-    plt.savefig(clf.name + "-proba.png")
-    
-    plt.clf()
-        
+    plt.clf()        
     plt.plot(r[:, 0], r[:, 1], lw=1, ls="--")
         
     # Setup nicely
     plt.legend(loc=2)
-    plt.xlabel( class_names[sig_class] + " match efficiency", fontsize=16)
+    plt.xlabel( "signal match efficiency", fontsize=16)
     plt.ylabel("fake match efficiency", fontsize=16)
     plt.legend(loc=2)
     plt.xlim(0,1)
     plt.ylim(0,1)
     
     plt.show()
-    plt.savefig(clf.name + "-" + str(sig_class) + "-ROC.png")
-
-
-########################################
-# Helper: multirocplot
-########################################
-
-def multirocplot(clfs, tmp_df, logy=True):
-
-    df = tmp_df.copy()
-
-    plt.clf()
-    if logy:
-        plt.yscale('log')
-    else:
-        plt.yscale('linear')
-        
-    sig_class = 1
-    bkg_class = 0
-    
-    nbins = 100
-    min_prob = 0
-    max_prob = 1    
-
-    rocs = []
-
-    for clf in clfs:
-        
-        # TODO: rewrite to use datagen
-        X_test = clf.get_data(df)
-        df["proba_" + clf.plot_name] = clf.model.predict_proba(X_test)[:,sig_class]
-
-        # Signal Efficiency
-        sig = df["is_signal_new"]==sig_class
-        probs1 = df[sig]["proba_" + clf.plot_name].values
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), probs1)
-        
-        # Background efficiency
-        bkg = df["is_signal_new"]==bkg_class
-        probs2 = df[bkg]["proba_" + clf.plot_name].values
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), probs2)
-
-        # And turn into ROC
-        r, e = calc_roc(h1, h2)
-        rocs.append(r)
-        
-        plt.plot(r[:, 0], r[:, 1], label=clf.plot_name, lw=1, ls="--")
-
-    # Setup nicely
-    plt.legend(loc=2)
-    plt.xlabel("true top match efficiency", fontsize=16)
-    plt.ylabel("fake match efficiency", fontsize=16)
-    plt.legend(loc=2)
-    plt.xlim(0,1)
-    plt.ylim(0,1)
-
-    plt.show()
-    plt.savefig("All-ROC.png")
+    plt.savefig(clf.name + "-ROC.png")
 
 
 ########################################
@@ -425,6 +311,129 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
         df = df.iloc[np.random.permutation(len(df))]
 
         yield df
+
+
+########################################
+# Helper: datagen_batch
+########################################
+
+def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=1024):
+    """Generates data in batches 
+    This uses the datagen as input which reads larger chungs from the file at once
+    One batch is what we pass to the classifiert for training at once, so we want this to be
+    finer than the "chunksize" - these just need to fit in the memory. """
+
+    # Init the generator that reads from the file    
+    get_data = datagen(sel=sel, 
+                       brs=brs, 
+                       infname_sig=infname_sig, 
+                       infname_bkg=infname_bkg, 
+                       n_chunks=n_chunks)
+
+
+    df = []    
+    i_start = 0
+
+    while True:
+            
+        if len(df)>i_start+batch_size:            
+            yield df[i_start:i_start+batch_size]
+            i_start += batch_size
+        else:
+            # refill data stores            
+            df = get_data.next()
+            i_start = 0
+
+
+def analyze(clf):
+
+    # Prepare the model
+    sgd = SGD(lr = clf.params["lr"], 
+              decay = clf.params["decay"], 
+              momentum = clf.params["momentum"], 
+              nesterov=True)
+    clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
+
+    # How many batches to process?
+    # We should make one iteration on the whole file here
+    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
+
+    df_all = pandas.DataFrame()
+    
+    # Loop over batches
+    for i_batch in range(nbatches):
+
+        print "At ", i_batch, "/", nbatches
+
+        df = clf.datagen_test.next()        
+
+        X = clf.image_fun(df)        
+        probs = clf.model.predict_on_batch(X)
+
+        # predict_on_batch returns two values per image: 
+        # signal and background probability
+        # we're just interested in the signal prob (bg prob = 1 - signal_prob)        
+        df["sigprob"] = probs[:,1] 
+
+        # Now that we have calculated the classifier response, 
+        # remove image from dataframe
+        df.drop(["img"],axis=1)
+
+        df_all = df_all.append(df)
+
+    # Extra variables
+    df_all["tau32_sd"] = df_all["tau3_sd"].astype(float)/df_all["tau2_sd"].astype(float)
+    df_all["tau32"]    = df_all["tau3"].astype(float)/df_all["tau2"].astype(float)
+                
+    # Prepare ROC plot
+    rocplot(clf, df_all)
+        
+    plots = []
+
+    # Plot DNN Output 
+    plots.append(["sigprob", [], 100,0,1, "sigprob"])
+
+    # Other properties of top
+    # Plot inclusive as well as in slices of DNN Output
+    proto_plots = [["softdropped.M()", 100,0,300, "mass_sd"],
+                   ["filtered.M()", 100,0,300, "mass_filt"],
+                   ["fatjet.M()", 100,0,300, "mass_ungroomed"],
+                   ["softdropped.Pt()", 100,0,500, "pt_sd"],
+                   ["filtered.Pt()", 100,0,500, "pt_filt"],
+                   ["fatjet.Pt()", 100,300,500, "pt_ungroomed"],
+                   ["tau32_sd", 100,0,1, "tau32_sd"],
+                   ["tau32", 100,0,1, "tau32"]]                                      
+    for [variable, nbins, xmin, xmax, name] in proto_plots:
+        plots.append([variable, [], nbins, xmin, xmax, name])
+        plots.append([variable, [df_all["sigprob"] > 0.8], nbins, xmin, xmax, name + "_hi"])
+        plots.append([variable, [df_all["sigprob"] > 0.4, df_all["sigprob"] < 0.6], nbins, xmin, xmax, name + "_md"])
+        plots.append([variable, [df_all["sigprob"] < 0.2], nbins, xmin, xmax, name + "_lo"])
+
+
+    # Make all plots
+    for plot in plots:
+                         
+        [variable, cuts, nbins, xmin, xmax, name] = plot
+        
+        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
+        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
+
+        sig = df_all.loc[cut_sig,variable]
+        bkg = df_all.loc[cut_bkg,variable]
+            
+        plt.clf()
+        plt.hist(sig, label="sig", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
+        plt.hist(bkg, label="bkg", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
+        plt.xlabel(variable, fontsize=16)
+        plt.ylabel("Fraction of jets", fontsize=16)        
+        plt.legend(loc=1)
+        plt.xlim(xmin,xmax)
+        plt.show()
+        plt.savefig(name)
+
+
+
+
 
 
 ########################################
