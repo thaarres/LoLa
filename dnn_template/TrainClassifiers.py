@@ -112,26 +112,32 @@ params["samples_per_epoch"] = n_train_samples
 # Prepare data and scalers
 ########################################
 
+nbatches = params["samples_per_epoch"]/params["batch_size"]
+
 datagen_train = datagen_batch(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
 datagen_test  = datagen_batch(cut_test, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
 
-#scaler_emap = StandardScaler()  
-## Don't need full data to train the scaler
-#for _ in range(params["n_chunks"]/4):
-#    scaler_emap.partial_fit(get_data_flatten(datagen_train.next(), ["img"]))
-#print "Preparing Scalers: Done..."
-
+# This function produces the necessary shape for MVA training/evaluation
+# (batch_size,1,40,40)
+# However it uses the raw values in the image
+# If we want a rescaled one, use to_image_scaled 
 def to_image(df):
+    return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
 
-    X = np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)
-                
-    # VERY SIMPLE Normalisation
-    # Highest single value is O(600)
-    # TODO: Improve?
-    # Can also try log scale
-    X = X/600.            
-            
-    return X
+# Prepare a scaler to normalize events
+# Currently this gives a different normalization factor to each pixel
+# TODO: check if global scaling works better
+scaler = StandardScaler()  
+# Use fraction of data to train the scaler
+for _ in range(nbatches/10):
+    print _
+    scaler.partial_fit(to_image(datagen_train.next()).reshape(128,1600))
+print "Preparing Scalers: Done..."
+
+# Produce normalized image for training and testing
+def to_image_scaled(df):
+    return scaler.transform(to_image(df).reshape(128,1600)).reshape(128,1,40,40)
+
 
 
 def model_2d(params):
@@ -179,7 +185,7 @@ classifiers = [
                datagen_train,
                datagen_test,               
                model_2d(params),
-               image_fun = to_image,               
+               image_fun = to_image_scaled,               
                class_names = {0: "background", 1: "signal"}               
                )    
 ]
