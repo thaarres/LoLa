@@ -27,14 +27,16 @@ default_params = {
     "architecture" : "2dconv",
 
     # Parameters for 2d convolutional architecture    
-    "n_blocks"       : 1,    
-    "n_conv_layers"  : 8,        
-    "conv_nfeat"     : 3,
-    "conv_size"      : 2,
-    "pool_size"      : 0,
-    "n_dense_layers" : 3,
-    "n_dense_nodes"  : 80,
-
+    "n_blocks"        : 1,    
+    "n_conv_layers"   : 8,        
+    "conv_nfeat"      : 3,
+    "conv_size"       : 2,
+    "conv_batchnorm"  : 1,
+    "pool_size"       : 0,
+    "n_dense_layers"  : 3,
+    "n_dense_nodes"   : 80,
+    "dense_batchnorm" : 0,
+    
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 128,
@@ -131,12 +133,12 @@ scaler = StandardScaler()
 # Use fraction of data to train the scaler
 for _ in range(nbatches/10):
     print _
-    scaler.partial_fit(to_image(datagen_train.next()).reshape(128,1600))
+    scaler.partial_fit(to_image(datagen_train.next()).reshape(params["batch_size"],1600))
 print "Preparing Scalers: Done..."
 
 # Produce normalized image for training and testing
 def to_image_scaled(df):
-    return scaler.transform(to_image(df).reshape(128,1600)).reshape(128,1,40,40)
+    return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
 
 
 
@@ -161,6 +163,10 @@ def model_2d(params):
                                     params["conv_size" ]))
             model.add(activ())
 
+            if params["conv_batchnorm"]:
+                model.add(BatchNormalization())
+
+
         if params["pool_size"] > 0:
             model.add(MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
 
@@ -169,6 +175,10 @@ def model_2d(params):
     for i_dense_layer in range(params["n_dense_layers"]):
         model.add(Dense(params["n_dense_nodes"]))
         model.add(activ())    
+
+        if params["dense_batchnorm"]:
+            model.add(BatchNormalization())
+
 
     model.add(Dense(nclasses))
     model.add(Activation('softmax'))

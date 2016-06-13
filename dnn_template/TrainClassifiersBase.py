@@ -175,7 +175,7 @@ def train_keras(clf):
     test_gen  = generator(clf.datagen_test)
     
     ret = clf.model.fit_generator(train_gen,
-                                  samples_per_epoch = clf.params["samples_per_epoch"], 
+                                  samples_per_epoch = clf.params["samples_per_epoch"],
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
                                   validation_data=test_gen,
