@@ -36,7 +36,11 @@ default_params = {
     "n_dense_layers"  : 3,
     "n_dense_nodes"   : 80,
     "dense_batchnorm" : 0,
-    
+
+    "conv_dropout"    : 0.5,
+    "block_dropout"   : 0.2,
+    "dense_dropout"   : 0.5,
+
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 128,
@@ -166,9 +170,14 @@ def model_2d(params):
             if params["conv_batchnorm"]:
                 model.add(BatchNormalization())
 
+            if params["conv_dropout"] > 0.0:
+                model.add(Dropout(params["conv_dropout"]))
 
         if params["pool_size"] > 0:
             model.add(MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+
+        if params["block_dropout"] > 0.0:
+            model.add(Dropout(params["block_dropout"]))
 
     model.add(Flatten())
 
@@ -178,6 +187,9 @@ def model_2d(params):
 
         if params["dense_batchnorm"]:
             model.add(BatchNormalization())
+
+        if params["dense_dropout"] > 0.0:
+            model.add(Dropout(params["dense_dropout"]))
 
 
     model.add(Dense(nclasses))

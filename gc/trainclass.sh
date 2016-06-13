@@ -30,7 +30,7 @@ python /mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/TrainClassifiers.py
 echo "Done TrainClassifiers.py"
 
 #copy output
-OUTDIR=$HOME/deeptop/dnn_test_5b/${TASK_ID}/${MY_JOBID}/
+OUTDIR=$HOME/deeptop/dnn_test_6/${TASK_ID}/${MY_JOBID}/
 mkdir -p $OUTDIR 
 echo "copying output"
 
