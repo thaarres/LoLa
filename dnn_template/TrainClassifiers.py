@@ -203,7 +203,7 @@ classifiers = [
     Classifier("NNXd", 
                "keras",
                params,
-               False,
+               True,
                datagen_train,
                datagen_test,               
                model_2d(params),
@@ -220,7 +220,7 @@ classifiers = [
 ########################################
 
 [clf.prepare() for clf in classifiers]
-#[analyze(clf) for clf in classifiers]
+[analyze(clf) for clf in classifiers]
 
 
  
