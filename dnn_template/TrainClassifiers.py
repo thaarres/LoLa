@@ -203,7 +203,7 @@ classifiers = [
     Classifier("NNXd", 
                "keras",
                params,
-               True,
+               False,
                datagen_train,
                datagen_test,               
                model_2d(params),
