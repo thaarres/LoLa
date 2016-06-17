@@ -44,7 +44,7 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 128,
-    "lr"                : 0.015,
+    "lr"                : 0.01,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
     "nb_epoch"          : 2,
@@ -133,17 +133,17 @@ def to_image(df):
 # Prepare a scaler to normalize events
 # Currently this gives a different normalization factor to each pixel
 # TODO: check if global scaling works better
-scaler = StandardScaler()  
+#scaler = StandardScaler()  
 # Use fraction of data to train the scaler
-for _ in range(nbatches/10):
-    print _
-    scaler.partial_fit(to_image(datagen_train.next()).reshape(params["batch_size"],1600))
-print "Preparing Scalers: Done..."
+#for _ in range(nbatches/10):
+#    print _
+#    scaler.partial_fit(to_image(datagen_train.next()).reshape(params["batch_size"],1600))
+#print "Preparing Scalers: Done..."
 
 # Produce normalized image for training and testing
 def to_image_scaled(df):
-    return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
-
+    #return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
+    return to_image(df)/600.
 
 
 def model_2d(params):
@@ -203,7 +203,7 @@ classifiers = [
     Classifier("NNXd", 
                "keras",
                params,
-               False,
+               True,
                datagen_train,
                datagen_test,               
                model_2d(params),

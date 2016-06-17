@@ -102,7 +102,7 @@ n_fields = len(fields)
 form_string = " ".join(["{" + str(i) + ": <12" + "}" for i in range(n_fields)])
 print form_string.format(*fields)
 
-sorted_keys = sorted(di.keys(), key = lambda x:di[x][sort_by])[-50:]
+sorted_keys = sorted(di.keys(), key = lambda x:di[x][sort_by])[-190:]
 
 for k in sorted_keys:
     print pretty_print(di[k]), k

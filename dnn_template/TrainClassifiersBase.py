@@ -123,7 +123,11 @@ class Classifier:
                 self.model = model_from_yaml(yaml_string)                
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
             print "Loading", self.name, "from file: Done..."
+            
+            print "Now training a bit"
+            train_keras(self)
 
+            
 
 ########################################
 # Helper: train_scitkit
