@@ -9,7 +9,7 @@ from TrainClassifiersBase import *
 ########################################
 
 brs = ["entry", 
-       "img",
+#       "img",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -20,30 +20,34 @@ brs = ["entry",
        "filtered.Pt()",
        "softdropped.M()",
        "softdropped.Pt()",
-]
+       "is_signal_new",
+] + ["img_{0}".format(i) for i in range(1600)]
 
 default_params = {        
 
-    "architecture" : "2dconv",
+    # Overall Steering
+    "root_to_h5" : False,
+    "read_h5"    : True,
 
+    
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 1,    
-    "n_conv_layers"   : 8,        
-    "conv_nfeat"      : 3,
+    "n_conv_layers"   : 2,        
+    "conv_nfeat"      : 2,
     "conv_size"       : 2,
-    "conv_batchnorm"  : 1,
+    "conv_batchnorm"  : 0,
     "pool_size"       : 0,
     "n_dense_layers"  : 3,
-    "n_dense_nodes"   : 80,
+    "n_dense_nodes"   : 40,
     "dense_batchnorm" : 0,
 
-    "conv_dropout"    : 0.5,
-    "block_dropout"   : 0.2,
-    "dense_dropout"   : 0.5,
+    "conv_dropout"    : 0.0,
+    "block_dropout"   : 0.0,
+    "dense_dropout"   : 0.0,
 
     # Common parameters
-    "n_chunks"          : 10,
-    "batch_size"        : 128,
+    "n_chunks"          : 1,
+    "batch_size"        : 1024,
     "lr"                : 0.01,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
@@ -53,14 +57,15 @@ default_params = {
 
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
-
-
-
+# Reading from ROOT fike
 infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed.root"
 infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed.root"
-
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
+
+# Reading H5FS
+infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train.h5"
+infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test.h5"
 
 
 ########################################
@@ -79,7 +84,15 @@ for param in default_params.keys():
 
 
 ########################################
-# Count effective training samples
+# H5FS: Count effective training samples
+########################################
+
+if params["read_h5"]:
+    store = pandas.HDFStore(infname_train)
+    n_train_samples = (store.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
+
+########################################
+# ROOT: Count effective training samples
 ########################################
 
 # We want to know the "real" number of training samples
@@ -87,48 +100,53 @@ for param in default_params.keys():
 # both operations might loose a few events at the end
 # So we actually do this procedure on a "cheap" branch
 
-n_train_samples = 0 
-# Loop over signal and background sample
-for fn in [infname_sig, infname_bkg]:
+else:
 
-    # get the number of events in the root file so we can determin the chunk size
-    rf = ROOT.TFile.Open(fn)
-    entries = rf.Get("tree").GetEntries()
-    rf.Close()
+    n_train_samples = 0 
+    # Loop over signal and background sample
+    for fn in [infname_sig, infname_bkg]:
 
-    step = entries/params["n_chunks"]    
-    i_start = 0
+        # get the number of events in the root file so we can determin the chunk size
+        rf = ROOT.TFile.Open(fn)
+        entries = rf.Get("tree").GetEntries()
+        rf.Close()
 
-    # Loop over chunks from file
-    for i_chunk in range(params["n_chunks"]):
-    
-        # get the samples in this chunk that survive the fiducial selection + training sample selection
-        n_samples = len(root_numpy.root2array(fn, treename="tree", branches=["entry"], selection = cut_train, start=i_start, stop=i_start+step).view(np.recarray))
+        step = entries/params["n_chunks"]    
+        i_start = 0
 
-        # round to batch_size
-        n_train_samples += (n_samples/params["batch_size"])*params["batch_size"]
-        i_start += step
+        # Loop over chunks from file
+        for i_chunk in range(params["n_chunks"]):
+
+            # get the samples in this chunk that survive the fiducial selection + training sample selection
+            n_samples = len(root_numpy.root2array(fn, treename="tree", branches=["entry"], selection = cut_train, start=i_start, stop=i_start+step).view(np.recarray))
+
+            # round to batch_size
+            n_train_samples += (n_samples/params["batch_size"])*params["batch_size"]
+            i_start += step
 
 print "Total number of training samples = ", n_train_samples
 params["samples_per_epoch"] = n_train_samples
 
-
-
+    
 ########################################
 # Prepare data and scalers
 ########################################
 
-nbatches = params["samples_per_epoch"]/params["batch_size"]
-
-datagen_train = datagen_batch(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
-datagen_test  = datagen_batch(cut_test, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
+if params["read_h5"]:
+    datagen_train = datagen_batch_h5(brs, infname_train, batch_size=params["batch_size"])
+    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=params["batch_size"])
+else:
+    nbatches = params["samples_per_epoch"]/params["batch_size"]
+    datagen_train = datagen_batch(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
+    datagen_test  = datagen_batch(cut_test, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
 
 # This function produces the necessary shape for MVA training/evaluation
 # (batch_size,1,40,40)
 # However it uses the raw values in the image
 # If we want a rescaled one, use to_image_scaled 
 def to_image(df):
-    return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
+    #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
+    return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
 
 # Prepare a scaler to normalize events
 # Currently this gives a different normalization factor to each pixel
@@ -142,6 +160,7 @@ def to_image(df):
 
 # Produce normalized image for training and testing
 def to_image_scaled(df):
+        
     #return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
     return to_image(df)/600.
 
@@ -213,6 +232,27 @@ classifiers = [
 ]
 
 
+
+########################################
+# Convert ROOT to h5
+########################################
+
+if params["root_to_h5"]:
+    for sample in ["test"]:
+
+        print "Doing", sample
+
+        n_batches = params["samples_per_epoch"]/params["batch_size"]
+
+        for i_batch in range(n_batches):
+            print "Converting batch {0}/{1}".format(i_batch, n_batches)
+
+            if sample == "train":
+                df = datagen_train.next()
+            else:
+                df = datagen_test.next()
+
+            df.to_hdf(sample+'.h5','table',append=True)
 
 
 ########################################

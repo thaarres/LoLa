@@ -30,11 +30,14 @@ import matplotlib as mpl
 mpl.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.mlab as mlab
 import pandas
-import root_numpy
+#import root_numpy
 from matplotlib.colors import LogNorm
+import h5py
 
-print "Imported numpy"
+print "Imported numpy+friends"
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -171,9 +174,11 @@ def train_keras(clf):
 
             yield X,y
 
+            
+
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
-    
+
     ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"],
                                   nb_epoch = clf.params["nb_epoch"],
@@ -284,6 +289,8 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
         d_sig = root_numpy.root2array(infname_sig, treename="tree", branches=brs, selection = sel, start=i_start_sig, stop = i_start_sig + step_sig)
         d_bkg = root_numpy.root2array(infname_bkg, treename="tree", branches=brs, selection = sel, start=i_start_bkg, stop = i_start_bkg + step_bkg)
 
+        
+
         i_start_sig += step_sig
         i_start_bkg += step_bkg
         # roll over
@@ -291,26 +298,52 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
             (i_start_bkg + step_bkg >= bkg_entries)):
             i_start_sig = 0
             i_start_bkg = 0
-        
-        # We need to do a bit of numpy magic to properly convery the input
-        # an array with heterogenous dimensions (so a int + a list of ints)
-        # makes pandas unhappy. But if we cast the int and the list both as
-        # 'object' it works
-        datatype = [ (br,object) for br in brs ]
-        
-        # and we have to cast astype(object) in between for this to work..
-        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
-        df_sig["is_signal_new"] = 1
 
-        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
-        df_bkg["is_signal_new"] = 0
+        dfs = []
+                
+        for is_signal, d in enumerate([d_bkg, d_sig]):
+            
+            df = pandas.DataFrame(d['entry'],columns=["entry"])
 
-        df = pandas.concat([df_sig, df_bkg], ignore_index=True)
-                    
+            for br in brs:
+
+                if br in ["entry","img"]:
+                    pass
+                else:
+                    df[br] = d[br]
+
+            
+            for i in range(1600):
+                df["img_{0}".format(i)] = d["img"][:,i]
+
+            
+            df["is_signal_new"] = is_signal
+
+            dfs.append(df)
+
+
+        df = pandas.concat(dfs, ignore_index=True)
+
         # Shuffle
         df = df.iloc[np.random.permutation(len(df))]
 
         yield df
+
+#        # We need to do a bit of numpy magic to properly convery the input
+#        # an array with heterogenous dimensions (so a int + a list of ints)
+#        # makes pandas unhappy. But if we cast the int and the list both as
+#        # 'object' it works
+#        datatype = [ (br,object) for br in brs ]
+#        
+#        # and we have to cast astype(object) in between for this to work..
+#        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
+#        df_sig["is_signal_new"] = 1
+#
+#        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
+#        df_bkg["is_signal_new"] = 0
+#
+#        
+#                    
 
 
 ########################################
@@ -345,6 +378,34 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
             i_start = 0
 
 
+
+########################################
+# Helper: datagen_batch
+########################################
+
+def datagen_batch_h5(brs, infname, batch_size=1024):
+    """Generates data in batchaes using partial reading of h5 files """
+
+    store = pandas.HDFStore(infname)
+    size = store.get_storer('table').nrows    
+
+    i_start = 0
+    
+    while True:
+
+            
+        if size > i_start+batch_size:            
+            foo = store.select('table',
+                               columns = brs,
+                               start = i_start,
+                               stop  = i_start + batch_size)
+                        
+            yield foo
+            i_start += batch_size
+        else:
+            i_start = 0
+
+
 def analyze(clf):
 
     # Prepare the model
@@ -356,8 +417,10 @@ def analyze(clf):
 
     # How many batches to process?
     # We should make one iteration on the whole file here
+    
     nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
-
+    nbatches = 2
+    
     df_all = pandas.DataFrame()
     
     # Loop over batches
@@ -377,7 +440,8 @@ def analyze(clf):
 
         # Now that we have calculated the classifier response, 
         # remove image from dataframe
-        df.drop(["img"],axis=1)
+        for i in range(1600):
+            df.drop(["img_{0}".format(i)],axis=1)
 
         df_all = df_all.append(df)
 
@@ -431,6 +495,28 @@ def analyze(clf):
         plt.show()
         plt.savefig(name)
 
+
+    # And 2D Plots:
+    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
+    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
+                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
+                "tau32_sd", "tau32"]:
+
+        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
+        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+
+        name = var.replace("(","").replace(")","").replace(".","_")
+        
+        plt.clf()
+        plt.hexbin(var_sig, prob_sig)
+        plt.show()   
+        plt.savefig("2d-" + name + "-sig.png")
+
+        plt.clf()
+        plt.hexbin(var_bkg, prob_bkg)
+        plt.show()   
+        plt.savefig("2d-" + name + "-bkg.png")
 
 
 
