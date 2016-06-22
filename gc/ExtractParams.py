@@ -84,6 +84,10 @@ else:
 fields = [ "valacc", "maxvalacc", "delacc"] + params    
 
 
+
+
+fields = [f for f in fields if not f in [ "decay", "momentum", "conv_batchnorm", "dense_batchnorm", "conv_dropout", "block_dropout", "dense_dropout"]]
+
 #fields = [f for f in fields if not f in [ "decay", "momentum", "n_chunks", "n_dense_layers", "n_blocks", "pool_size", "conv_size"]]
 
 
