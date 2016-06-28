@@ -12,6 +12,7 @@ module load Python/2.7.10-CrayGNU-5.2.40
 module load pycuda/2015.1-CrayGNU-5.2.40-Python-2.7.10
 module load h5py/2.5.0-CrayGNU-5.2.40-Python-2.7.10-serial
 module swap cudatoolkit/6.5.14-1.0502.9613.6.1  cudatoolkit/7.0.28-1.0502.10742.5.1
+module load matplotlib/1.4.3-CrayGNU-5.2.40-Python-2.7.10
 
 # Enable CUDNN
 export CUDNN_BASE=$SCRATCH/cuda
