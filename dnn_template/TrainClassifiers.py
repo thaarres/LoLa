@@ -32,13 +32,13 @@ default_params = {
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 1,    
-    "n_conv_layers"   : 2,        
-    "conv_nfeat"      : 2,
+    "n_conv_layers"   : 6,        
+    "conv_nfeat"      : 8,
     "conv_size"       : 2,
     "conv_batchnorm"  : 0,
     "pool_size"       : 0,
     "n_dense_layers"  : 3,
-    "n_dense_nodes"   : 40,
+    "n_dense_nodes"   : 120,
     "dense_batchnorm" : 0,
 
     "conv_dropout"    : 0.0,
@@ -51,7 +51,7 @@ default_params = {
     "lr"                : 0.01,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 2,
+    "nb_epoch"          : 10,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -64,8 +64,8 @@ cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
-infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train.h5"
-infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test.h5"
+infname_train = "/scratch/daint/gregork/DeepTop/dnn_template/train.h5"
+infname_test  = "/scratch/daint/gregork/DeepTop/dnn_template/test.h5"
 
 
 ########################################

@@ -22,19 +22,18 @@ import pdb
 
 print "Imported basics"
 
-import ROOT
+#import ROOT
 
 print "Imported ROOT"
 
-import matplotlib as mpl
-mpl.use('Agg')
+#import matplotlib as mpl
+#mpl.use('Agg')
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
+#import matplotlib.pyplot as plt
+
 import pandas
 #import root_numpy
-from matplotlib.colors import LogNorm
+#from matplotlib.colors import LogNorm
 import h5py
 
 print "Imported numpy+friends"
@@ -51,22 +50,22 @@ from keras.models import model_from_yaml
 
 print "Imported keras"
 
-import sklearn
-from sklearn import preprocessing
-from sklearn.tree  import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.multiclass import OutputCodeClassifier
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.multiclass import OneVsOneClassifier
-from sklearn.preprocessing import normalize
-from sklearn.svm import LinearSVC
-from sklearn.preprocessing import StandardScaler  
+#import sklearn
+#from sklearn import preprocessing
+#from sklearn.tree  import DecisionTreeClassifier
+#from sklearn.ensemble import RandomForestClassifier
+#from sklearn.ensemble import GradientBoostingClassifier
+#from sklearn.neighbors import KNeighborsClassifier
+#from sklearn.multiclass import OutputCodeClassifier
+#from sklearn.multiclass import OneVsRestClassifier
+#from sklearn.multiclass import OneVsOneClassifier
+#from sklearn.preprocessing import normalize
+#from sklearn.svm import LinearSVC
+#from sklearn.preprocessing import StandardScaler  
 
-print "Imported sklearn"
+#print "Imported sklearn"
 
-from plotlib import *
+#from plotlib import *
 
 print "Imports: Done..."
 
@@ -187,38 +186,38 @@ def train_keras(clf):
                                   nb_val_samples = clf.params["samples_per_epoch"]/2)
 
     print "Done"
-  
-    plt.clf()
-    plt.plot(ret.history["acc"])
-    plt.plot(ret.history["val_acc"])
-    plt.savefig("acc.png")
- 
-    plt.clf()
-    plt.plot(ret.history["loss"])
-    plt.plot(ret.history["val_loss"])
-    plt.savefig("loss.png")
-  
-    valacc_out = open("valacc.txt", "w")
-    valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
-    valacc_out.close()
-
-    maxvalacc_out = open("maxvalacc.txt", "w")
-    maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
-    maxvalacc_out.close()
-    
-    deltaacc_out = open("deltaacc.txt", "w")
-    deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
-    deltaacc_out.close()
- 
-    # save the architecture
-    model_out_yaml = open(clf.name + ".yaml", "w")
-    model_out_yaml.write(clf.model.to_yaml())
-    model_out_yaml.close()
-    
-    # And the weights
-    clf.model.save_weights(clf.name + '_weights.h5', 
-                           overwrite=True)
-
+#
+#  plt.clf()
+#  plt.plot(ret.history["acc"])
+#  plt.plot(ret.history["val_acc"])
+#  plt.savefig("acc.png")
+#
+#  plt.clf()
+#  plt.plot(ret.history["loss"])
+#  plt.plot(ret.history["val_loss"])
+#  plt.savefig("loss.png")
+#
+#  valacc_out = open("valacc.txt", "w")
+#  valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
+#  valacc_out.close()
+#
+#  maxvalacc_out = open("maxvalacc.txt", "w")
+#  maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
+#  maxvalacc_out.close()
+#  
+#  deltaacc_out = open("deltaacc.txt", "w")
+#  deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
+#  deltaacc_out.close()
+#
+#  # save the architecture
+#  model_out_yaml = open(clf.name + ".yaml", "w")
+#  model_out_yaml.write(clf.model.to_yaml())
+#  model_out_yaml.close()
+#  
+#  # And the weights
+#  clf.model.save_weights(clf.name + '_weights.h5', 
+#                         overwrite=True)
+#
 
 
 ########################################
