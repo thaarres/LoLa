@@ -7,3 +7,5 @@
 - Theano (does the actual work. Can also try TensorFlow if we want to) http://deeplearning.net/software/theano/install.html#install
 - Keras (user friendly definition of neural networks) http://keras.io/#installation
 - scikit learn (state BDT training, general machine learning helpers) http://scikit-learn.org/stable/install.html
+- root_numpy (pip install)
+- rootpy (pip install)

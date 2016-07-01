@@ -143,9 +143,10 @@ for jentry in xrange(entries):
 
     #rotation
     ex = np.matrix([[1,0]])
-    theta = np.pi/2+arccos(( (-center+second)*ex.T/norm(center-second)))[0,0]
+    theta = arccos(( (-center+second)*ex.T/norm(center-second)))[0,0]
     if p2[0]<p1[0]:
         theta*=-1.
+    theta+=np.pi/2
 
     zp = scipy.ndimage.interpolation.rotate(zp,theta*180./np.pi,reshape=False)
     # flip

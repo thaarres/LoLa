@@ -1,5 +1,5 @@
-import ROOT
-ROOT.gROOT.SetBatch(True)
+#import ROOT
+#ROOT.gROOT.SetBatch(True)
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -7,16 +7,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-import rootpy
-import rootpy.io
-from rootpy.plotting.root2matplotlib import errorbar, bar, hist, fill_between
+#import rootpy
+#import rootpy.io
+#from rootpy.plotting.root2matplotlib import errorbar, bar, hist, fill_between
 from collections import OrderedDict
 
 import pandas
 
-import sklearn
-import sklearn.metrics
-from sklearn.ensemble import GradientBoostingClassifier
+#import sklearn
+#import sklearn.metrics
+#from sklearn.ensemble import GradientBoostingClassifier
+
 import math
 
 import matplotlib.patches as mpatches
