@@ -4,6 +4,11 @@
 
 print "Imports: Starting..."
 
+import socket
+hostname = socket.gethostname()
+
+print "We are at:", hostname
+
 import sys
 
 def fixPath():
@@ -22,8 +27,9 @@ import pdb
 
 print "Imported basics"
 
-#import ROOT
-#print "Imported ROOT"
+if "t3ui" in hostname:
+    import ROOT
+    print "Imported ROOT"
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -32,7 +38,11 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
 import pandas
-#import root_numpy
+
+if "t3ui" in hostname:
+    import root_numpy
+    from matplotlib.colors import LogNorm
+
 import h5py
 
 print "Imported numpy+friends"
@@ -49,19 +59,20 @@ from keras.models import model_from_yaml
 
 print "Imported keras"
 
-#import sklearn
-#from sklearn import preprocessing
-#from sklearn.tree  import DecisionTreeClassifier
-#from sklearn.ensemble import RandomForestClassifier
-#from sklearn.ensemble import GradientBoostingClassifier
-#from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.multiclass import OutputCodeClassifier
-#from sklearn.multiclass import OneVsRestClassifier
-#from sklearn.multiclass import OneVsOneClassifier
-#from sklearn.preprocessing import normalize
-#from sklearn.svm import LinearSVC
-#from sklearn.preprocessing import StandardScaler  
-#print "Imported sklearn"
+if "t3ui" in hostname:
+    import sklearn
+    from sklearn import preprocessing
+    from sklearn.tree  import DecisionTreeClassifier
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.ensemble import GradientBoostingClassifier
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.multiclass import OutputCodeClassifier
+    from sklearn.multiclass import OneVsRestClassifier
+    from sklearn.multiclass import OneVsOneClassifier
+    from sklearn.preprocessing import normalize
+    from sklearn.svm import LinearSVC
+    from sklearn.preprocessing import StandardScaler  
+    print "Imported sklearn"
 
 from plotlib import *
 
@@ -232,7 +243,7 @@ def rocplot(clf, df):
         
     plt.clf()
 
-    #plt.yscale('log')
+
                 
     # Signal 
     h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob"])    
@@ -251,11 +262,29 @@ def rocplot(clf, df):
     plt.xlabel( "signal match efficiency", fontsize=16)
     plt.ylabel("fake match efficiency", fontsize=16)
     plt.legend(loc=2)
+
+    plt.yscale('log')
     plt.xlim(0,1)
-    plt.ylim(0,1)
+    plt.ylim(0.001,1)
     
     plt.show()
+
     plt.savefig(clf.name + "-ROC.png")
+
+
+    plt.clf()        
+    plt.plot(r[:, 0], 1./r[:, 1], lw=1, ls="--")
+        
+    # Setup nicely
+    plt.legend(loc=2)
+    plt.xlabel( "signal match efficiency", fontsize=16)
+    plt.ylabel("1/fake match efficiency", fontsize=16)
+    plt.legend(loc=2)
+
+    plt.yscale('log')    
+    plt.show()
+
+    plt.savefig(clf.name + "-ROC-inv.png")
 
 
 ########################################
@@ -414,9 +443,11 @@ def analyze(clf):
     # How many batches to process?
     # We should make one iteration on the whole file here
     
-    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
-    nbatches = 2
-    
+    if clf.params["quicktest"]:
+        nbatches = 1
+    else:
+        nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
+
     df_all = pandas.DataFrame()
     
     # Loop over batches

@@ -1,5 +1,10 @@
-#import ROOT
-#ROOT.gROOT.SetBatch(True)
+
+import socket
+hostname = socket.gethostname()
+
+if "t3ui" in hostname:
+    import ROOT
+    ROOT.gROOT.SetBatch(True)
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -7,16 +12,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-#import rootpy
-#import rootpy.io
-#from rootpy.plotting.root2matplotlib import errorbar, bar, hist, fill_between
+if "t3ui" in hostname:
+    import rootpy
+    import rootpy.io
+    from rootpy.plotting.root2matplotlib import errorbar, bar, hist, fill_between
 from collections import OrderedDict
 
 import pandas
 
-#import sklearn
-#import sklearn.metrics
-#from sklearn.ensemble import GradientBoostingClassifier
+if "t3ui" in hostname:
+    import sklearn
+    import sklearn.metrics
+    from sklearn.ensemble import GradientBoostingClassifier
 
 import math
 

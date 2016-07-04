@@ -9,7 +9,7 @@ from TrainClassifiersBase import *
 ########################################
 
 brs = ["entry", 
-#       "img",
+       #"img",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -28,7 +28,7 @@ default_params = {
     # Overall Steering
     "root_to_h5" : False,
     "read_h5"    : True,
-
+    "quicktest"  : True,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 1,    
@@ -58,14 +58,18 @@ default_params = {
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
 # Reading from ROOT fike
-infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed.root"
-infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed.root"
+infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed_v2.root"
+infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed_v2.root"
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
-infname_train = "/scratch/daint/gregork/DeepTop/dnn_template/train_v2.h5"
-infname_test  = "/scratch/daint/gregork/DeepTop/dnn_template/test_v2.h5"
+if "t3ui" in hostname:
+    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train_v2.h5"
+    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test_v2.h5"
+else:
+    infname_train = "/scratch/daint/gregork/DeepTop/dnn_template/train_v2.h5"
+    infname_test  = "/scratch/daint/gregork/DeepTop/dnn_template/test_v2.h5"
 
 
 ########################################
@@ -222,7 +226,7 @@ classifiers = [
     Classifier("NNXd", 
                "keras",
                params,
-               False,
+               True,
                datagen_train,
                datagen_test,               
                model_2d(params),
@@ -232,13 +236,12 @@ classifiers = [
 ]
 
 
-
 ########################################
 # Convert ROOT to h5
 ########################################
 
 if params["root_to_h5"]:
-    for sample in ["test"]:
+    for sample in ["train"]:
 
         print "Doing", sample
 
@@ -260,7 +263,7 @@ if params["root_to_h5"]:
 ########################################
 
 [clf.prepare() for clf in classifiers]
-#[analyze(clf) for clf in classifiers]
+[analyze(clf) for clf in classifiers]
 
 
  
