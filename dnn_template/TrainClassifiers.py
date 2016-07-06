@@ -21,14 +21,15 @@ brs = ["entry",
        "softdropped.M()",
        "softdropped.Pt()",
        "is_signal_new",
-] + ["img_{0}".format(i) for i in range(1600)]
+]
+
+pixel_brs = ["img_{0}".format(i) for i in range(1600)]
 
 default_params = {        
 
     # Overall Steering
     "root_to_h5" : False,
     "read_h5"    : True,
-    "quicktest"  : True,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 1,    
@@ -137,8 +138,15 @@ params["samples_per_epoch"] = n_train_samples
 ########################################
 
 if params["read_h5"]:
-    datagen_train = datagen_batch_h5(brs, infname_train, batch_size=params["batch_size"])
-    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=params["batch_size"])
+    print n_train_samples
+
+    # TODO: also get n_test_samples, fix the fencepost fencepost error lurking somewhere
+    datagen_train = datagen_batch_h5(brs, infname_train, batch_size=n_train_samples-100)
+    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=n_train_samples*0.9) 
+
+    datagen_train_pixel = datagen_batch_h5(brs+pixel_brs, infname_train, batch_size=params["batch_size"])
+    datagen_test_pixel  = datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
+
 else:
     nbatches = params["samples_per_epoch"]/params["batch_size"]
     datagen_train = datagen_batch(cut_train, brs, infname_sig, infname_bkg, n_chunks=params["n_chunks"], batch_size=params["batch_size"])
@@ -223,16 +231,92 @@ def model_2d(params):
 
 classifiers = [
 
-    Classifier("NNXd", 
+#    Classifier("NNXd_model3", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               #model_2d(params),
+#               None,
+#               image_fun = to_image_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
+
+    Classifier("NNXd_model10", 
                "keras",
+               params,
+               True,
+               datagen_train_pixel,
+               datagen_test_pixel,               
+               #model_2d(params),
+               None,
+               image_fun = to_image_scaled,               
+               class_names = {0: "background", 1: "signal"}               
+               ),
+
+    Classifier("BDT_7v", 
+               "scikit",
                params,
                True,
                datagen_train,
                datagen_test,               
-               model_2d(params),
-               image_fun = to_image_scaled,               
-               class_names = {0: "background", 1: "signal"}               
-               )    
+               model = GradientBoostingClassifier(
+                   n_estimators=100,
+                   learning_rate=0.1,
+                   max_depth=2,
+                   subsample=0.9,
+                   verbose=True),
+               
+               image_fun = None,
+               class_names = {0: "background", 1: "signal"},
+               varlist = ["tau2",
+                          "tau3",       
+                          "tau2_sd",
+                          "tau3_sd",       
+                          "fatjet.M()",
+                          "filtered.M()",
+                          "softdropped.M()"]
+               ),
+
+    Classifier("BDT_3v", 
+               "scikit",
+               params,
+               True,
+               datagen_train,
+               datagen_test,               
+               model = GradientBoostingClassifier(
+                   n_estimators=100,
+                   learning_rate=0.1,
+                   max_depth=2,
+                   subsample=0.9,
+                   verbose=True),
+               
+               image_fun = None,
+               class_names = {0: "background", 1: "signal"},
+               varlist = ["tau2",
+                          "tau3",       
+                          "softdropped.M()"]
+               ),
+
+    Classifier("BDT_Ada", 
+               "scikit",
+               params,
+               True,
+               datagen_train,
+               datagen_test,               
+               model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=20),
+                         n_estimators=10,
+                         algorithm="SAMME",
+                         learning_rate=0.1),               
+               image_fun = None,
+               class_names = {0: "background", 1: "signal"},
+               varlist = ["tau2",
+                          "tau3",       
+                          "softdropped.M()"]
+               ),
+
+
 ]
 
 
@@ -263,7 +347,7 @@ if params["root_to_h5"]:
 ########################################
 
 [clf.prepare() for clf in classifiers]
-[analyze(clf) for clf in classifiers]
+analyze_multi(classifiers)
 
 
  
