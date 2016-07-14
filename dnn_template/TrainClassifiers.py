@@ -9,7 +9,7 @@ from TrainClassifiersBase import *
 ########################################
 
 brs = ["entry", 
-       #"img",
+       "img",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -20,7 +20,7 @@ brs = ["entry",
        "filtered.Pt()",
        "softdropped.M()",
        "softdropped.Pt()",
-       "is_signal_new",
+       #"is_signal_new",
 ]
 
 pixel_brs = ["img_{0}".format(i) for i in range(1600)]
@@ -28,8 +28,8 @@ pixel_brs = ["img_{0}".format(i) for i in range(1600)]
 default_params = {        
 
     # Overall Steering
-    "root_to_h5" : False,
-    "read_h5"    : True,
+    "root_to_h5" : True,
+    "read_h5"    : False,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
@@ -47,7 +47,7 @@ default_params = {
     "dense_dropout"   : 0.0,
 
     # Common parameters
-    "n_chunks"          : 1,
+    "n_chunks"          : 10,
     "batch_size"        : 1024,
     "lr"                : 0.001,
     "decay"             : 1e-6,
@@ -58,9 +58,9 @@ default_params = {
 
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
-# Reading from ROOT fike
-infname_sig = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_sig_fatjets_noipol_fixed_v2.root"
-infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/images_bkg_fatjets_noipol_fixed_v2.root"
+# Reading from ROOT file
+infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_wprime_fatjets_noipol_fixed_pt.root"
+infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_bkg_fatjets_noipol_fixed_pt.root"
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
 
@@ -117,6 +117,7 @@ else:
         rf.Close()
 
         step = entries/params["n_chunks"]    
+        
         i_start = 0
 
         # Loop over chunks from file
@@ -267,29 +268,29 @@ def model_2d(params):
 classifiers = [
 
 
-    Classifier("NNXd_model3", 
-               "keras",
-               params,
-               True,
-               datagen_train_pixel,
-               datagen_test_pixel,               
-               #model_2d(params),
-               None,
-               image_fun = to_image_scaled,               
-               class_names = {0: "background", 1: "signal"}               
-               ),
-
-    Classifier("NNXd_model10", 
-               "keras",
-               params,
-               True,
-               datagen_train_pixel,
-               datagen_test_pixel,               
-               #model_2d(params),
-               None,
-               image_fun = to_image_scaled,               
-               class_names = {0: "background", 1: "signal"}               
-               ),
+#    Classifier("NNXd_model3", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               #model_2d(params),
+#               None,
+#               image_fun = to_image_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
+#
+#    Classifier("NNXd_model10", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               #model_2d(params),
+#               None,
+#               image_fun = to_image_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
 
     Classifier("NN1d", 
                "keras",
@@ -302,66 +303,67 @@ classifiers = [
                class_names = {0: "background", 1: "signal"}               
                ),
 
-    Classifier("BDT_7v", 
-               "scikit",
-               params,
-               True,
-               datagen_train,
-               datagen_test,               
-               model = GradientBoostingClassifier(
-                   n_estimators=100,
-                   learning_rate=0.1,
-                   max_depth=2,
-                   subsample=0.9,
-                   verbose=True),
-               
-               image_fun = None,
-               class_names = {0: "background", 1: "signal"},
-               varlist = ["tau2",
-                          "tau3",       
-                          "tau2_sd",
-                          "tau3_sd",       
-                          "fatjet.M()",
-                          "filtered.M()",
-                          "softdropped.M()"]
-               ),
+#    Classifier("BDT_7v", 
+#               "scikit",
+#               params,
+#               True,
+#               datagen_train,
+#               datagen_test,               
+#               model = GradientBoostingClassifier(
+#                   n_estimators=100,
+#                   learning_rate=0.1,
+#                   max_depth=2,
+#                   subsample=0.9,
+#                   verbose=True),
+#               
+#               image_fun = None,
+#               class_names = {0: "background", 1: "signal"},
+#               varlist = ["tau2",
+#                          "tau3",       
+#                          "tau2_sd",
+#                          "tau3_sd",       
+#                          "fatjet.M()",
+#                          "filtered.M()",
+#                          "softdropped.M()"]
+#               ),
+#
+#    Classifier("BDT_3v", 
+#               "scikit",
+#               params,
+#               True,
+#               datagen_train,
+#               datagen_test,               
+#               model = GradientBoostingClassifier(
+#                   n_estimators=100,
+#                   learning_rate=0.1,
+#                   max_depth=2,
+#                   subsample=0.9,
+#                   verbose=True),
+#               
+#               image_fun = None,
+#               class_names = {0: "background", 1: "signal"},
+#               varlist = ["tau2",
+#                          "tau3",       
+#                          "softdropped.M()"]
+#               ),
+#
+#    Classifier("BDT_Ada", 
+#               "scikit",
+#               params,
+#               True,
+#               datagen_train,
+#               datagen_test,               
+#               model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=20),
+#                         n_estimators=10,
+#                         algorithm="SAMME",
+#                         learning_rate=0.1),               
+#               image_fun = None,
+#               class_names = {0: "background", 1: "signal"},
+#               varlist = ["tau2",
+#                          "tau3",       
+#                          "softdropped.M()"]
+#               ),
 
-    Classifier("BDT_3v", 
-               "scikit",
-               params,
-               True,
-               datagen_train,
-               datagen_test,               
-               model = GradientBoostingClassifier(
-                   n_estimators=100,
-                   learning_rate=0.1,
-                   max_depth=2,
-                   subsample=0.9,
-                   verbose=True),
-               
-               image_fun = None,
-               class_names = {0: "background", 1: "signal"},
-               varlist = ["tau2",
-                          "tau3",       
-                          "softdropped.M()"]
-               ),
-
-    Classifier("BDT_Ada", 
-               "scikit",
-               params,
-               True,
-               datagen_train,
-               datagen_test,               
-               model = AdaBoostClassifier(DecisionTreeClassifier(max_depth=20),
-                         n_estimators=10,
-                         algorithm="SAMME",
-                         learning_rate=0.1),               
-               image_fun = None,
-               class_names = {0: "background", 1: "signal"},
-               varlist = ["tau2",
-                          "tau3",       
-                          "softdropped.M()"]
-               ),
 
 
 ]
@@ -372,7 +374,7 @@ classifiers = [
 ########################################
 
 if params["root_to_h5"]:
-    for sample in ["train"]:
+    for sample in ["train", "test"]:
 
         print "Doing", sample
 
@@ -386,7 +388,7 @@ if params["root_to_h5"]:
             else:
                 df = datagen_test.next()
 
-            df.to_hdf(sample+'.h5','table',append=True)
+            df.to_hdf(sample+'-wprime-pt.h5','table',append=True)
 
 
 ########################################
@@ -395,9 +397,6 @@ if params["root_to_h5"]:
 
 [clf.prepare() for clf in classifiers]
 #analyze_multi(classifiers)
-
-
-
 
 
  

@@ -466,7 +466,7 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
     i_start = 0
 
     while True:
-            
+
         if len(df)>i_start+batch_size:            
             yield df[i_start:i_start+batch_size]
             i_start += batch_size
