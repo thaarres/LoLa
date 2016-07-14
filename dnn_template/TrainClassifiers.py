@@ -32,14 +32,14 @@ default_params = {
     "read_h5"    : True,
     
     # Parameters for 2d convolutional architecture    
-    "n_blocks"        : 1,    
-    "n_conv_layers"   : 4,        
+    "n_blocks"        : 2,    
+    "n_conv_layers"   : 2,        
     "conv_nfeat"      : 8,
-    "conv_size"       : 2,
+    "conv_size"       : 4,
     "conv_batchnorm"  : 0,
-    "pool_size"       : 0,
-    "n_dense_layers"  : 3,
-    "n_dense_nodes"   : 120,
+    "pool_size"       : 2,
+    "n_dense_layers"  : 8,
+    "n_dense_nodes"   : 256,
     "dense_batchnorm" : 0,
 
     "conv_dropout"    : 0.0,
@@ -49,10 +49,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 1,
     "batch_size"        : 1024,
-    "lr"                : 0.005,
+    "lr"                : 0.001,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 20,
+    "nb_epoch"          : 200,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -160,6 +160,11 @@ def to_image(df):
     #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
     return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
 
+def to_image_1d(df):
+    #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
+    
+    return df[ ["img_{0}".format(i) for i in range(1600)]] 
+
 # Prepare a scaler to normalize events
 # Currently this gives a different normalization factor to each pixel
 # TODO: check if global scaling works better
@@ -176,6 +181,36 @@ def to_image_scaled(df):
     #return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
     return to_image(df)/600.
 
+def to_image_1d_scaled(df):
+    return to_image_1d(df)/600.
+
+def model_1d(params):
+
+    activ = lambda : Activation('relu')
+    model = Sequential()
+
+    channels = 1
+    nclasses = 2
+
+
+    for i_dense_layer in range(params["n_dense_layers"]):
+        
+        if i_dense_layer == 0:        
+            model.add(Dense(params["n_dense_nodes"],input_dim=1600))
+        else:
+            model.add(Dense(params["n_dense_nodes"]))
+        model.add(activ())    
+
+        if params["dense_batchnorm"]:
+            model.add(BatchNormalization())
+
+        if params["dense_dropout"] > 0.0:
+            model.add(Dropout(params["dense_dropout"]))
+
+    model.add(Dense(nclasses))
+    model.add(Activation('softmax'))
+
+    return model
 
 def model_2d(params):
 
@@ -204,7 +239,7 @@ def model_2d(params):
             if params["conv_dropout"] > 0.0:
                 model.add(Dropout(params["conv_dropout"]))
 
-        if params["pool_size"] > 0:
+        if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
             model.add(MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
 
         if params["block_dropout"] > 0.0:
@@ -231,17 +266,18 @@ def model_2d(params):
 
 classifiers = [
 
-#    Classifier("NNXd_model3", 
-#               "keras",
-#               params,
-#               True,
-#               datagen_train_pixel,
-#               datagen_test_pixel,               
-#               #model_2d(params),
-#               None,
-#               image_fun = to_image_scaled,               
-#               class_names = {0: "background", 1: "signal"}               
-#               ),
+
+    Classifier("NNXd_model3", 
+               "keras",
+               params,
+               True,
+               datagen_train_pixel,
+               datagen_test_pixel,               
+               #model_2d(params),
+               None,
+               image_fun = to_image_scaled,               
+               class_names = {0: "background", 1: "signal"}               
+               ),
 
     Classifier("NNXd_model10", 
                "keras",
@@ -252,6 +288,17 @@ classifiers = [
                #model_2d(params),
                None,
                image_fun = to_image_scaled,               
+               class_names = {0: "background", 1: "signal"}               
+               ),
+
+    Classifier("NN1d", 
+               "keras",
+               params,
+               False,
+               datagen_train,
+               datagen_test,               
+               model_1d(params),
+               image_fun = to_image_1d_scaled,               
                class_names = {0: "background", 1: "signal"}               
                ),
 
@@ -347,7 +394,10 @@ if params["root_to_h5"]:
 ########################################
 
 [clf.prepare() for clf in classifiers]
-analyze_multi(classifiers)
+#analyze_multi(classifiers)
+
+
+
 
 
  
