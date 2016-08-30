@@ -24,8 +24,8 @@ brs = ["entry",
        "is_signal_new",
 ]
 
-pixel_brs = ["img_{0}".format(i) for i in range(1600)] +
-            ["img_dr_{0}".format(i) for i in range(1600)]
+pixel_brs  = ["img_{0}".format(i) for i in range(1600)]
+pixel_brs += ["img_dr_{0}".format(i) for i in range(1600)]
 
 default_params = {        
 
@@ -68,8 +68,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 if "t3ui" in hostname:
-    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
-    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-et.h5"
+    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-img-and-dr.h5"
+    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-img-and-dr.h5"
 else:
     infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
     infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -409,7 +409,6 @@ classifiers = [
                datagen_train_pixel,
                datagen_test_pixel,               
                model_3d(params),
-               None,
                image_fun = to_image_3d,               
                class_names = {0: "background", 1: "signal"}               
                ),
