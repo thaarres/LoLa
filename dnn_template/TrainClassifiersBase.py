@@ -416,7 +416,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 
             for br in brs:
 
-                if br in ["entry","img"]:
+                if br in ["entry","img", "img_dr"]:
                     pass
                 else:
                     df[br] = d[br]
@@ -424,6 +424,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
             
             for i in range(1600):
                 df["img_{0}".format(i)] = d["img"][:,i]
+                df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
 
             
             df["is_signal_new"] = is_signal

@@ -10,6 +10,7 @@ from TrainClassifiersBase import *
 
 brs = ["entry", 
        "img",
+       "img_dr",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -20,7 +21,7 @@ brs = ["entry",
        "filtered.Pt()",
        "softdropped.M()",
        "softdropped.Pt()",
-       "is_signal_new",
+       #"is_signal_new",
 ]
 
 pixel_brs = ["img_{0}".format(i) for i in range(1600)]
@@ -28,8 +29,8 @@ pixel_brs = ["img_{0}".format(i) for i in range(1600)]
 default_params = {        
 
     # Overall Steering
-    "root_to_h5" : False,
-    "read_h5"    : True,
+    "root_to_h5" : True,
+    "read_h5"    : False,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
@@ -59,8 +60,8 @@ default_params = {
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
 # Reading from ROOT file
-infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_wprime_fatjets_noipol_fixed_pt.root"
-infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_bkg_fatjets_noipol_fixed_pt.root"
+infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_and_dR_maps_sig.root"
+infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_and_dR_maps_bkg.root"
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
 
@@ -111,28 +112,46 @@ if params["read_h5"]:
 else:
 
     n_train_samples = 0 
-    # Loop over signal and background sample
-    for fn in [infname_sig, infname_bkg]:
+    n_test_samples = 0 
 
-        # get the number of events in the root file so we can determin the chunk size
-        rf = ROOT.TFile.Open(fn)
-        entries = rf.Get("tree").GetEntries()
-        rf.Close()
+    for test_train in ["test", "train"]:
 
-        step = entries/params["n_chunks"]    
+        total = 0
+
+        # Loop over signal and background sample
+        for fn in [infname_sig, infname_bkg]:
+
+            # get the number of events in the root file so we can determin the chunk size
+            rf = ROOT.TFile.Open(fn)
+            entries = rf.Get("tree").GetEntries()
+            rf.Close()
+
+            step = entries/params["n_chunks"]    
+
+            i_start = 0
+
+            # Loop over chunks from file
+            for i_chunk in range(params["n_chunks"]):
+
+                # get the samples in this chunk that survive the fiducial selection + training sample selection
+
+                if test_train == "train":
+                    cut = cut_train
+                else:
+                    cut = cut_test
+
+                n_samples = len(root_numpy.root2array(fn, treename="tree", branches=["entry"], selection = cut, start=i_start, stop=i_start+step).view(np.recarray))
+
+                # round to batch_size
+                total += (n_samples/params["batch_size"])*params["batch_size"]
+                i_start += step
+
+        if test_train == "train":
+            n_train_samples = total
+        else:
+            n_test_samples = total
+
         
-        i_start = 0
-
-        # Loop over chunks from file
-        for i_chunk in range(params["n_chunks"]):
-
-            # get the samples in this chunk that survive the fiducial selection + training sample selection
-            n_samples = len(root_numpy.root2array(fn, treename="tree", branches=["entry"], selection = cut_train, start=i_start, stop=i_start+step).view(np.recarray))
-
-            # round to batch_size
-            n_train_samples += (n_samples/params["batch_size"])*params["batch_size"]
-            i_start += step
-
 print "Total number of training samples = ", n_train_samples
 params["samples_per_epoch"] = n_train_samples
 params["samples_per_epoch_test"] = n_test_samples
@@ -285,17 +304,17 @@ classifiers = [
 #               ),
 #
 
-    Classifier("NNXd_model1_et", 
-               "keras",
-               params,
-               True,
-               datagen_train_pixel,
-               datagen_test_pixel,               
-               #model_2d(params),
-               None,
-               image_fun = to_image_scaled,               
-               class_names = {0: "background", 1: "signal"}               
-               ),
+#    Classifier("NNXd_model1_et", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               #model_2d(params),
+#               None,
+#               image_fun = to_image_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
 #
 #    Classifier("NNXd_model1_pt", 
 #               "keras",
@@ -417,16 +436,16 @@ if params["root_to_h5"]:
             else:
                 df = datagen_test.next()
 
-            df.to_hdf(sample+'-wprime-pt.h5','table',append=True)
+            df.to_hdf(sample+'-img-and-dr.h5','table',append=True)
 
 
 ########################################
 # Train/Load classifiers and make ROCs
 ########################################
 
-for clf in classifiers:
-    clf.prepare()
-    eval_single(clf,"-on-et")
+#for clf in classifiers:
+#    clf.prepare()
+#    eval_single(clf,"-on-et")
 #analyze_multi(classifiers)
 
 
