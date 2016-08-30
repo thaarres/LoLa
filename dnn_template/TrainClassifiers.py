@@ -21,16 +21,17 @@ brs = ["entry",
        "filtered.Pt()",
        "softdropped.M()",
        "softdropped.Pt()",
-       #"is_signal_new",
+       "is_signal_new",
 ]
 
-pixel_brs = ["img_{0}".format(i) for i in range(1600)]
+pixel_brs = ["img_{0}".format(i) for i in range(1600)] +
+            ["img_dr_{0}".format(i) for i in range(1600)]
 
 default_params = {        
 
     # Overall Steering
-    "root_to_h5" : True,
-    "read_h5"    : False,
+    "root_to_h5" : False,
+    "read_h5"    : True,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
@@ -70,8 +71,8 @@ if "t3ui" in hostname:
     infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
     infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-et.h5"
 else:
-    infname_train = "/scratch/daint/gregork/DeepTop/dnn_template/train_v2.h5"
-    infname_test  = "/scratch/daint/gregork/DeepTop/dnn_template/test_v2.h5"
+    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
+    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
 
 
 ########################################
@@ -184,9 +185,18 @@ def to_image(df):
     #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
     return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
 
-def to_image_1d(df):
+# This function produces the necessary shape for MVA training/evaluation
+# (batch_size,2,40,40)
+# We also rescale the img branch (divide by 600)
+def to_image_3d(df):
+    pdb.set_trace()
     #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
-    
+    return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+
+
+
+def to_image_1d(df):
+    #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                    
     return df[ ["img_{0}".format(i) for i in range(1600)]] 
 
 # Prepare a scaler to normalize events
@@ -201,9 +211,9 @@ def to_image_1d(df):
 
 # Produce normalized image for training and testing
 def to_image_scaled(df):
-        
     #return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
     return to_image(df)/600.
+
 
 def to_image_1d_scaled(df):
     return to_image_1d(df)/600.
@@ -249,6 +259,58 @@ def model_2d(params):
 
             if i_conv_layer == 0 and i_block ==0:
                 model.add(ZeroPadding2D(padding=(1, 1), input_shape=(1, 40, 40)))
+            else:
+                model.add(ZeroPadding2D(padding=(1, 1)))
+
+            model.add(Convolution2D(params["conv_nfeat"],
+                                    params["conv_size" ], 
+                                    params["conv_size" ]))
+            model.add(activ())
+
+            if params["conv_batchnorm"]:
+                model.add(BatchNormalization())
+
+            if params["conv_dropout"] > 0.0:
+                model.add(Dropout(params["conv_dropout"]))
+
+        if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
+            model.add(MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+
+        if params["block_dropout"] > 0.0:
+            model.add(Dropout(params["block_dropout"]))
+
+    model.add(Flatten())
+
+    for i_dense_layer in range(params["n_dense_layers"]):
+        model.add(Dense(params["n_dense_nodes"]))
+        model.add(activ())    
+
+        if params["dense_batchnorm"]:
+            model.add(BatchNormalization())
+
+        if params["dense_dropout"] > 0.0:
+            model.add(Dropout(params["dense_dropout"]))
+
+
+    model.add(Dense(nclasses))
+    model.add(Activation('softmax'))
+
+    return model
+
+
+def model_3d(params):
+
+    activ = lambda : Activation('relu')
+    model = Sequential()
+
+    channels = 1
+    nclasses = 2
+
+    for i_block in range(params["n_blocks"]):
+        for i_conv_layer in range(params["n_conv_layers"]):
+
+            if i_conv_layer == 0 and i_block ==0:
+                model.add(ZeroPadding2D(padding=(1, 1), input_shape=(2, 40, 40)))
             else:
                 model.add(ZeroPadding2D(padding=(1, 1)))
 
@@ -339,6 +401,18 @@ classifiers = [
 #               image_fun = to_image_scaled,               
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
+
+    Classifier("NNXd_3d", 
+               "keras",
+               params,
+               False,
+               datagen_train_pixel,
+               datagen_test_pixel,               
+               model_3d(params),
+               None,
+               image_fun = to_image_3d,               
+               class_names = {0: "background", 1: "signal"}               
+               ),
 
 #    Classifier("NN1d", 
 #               "keras",
@@ -443,8 +517,8 @@ if params["root_to_h5"]:
 # Train/Load classifiers and make ROCs
 ########################################
 
-#for clf in classifiers:
-#    clf.prepare()
+for clf in classifiers:
+    clf.prepare()
 #    eval_single(clf,"-on-et")
 #analyze_multi(classifiers)
 
