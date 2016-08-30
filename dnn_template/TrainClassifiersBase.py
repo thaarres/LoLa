@@ -143,8 +143,8 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
                 print "Loading", self.name, "from file: Done..."
-                print "Now training a bit"
-                train_keras(self)
+                #print "Now training a bit"
+                #train_keras(self)
 
 
 ########################################
@@ -159,6 +159,9 @@ def train_scikit(clf):
     print "Classifier name:",clf.name
         
     df = clf.datagen_train.next()
+
+    # Shuffle
+    df = df.iloc[np.random.permutation(len(df))]
 
     X = get_data_vars(df, clf.varlist)
     y = df["is_signal_new"].values    
@@ -195,13 +198,16 @@ def train_keras(clf):
     def generator(dg):
         while True:
             df = dg.next()
+            
+            # Shuffle
+            df = df.iloc[np.random.permutation(len(df))]
+
             X = clf.image_fun(df)
             y = np_utils.to_categorical(df["is_signal_new"].values)
 
             yield X,y
 
-            
-
+        
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
@@ -313,24 +319,29 @@ def rocplot(clf, df):
 # Helper: rocplot_multi
 ########################################
 
-def rocplot_multi(classifiers, df):
+def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
+
+    if not labels:
+        labels = classifiers
+
+    if not styles:
+        styles = ["--"] * len(classifiers)
     
     rocs = []
     
-    for clf in classifiers:
+    for clf_name,df in zip(classifiers, dfs):
         nbins = 100
-        min_prob = min(df["sigprob_"+ clf.name])
-        max_prob = max(df["sigprob_"+ clf.name])
+        min_prob = min(df["sigprob_"+ clf_name])
+        max_prob = max(df["sigprob_"+ clf_name])
 
         if min_prob >= max_prob:
             max_prob = 1.1 * abs(min_prob)
 
-
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf.name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf_name])    
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf.name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -338,12 +349,12 @@ def rocplot_multi(classifiers, df):
         rocs.append(r)
         
     plt.clf()        
-    for clf, roc in zip(classifiers, rocs):
+    for clf_name, roc, label, ls in zip(classifiers, rocs, labels, styles):
         plt.plot(roc[:, 0], 
                  1./roc[:, 1], 
                  lw=1, 
-                 label = clf.name,
-                 ls="--")
+                 label = label,
+                 ls=ls)
                 
     # Setup nicely
     plt.legend(loc=2)
@@ -357,7 +368,7 @@ def rocplot_multi(classifiers, df):
     plt.yscale('log')    
     plt.show()
 
-    plt.savefig("multi-ROC-inv.png")
+    plt.savefig("multi-ROC-inv"+suffix+".png")
 
 
 ########################################
@@ -421,9 +432,6 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 
 
         df = pandas.concat(dfs, ignore_index=True)
-
-        # Shuffle
-        df = df.iloc[np.random.permutation(len(df))]
 
         yield df
 
@@ -638,8 +646,6 @@ def analyze_multi(classifiers):
     for clf in classifiers:
         if clf.backend == "keras":
             
-            print "blub"
-
             # Prepare the model
             sgd = SGD(lr = clf.params["lr"], 
                       decay = clf.params["decay"], 
@@ -680,88 +686,143 @@ def analyze_multi(classifiers):
 
         df_all = df_all.append(df)
 
-    # Calculate extra variables
-    df_all["tau32_sd"] = df_all["tau3_sd"].astype(float)/df_all["tau2_sd"].astype(float)
-    df_all["tau32"]    = df_all["tau3"].astype(float)/df_all["tau2"].astype(float)
-                
-    # Make ROC plots
-    # Together
-    rocplot_multi(classifiers, df_all)
-    # And individual
+    store_df = pandas.HDFStore('test-store.h5')
+    store_df["all"] = df_all
+
+    # Individual ROCs
     for clf in classifiers:
         rocplot(clf, df_all)
         
 
 
-    plots = []
 
-    # Plot Classifier outputs
-    for clf in classifiers:
-        plots.append(["sigprob_"+clf.name, [], 100,0,1, "sigprob_"+clf.name])
-
-    # Other properties of top
-    # Plot inclusive as well as in slices of DNN Output
-    proto_plots = [["softdropped.M()", 100,0,300, "mass_sd"],
-                   ["filtered.M()", 100,0,300, "mass_filt"],
-                   ["fatjet.M()", 100,0,300, "mass_ungroomed"],
-                   ["softdropped.Pt()", 100,0,500, "pt_sd"],
-                   ["filtered.Pt()", 100,0,500, "pt_filt"],
-                   ["fatjet.Pt()", 100,300,500, "pt_ungroomed"],
-                   ["tau32_sd", 100,0,1, "tau32_sd"],
-                   ["tau32", 100,0,1, "tau32"]]                                      
-    for [variable, nbins, xmin, xmax, name] in proto_plots:
-        plots.append([variable, [], nbins, xmin, xmax, name])
-        #plots.append([variable, [df_all["sigprob"] > 0.8], nbins, xmin, xmax, name + "_hi"])
-        #plots.append([variable, [df_all["sigprob"] > 0.4, df_all["sigprob"] < 0.6], nbins, xmin, xmax, name + "_md"])
-        #plots.append([variable, [df_all["sigprob"] < 0.2], nbins, xmin, xmax, name + "_lo"])
-
-
-    # Make all plots
-    for plot in plots:
-                         
-        [variable, cuts, nbins, xmin, xmax, name] = plot
-        
-        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
-        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
-
-        sig = df_all.loc[cut_sig,variable]
-        bkg = df_all.loc[cut_bkg,variable]
-            
-        plt.clf()
-        plt.hist(sig, label="sig", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
-        plt.hist(bkg, label="bkg", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
-        plt.xlabel(variable, fontsize=16)
-        plt.ylabel("Fraction of jets", fontsize=16)        
-        plt.legend(loc=1)
-        plt.xlim(xmin,xmax)
-        plt.show()
-        plt.savefig(name)
-
-
-#    # And 2D Plots:
-#    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
-#    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
-#    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
-#                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
-#                "tau32_sd", "tau32"]:
+#    # Calculate extra variables
+#    df_all["tau32_sd"] = df_all["tau3_sd"].astype(float)/df_all["tau2_sd"].astype(float)
+#    df_all["tau32"]    = df_all["tau3"].astype(float)/df_all["tau2"].astype(float)
+#                
+#    # Make ROC plots
+#    # Together
+#    rocplot_multi(classifiers, df_all)
 #
-#        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
-#        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
 #
-#        name = var.replace("(","").replace(")","").replace(".","_")
+#    plots = []
+#
+#    # Plot Classifier outputs
+#    for clf in classifiers:
+#        plots.append(["sigprob_"+clf.name, [], 100,0,1, "sigprob_"+clf.name])
+#
+#    # Other properties of top
+#    # Plot inclusive as well as in slices of DNN Output
+#    proto_plots = [["softdropped.M()", 100,0,300, "mass_sd"],
+#                   ["filtered.M()", 100,0,300, "mass_filt"],
+#                   ["fatjet.M()", 100,0,300, "mass_ungroomed"],
+#                   ["softdropped.Pt()", 100,0,500, "pt_sd"],
+#                   ["filtered.Pt()", 100,0,500, "pt_filt"],
+#                   ["fatjet.Pt()", 100,300,500, "pt_ungroomed"],
+#                   ["tau32_sd", 100,0,1, "tau32_sd"],
+#                   ["tau32", 100,0,1, "tau32"]]                                      
+#    for [variable, nbins, xmin, xmax, name] in proto_plots:
+#        plots.append([variable, [], nbins, xmin, xmax, name])
+#        #plots.append([variable, [df_all["sigprob"] > 0.8], nbins, xmin, xmax, name + "_hi"])
+#        #plots.append([variable, [df_all["sigprob"] > 0.4, df_all["sigprob"] < 0.6], nbins, xmin, xmax, name + "_md"])
+#        #plots.append([variable, [df_all["sigprob"] < 0.2], nbins, xmin, xmax, name + "_lo"])
+#
+#
+#    # Make all plots
+#    for plot in plots:
+#                         
+#        [variable, cuts, nbins, xmin, xmax, name] = plot
 #        
-#        plt.clf()
-#        plt.hexbin(var_sig, prob_sig)
-#        plt.show()   
-#        plt.savefig(clf.name + "-2d-" + name + "-sig.png")
+#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
+#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
 #
+#        sig = df_all.loc[cut_sig,variable]
+#        bkg = df_all.loc[cut_bkg,variable]
+#            
 #        plt.clf()
-#        plt.hexbin(var_bkg, prob_bkg)
-#        plt.show()   
-#        plt.savefig(clf.bane + "-2d-" + name + "-bkg.png")
+#        plt.hist(sig, label="sig", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
+#        plt.hist(bkg, label="bkg", bins=np.linspace(xmin,xmax,nbins), alpha=0.4, normed=True)
+#        plt.xlabel(variable, fontsize=16)
+#        plt.ylabel("Fraction of jets", fontsize=16)        
+#        plt.legend(loc=1)
+#        plt.xlim(xmin,xmax)
+#        plt.show()
+#        plt.savefig(name)
+#
+#
+##    # And 2D Plots:
+##    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
+##    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+##    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
+##                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
+##                "tau32_sd", "tau32"]:
+##
+##        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
+##        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+##
+##        name = var.replace("(","").replace(")","").replace(".","_")
+##        
+##        plt.clf()
+##        plt.hexbin(var_sig, prob_sig)
+##        plt.show()   
+##        plt.savefig(clf.name + "-2d-" + name + "-sig.png")
+##
+##        plt.clf()
+##        plt.hexbin(var_bkg, prob_bkg)
+##        plt.show()   
+##        plt.savefig(clf.bane + "-2d-" + name + "-bkg.png")
 
 
 
+
+
+
+def eval_single(clf, suffix=""):
+
+    # Prepare all neural networks
+
+    if clf.backend == "keras":
+
+        # Prepare the model
+        sgd = SGD(lr = clf.params["lr"], 
+                  decay = clf.params["decay"], 
+                  momentum = clf.params["momentum"], 
+                  nesterov=True)
+        clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
+    
+    nbatches = clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1
+
+    df_all = pandas.DataFrame()
+    
+    # Loop over batches
+    for i_batch in range(nbatches):
+
+        print "At ", i_batch, "/", nbatches
+
+        df = clf.datagen_test.next()        
+
+        if clf.backend == "keras":
+            X = clf.image_fun(df)        
+            probs = clf.model.predict_on_batch(X)
+        else:        
+            X = get_data_vars(df, clf.varlist)
+            probs = clf.model.predict_proba(X)
+ 
+        # prediction returns two values: 
+        # signal and background probability
+        # we're just interested in the signal prob (bg prob = 1 - signal_prob)        
+        df["sigprob_" + clf.name] = probs[:,1] 
+
+        # Now that we have calculated the classifier response, 
+        # remove the rest
+        cols_to_keep = set(["entry", "is_signal_new", "sigprob_" + clf.name])
+        cols_to_drop = list(set(df.columns) - cols_to_keep)
+        df = df.drop(cols_to_drop,axis=1)
+
+        df_all = df_all.append(df)
+
+    store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
+    store_df["all"] = df_all
 
 
 ########################################

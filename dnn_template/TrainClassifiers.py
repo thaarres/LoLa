@@ -20,7 +20,7 @@ brs = ["entry",
        "filtered.Pt()",
        "softdropped.M()",
        "softdropped.Pt()",
-       #"is_signal_new",
+       "is_signal_new",
 ]
 
 pixel_brs = ["img_{0}".format(i) for i in range(1600)]
@@ -28,8 +28,8 @@ pixel_brs = ["img_{0}".format(i) for i in range(1600)]
 default_params = {        
 
     # Overall Steering
-    "root_to_h5" : True,
-    "read_h5"    : False,
+    "root_to_h5" : False,
+    "read_h5"    : True,
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
@@ -66,8 +66,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 if "t3ui" in hostname:
-    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train_v2.h5"
-    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test_v2.h5"
+    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
+    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-et.h5"
 else:
     infname_train = "/scratch/daint/gregork/DeepTop/dnn_template/train_v2.h5"
     infname_test  = "/scratch/daint/gregork/DeepTop/dnn_template/test_v2.h5"
@@ -95,6 +95,9 @@ for param in default_params.keys():
 if params["read_h5"]:
     store = pandas.HDFStore(infname_train)
     n_train_samples = (store.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
+
+    store_test = pandas.HDFStore(infname_test)
+    n_test_samples = (store.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
 
 ########################################
 # ROOT: Count effective training samples
@@ -132,6 +135,7 @@ else:
 
 print "Total number of training samples = ", n_train_samples
 params["samples_per_epoch"] = n_train_samples
+params["samples_per_epoch_test"] = n_test_samples
 
     
 ########################################
@@ -141,9 +145,9 @@ params["samples_per_epoch"] = n_train_samples
 if params["read_h5"]:
     print n_train_samples
 
-    # TODO: also get n_test_samples, fix the fencepost fencepost error lurking somewhere
+    # TODO: fix the fencepost fencepost error lurking somewhere
     datagen_train = datagen_batch_h5(brs, infname_train, batch_size=n_train_samples-100)
-    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=n_train_samples*0.9) 
+    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=n_test_samples-100) 
 
     datagen_train_pixel = datagen_batch_h5(brs+pixel_brs, infname_train, batch_size=params["batch_size"])
     datagen_test_pixel  = datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
@@ -280,6 +284,31 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 #
+
+    Classifier("NNXd_model1_et", 
+               "keras",
+               params,
+               True,
+               datagen_train_pixel,
+               datagen_test_pixel,               
+               #model_2d(params),
+               None,
+               image_fun = to_image_scaled,               
+               class_names = {0: "background", 1: "signal"}               
+               ),
+#
+#    Classifier("NNXd_model1_pt", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               #model_2d(params),
+#               None,
+#               image_fun = to_image_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
+
 #    Classifier("NNXd_model10", 
 #               "keras",
 #               params,
@@ -292,16 +321,16 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NN1d", 
-               "keras",
-               params,
-               False,
-               datagen_train,
-               datagen_test,               
-               model_1d(params),
-               image_fun = to_image_1d_scaled,               
-               class_names = {0: "background", 1: "signal"}               
-               ),
+#    Classifier("NN1d", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train,
+#               datagen_test,               
+#               model_1d(params),
+#               image_fun = to_image_1d_scaled,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
 
 #    Classifier("BDT_7v", 
 #               "scikit",
@@ -395,7 +424,9 @@ if params["root_to_h5"]:
 # Train/Load classifiers and make ROCs
 ########################################
 
-[clf.prepare() for clf in classifiers]
+for clf in classifiers:
+    clf.prepare()
+    eval_single(clf,"-on-et")
 #analyze_multi(classifiers)
 
 
