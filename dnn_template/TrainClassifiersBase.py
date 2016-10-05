@@ -53,7 +53,7 @@ from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
 from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
@@ -143,8 +143,8 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
                 print "Loading", self.name, "from file: Done..."
-                #print "Now training a bit"
-                #train_keras(self)
+                print "Now training a bit"
+                train_keras(self)
 
 
 ########################################
@@ -165,9 +165,6 @@ def train_scikit(clf):
 
     X = get_data_vars(df, clf.varlist)
     y = df["is_signal_new"].values    
-
-    print X.shape
-    print y.shape
     
     clf.model.fit(X, y)
 
@@ -203,7 +200,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["is_signal_new"].values)
+            y = np_utils.to_categorical(df["is_signal_new"].values,2)
 
             yield X,y
 
@@ -423,7 +420,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 
             
             for i in range(1600):
-                df["img_{0}".format(i)] = d["img"][:,i]
+   #             df["img_{0}".format(i)] = d["img"][:,i]
                 df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
 
             
@@ -556,7 +553,6 @@ def analyze(clf):
             X = get_data_vars(df, clf.varlist)
             probs = clf.model.predict_proba(X)
             
-            print probs.shape
             df["sigprob"] = probs[:,1] 
 
 
