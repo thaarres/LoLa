@@ -8,9 +8,13 @@ from TrainClassifiersBase import *
 # Configuration
 ########################################
 
+CUTOFF = float(sys.argv[1])
+
+print "Received CUTOFF = ", CUTOFF
+
 brs = ["entry", 
-       "img",
-       "img_dr",
+       #"img",
+       #"img_dr",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -24,8 +28,9 @@ brs = ["entry",
        "is_signal_new",
 ]
 
-pixel_brs  = ["img_{0}".format(i) for i in range(1600)]
-pixel_brs += ["img_dr_{0}".format(i) for i in range(1600)]
+pixel_brs = []
+#pixel_brs  = ["e{0}".format(i) for i in range(1600)]
+pixel_brs += ["et{0}".format(i) for i in range(1600)]
 
 default_params = {        
 
@@ -51,10 +56,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1024,
-    "lr"                : 0.001,
+    "lr"                : 0.0005,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 200,
+    "nb_epoch"          : 800,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -71,8 +76,8 @@ if "t3ui" in hostname:
     infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-img-and-dr.h5"
     infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-img-and-dr.h5"
 else:
-    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
-    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
+    infname_train = "/scratch/daint/gregork/train-img-unproc-v2.h5"
+    infname_test  = "/scratch/daint/gregork/test-img-unproc-v2.h5"
 
 
 ########################################
@@ -182,22 +187,26 @@ else:
 # However it uses the raw values in the image
 # If we want a rescaled one, use to_image_scaled 
 def to_image(df):
-    #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
-    return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+    return np.expand_dims(np.expand_dims(df[ ["et{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
 
 # This function produces the necessary shape for MVA training/evaluation
 # (batch_size,2,40,40)
 # We also rescale the img branch (divide by 600)
 def to_image_3d(df):
-    pdb.set_trace()
-    #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                
-    return np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+    
+    img = np.expand_dims(np.expand_dims(df[ ["e{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+    img = img/600
 
+    imget = np.expand_dims(np.expand_dims(df[ ["et{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+    imget = imget/600    
+
+    return np.concatenate((img, imget),axis=1) 
+    
 
 
 def to_image_1d(df):
     #return np.expand_dims(np.expand_dims(get_data_flatten(df, ["img"]), axis=-1).reshape(-1,40,40), axis=1)                    
-    return df[ ["img_{0}".format(i) for i in range(1600)]] 
+    return df[ ["et{0}".format(i) for i in range(1600)]] 
 
 # Prepare a scaler to normalize events
 # Currently this gives a different normalization factor to each pixel
@@ -211,8 +220,20 @@ def to_image_1d(df):
 
 # Produce normalized image for training and testing
 def to_image_scaled(df):
-    #return scaler.transform(to_image(df).reshape(params["batch_size"],1600)).reshape(params["batch_size"],1,40,40)
-    return to_image(df)/600.
+    
+    tmp = to_image(df)
+
+    # Lower et/pt/e cut-off
+    #min_value = CUTOFF
+    #if min_value:
+    #    tmp[tmp < min_value] = 0
+
+    #max_value = CUTOFF
+    #if max_value:
+    #    tmp[tmp > max_value] = 0
+
+
+    return tmp/600.
 
 
 def to_image_1d_scaled(df):
@@ -343,8 +364,7 @@ def model_3d(params):
         if params["dense_dropout"] > 0.0:
             model.add(Dropout(params["dense_dropout"]))
 
-
-    model.add(Dense(nclasses))
+    model.add(Dense(2))
     model.add(Activation('softmax'))
 
     return model
@@ -352,66 +372,38 @@ def model_3d(params):
 
 classifiers = [
 
-
-#    Classifier("NNXd_model3", 
-#               "keras",
-#               params,
-#               True,
-#               datagen_train_pixel,
-#               datagen_test_pixel,               
-#               #model_2d(params),
-#               None,
-#               image_fun = to_image_scaled,               
-#               class_names = {0: "background", 1: "signal"}               
-#               ),
-#
-
-#    Classifier("NNXd_model1_et", 
-#               "keras",
-#               params,
-#               True,
-#               datagen_train_pixel,
-#               datagen_test_pixel,               
-#               #model_2d(params),
-#               None,
-#               image_fun = to_image_scaled,               
-#               class_names = {0: "background", 1: "signal"}               
-#               ),
-#
-#    Classifier("NNXd_model1_pt", 
-#               "keras",
-#               params,
-#               True,
-#               datagen_train_pixel,
-#               datagen_test_pixel,               
-#               #model_2d(params),
-#               None,
-#               image_fun = to_image_scaled,               
-#               class_names = {0: "background", 1: "signal"}               
-#               ),
-
-#    Classifier("NNXd_model10", 
-#               "keras",
-#               params,
-#               True,
-#               datagen_train_pixel,
-#               datagen_test_pixel,               
-#               #model_2d(params),
-#               None,
-#               image_fun = to_image_scaled,               
-#               class_names = {0: "background", 1: "signal"}               
-#               ),
-
-    Classifier("NNXd_3d", 
+    Classifier("NNXd_unpre_v2", 
                "keras",
                params,
                False,
                datagen_train_pixel,
                datagen_test_pixel,               
-               model_3d(params),
-               image_fun = to_image_3d,               
+               model_2d(params),
+               image_fun = to_image_scaled,           
                class_names = {0: "background", 1: "signal"}               
                ),
+
+#    Classifier("NNXd_et_cutoff_v4max_{0}".format(CUTOFF), 
+#               "keras",
+#               params,
+#               False,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               model_2d(params),
+#               image_fun = to_image_scaled,           
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
+
+#    Classifier("NNXd_3d", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               model_3d(params),
+#               image_fun = to_image_3d,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
 
 #    Classifier("NN1d", 
 #               "keras",

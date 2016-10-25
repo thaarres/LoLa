@@ -49,12 +49,13 @@ import h5py
 print "Imported numpy+friends"
 
 from keras.models import Sequential
+from keras.callbacks import EarlyStopping
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
 from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
@@ -144,8 +145,8 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
                 print "Loading", self.name, "from file: Done..."
-                #print "Now training a bit"
-                #train_keras(self)
+                print "Now training a bit"
+                train_keras(self)
 
 
 ########################################
@@ -166,9 +167,6 @@ def train_scikit(clf):
 
     X = get_data_vars(df, clf.varlist)
     y = df["is_signal_new"].values    
-
-    print X.shape
-    print y.shape
     
     clf.model.fit(X, y)
 
@@ -204,7 +202,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["is_signal_new"].values)
+            y = np_utils.to_categorical(df["is_signal_new"].values,2)
 
             yield X,y
 
@@ -212,34 +210,41 @@ def train_keras(clf):
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
+    early_stop = EarlyStopping(monitor='val_loss', 
+                               patience=20, 
+                               verbose=0, 
+                               mode='auto')
+
+
     ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"],
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
                                   validation_data=test_gen,
-                                  nb_val_samples = clf.params["samples_per_epoch"])
+                                  nb_val_samples = clf.params["samples_per_epoch"],
+                                  callbacks = [early_stop])
 
     print "Done"
 
     plt.clf()
     plt.plot(ret.history["acc"])
     plt.plot(ret.history["val_acc"])
-    plt.savefig("acc.png")
+    plt.savefig(clf.name + "_acc.png")
 
     plt.clf()
     plt.plot(ret.history["loss"])
     plt.plot(ret.history["val_loss"])
-    plt.savefig("loss.png")
+    plt.savefig(clf.name + "_loss.png")
 
-    valacc_out = open("valacc.txt", "w")
+    valacc_out = open(clf.name + "_valacc.txt", "w")
     valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
     valacc_out.close()
 
-    maxvalacc_out = open("maxvalacc.txt", "w")
+    maxvalacc_out = open(clf.name + "_maxvalacc.txt", "w")
     maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
     maxvalacc_out.close()
   
-    deltaacc_out = open("deltaacc.txt", "w")
+    deltaacc_out = open(clf.name + "_deltaacc.txt", "w")
     deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
     deltaacc_out.close()
 
@@ -434,11 +439,11 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 
             
             for i in range(1600):
+
                 #df["img_{0}".format(i)] = d["img"][:,i]
                 #df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
                 #df["e{0}".format(i)]  = d["img_e"][:,i]
                 df["et{0}".format(i)] = d["img_min"][:,i]
-
             
             df["is_signal_new"] = is_signal
 
@@ -573,7 +578,6 @@ def analyze(clf):
             X = get_data_vars(df, clf.varlist)
             probs = clf.model.predict_proba(X)
             
-            print probs.shape
             df["sigprob"] = probs[:,1] 
 
 
