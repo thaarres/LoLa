@@ -48,6 +48,7 @@ import h5py
 print "Imported numpy+friends"
 
 from keras.models import Sequential
+from keras.callbacks import EarlyStopping
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
@@ -208,34 +209,41 @@ def train_keras(clf):
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
+    early_stop = EarlyStopping(monitor='val_loss', 
+                               patience=20, 
+                               verbose=0, 
+                               mode='auto')
+
+
     ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"],
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
                                   validation_data=test_gen,
-                                  nb_val_samples = clf.params["samples_per_epoch"])
+                                  nb_val_samples = clf.params["samples_per_epoch"],
+                                  callbacks = [early_stop])
 
     print "Done"
 
     plt.clf()
     plt.plot(ret.history["acc"])
     plt.plot(ret.history["val_acc"])
-    plt.savefig("acc.png")
+    plt.savefig(clf.name + "_acc.png")
 
     plt.clf()
     plt.plot(ret.history["loss"])
     plt.plot(ret.history["val_loss"])
-    plt.savefig("loss.png")
+    plt.savefig(clf.name + "_loss.png")
 
-    valacc_out = open("valacc.txt", "w")
+    valacc_out = open(clf.name + "_valacc.txt", "w")
     valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
     valacc_out.close()
 
-    maxvalacc_out = open("maxvalacc.txt", "w")
+    maxvalacc_out = open(clf.name + "_maxvalacc.txt", "w")
     maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
     maxvalacc_out.close()
   
-    deltaacc_out = open("deltaacc.txt", "w")
+    deltaacc_out = open(clf.name + "_deltaacc.txt", "w")
     deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
     deltaacc_out.close()
 
