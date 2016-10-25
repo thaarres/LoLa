@@ -25,41 +25,193 @@ brs = ["entry",
 
 
 clf_names = [
-    "NNXd_model10",
-    "NNXd_model1_et-on-et",
-    "NNXd_model1_pt-on-pt",
 
-    "NNXd_model1_et",
-    "NNXd_model1_pt",
+#    "NNXd_unpre",
+#    "NNXd_unpre-on-et",
+#    "NNXd_model1_et-on-unpre",
 
-    "NNXd_model10-on-et",
-    "NNXd_model1_pt-on-et", 
 
-    "NNXd_model10-on-pt" ,            
-    "NNXd_model1_et-on-pt",                   
+#    "NNXd_model10",
+#    "NNXd_model1_et-on-et",
+#    "NNXd_model1_pt-on-pt",
+
+#    "NNXd_et_cutoff_1",
+#    "NNXd_et_cutoff_3",
+#    "NNXd_et_cutoff_10",
+#    "NNXd_et_cutoff_20",
+#    "NNXd_et_cutoff_30",
+
+    "NNXd_et_cutoff_v4_0.0",
+    "NNXd_et_cutoff_v4_5.0",
+
+
+
+
+    "NNXd_et_cutoff_v4_5.03p_up",
+#    "NNXd_et_cutoff_v4_5.03p_down",
+
+
+    "NNXd_et_cutoff_v4_5.05p_up",
+#    "NNXd_et_cutoff_v4_5.05p_down",
+
+
+    "NNXd_et_cutoff_v4_5.010p_up",
+#    "NNXd_et_cutoff_v4_5.010p_down",
+
+
+    "NNXd_et_cutoff_v4_5.015p_up",
+#    "NNXd_et_cutoff_v4_5.015p_down",
+
+
+    "NNXd_et_cutoff_v4_5.020p_up",
+#    "NNXd_et_cutoff_v4_5.020p_down",
+
+
+    "NNXd_et_cutoff_v4_5.025p_up",
+#    "NNXd_et_cutoff_v4_5.025p_down",
+
+
+#    "NNXd_et_cutoff_v4_0.01",
+#    "NNXd_et_cutoff_v4_0.1",
+#    "NNXd_et_cutoff_v4_0.5",
+#    "NNXd_et_cutoff_v4_1.0",
+#    "NNXd_et_cutoff_v4_2.0",
+#    "NNXd_et_cutoff_v4_3.0",
+#    "NNXd_et_cutoff_v4_4.0",
+#    "NNXd_et_cutoff_v4_5.0",
+#    "NNXd_et_cutoff_v4_10.0",
+#    "NNXd_et_cutoff_v4_15.0",
+#    "NNXd_et_cutoff_v4_20.0",
+#    "NNXd_et_cutoff_v4_30.0",
+#    "NNXd_et_cutoff_v4_40.0",
+#    "NNXd_et_cutoff_v4_50.0",
+
+#    "NNXd_model1_et",
+#    "NNXd_model1_pt",
+#
+#    "NNXd_model10-on-et",
+#    "NNXd_model1_pt-on-et", 
+#
+#    "NNXd_model10-on-pt" ,            
+#    "NNXd_model1_et-on-pt",                   
 ]
+
+
+clf_objects = {
+
+    "NNXd_model1_et-on-et" : "NNXd_model1_et",
+   
+    "NNXd_et_cutoff_v4_0.0"  : "NNXd_et_cutoff_v4_0.0",   
+    "NNXd_et_cutoff_v4_0.01" : "NNXd_et_cutoff_v4_0.01",  
+    "NNXd_et_cutoff_v4_0.1"  : "NNXd_et_cutoff_v4_0.1",   
+    "NNXd_et_cutoff_v4_0.5"  : "NNXd_et_cutoff_v4_0.5",   
+    "NNXd_et_cutoff_v4_1.0"  :  "NNXd_et_cutoff_v4_1.0", 
+    "NNXd_et_cutoff_v4_2.0"  :  "NNXd_et_cutoff_v4_2.0", 
+    "NNXd_et_cutoff_v4_3.0"  :  "NNXd_et_cutoff_v4_3.0", 
+    "NNXd_et_cutoff_v4_4.0"  :  "NNXd_et_cutoff_v4_4.0", 
+    "NNXd_et_cutoff_v4_5.0"  :  "NNXd_et_cutoff_v4_5.0", 
+    "NNXd_et_cutoff_v4_10.0" :  "NNXd_et_cutoff_v4_10.0",
+    "NNXd_et_cutoff_v4_15.0" :  "NNXd_et_cutoff_v4_15.0",
+    "NNXd_et_cutoff_v4_20.0" :  "NNXd_et_cutoff_v4_20.0",
+    "NNXd_et_cutoff_v4_30.0" :  "NNXd_et_cutoff_v4_30.0",
+    "NNXd_et_cutoff_v4_40.0" :  "NNXd_et_cutoff_v4_40.0",
+    "NNXd_et_cutoff_v4_50.0" :  "NNXd_et_cutoff_v4_50.0",
+
+
+    "NNXd_et_cutoff_v4_5.02p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.03p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.05p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.010p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.015p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.020p_down"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.025p_down"  : "NNXd_et_cutoff_v4_5.0",   
+
+    "NNXd_et_cutoff_v4_5.02p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.03p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.05p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.010p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.015p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.020p_up"  : "NNXd_et_cutoff_v4_5.0",   
+    "NNXd_et_cutoff_v4_5.025p_up"  : "NNXd_et_cutoff_v4_5.0",   
+
+
+
+
+#    "NNXd_model1_et",
+#    "NNXd_model1_pt",
+#
+#    "NNXd_model10-on-et",
+#    "NNXd_model1_pt-on-et", 
+#
+#    "NNXd_model10-on-pt" ,            
+#    "NNXd_model1_et-on-pt",                   
+}
 
 pretty_names = [
-    "Train: E, Test: E",
-    "Train: ET, Test: ET",
-    "Train: PT, Test: PT",
 
-    "Train ET, Test: E",
-    "Train PT, Test E",
+    #"Train: E, Test: E",
+#    "Train: ET, Test: ET",
+    #"Train: PT, Test: PT",
 
-    "Train E, Test ET",
-    "Train PT, Test ET ", 
+    "No cut",
+    "5 GeV",
 
-    "Train E, Test PT" ,            
-    "Train ET, Test PT",                   
+
+    "3% Up",
+#    "3% Down",
+    "5% Up",
+#    "5% Down",
+    "10% Up",
+#    "10% Down",
+    "15% Up",
+#    "15% Down",
+    "20% Up",
+#    "20% Down",
+    "25% Up",
+#    "25% Down",
+
+
+#    "Cutoff: 0.01 GeV",
+#    "Cutoff: 0.1 GeV",
+#    "Cutoff: 0.5 GeV",
+#    "Cutoff: 1 GeV",
+#    "Cutoff: 2 GeV",
+#    "Cutoff: 3 GeV",
+#    "Cutoff: 4 GeV",
+#    "Cutoff: 5 GeV",
+#    "Cutoff: 10 GeV",
+#    "Cutoff: 15 GeV",
+#    "Cutoff: 20 GeV",
+#    "Cutoff: 30 GeV",
+#    "Cutoff: 40 GeV",
+#    "Cutoff: 50 GeV",
+
+    #"Unproc",
+    #"Unproc on Et",
+    #"Et on Unproc",
+
+
+#    "Train ET, Test: E",
+#    "Train PT, Test E",
+#
+#    "Train E, Test ET",
+#    "Train PT, Test ET ", 
+#
+#    "Train E, Test PT" ,            
+#    "Train ET, Test PT",                   
 ]
 
-line_styles = ["solid", "solid", "solid", "--","--", "--","--","--", "--"]
+line_styles = ["solid"] * 30
+#[":", "-.", ":", ":"] + ["--","--", "--","--","--"] + ["solid", "solid", "solid","solid", "solid", "solid", "solid"]
+
+#*5# "solid", "solid", "solid"]# 
 
 
 dfs = {}
 for clf_name in clf_names:
     store = pandas.HDFStore("output_" + clf_name + ".h5")
+
+    print clf_name, store.keys()
 
     dfs[clf_name] = store["all"]
 
@@ -89,7 +241,7 @@ for clf_name in clf_names:
 
 # Make ROC plots
 # Together
-rocplot_multi([x.replace("-on-et","").replace("-on-pt","") for x in clf_names], 
+rocplot_multi([clf_objects[x] for x in clf_names], 
               [dfs[x] for x in clf_names],
               pretty_names,
               line_styles,
