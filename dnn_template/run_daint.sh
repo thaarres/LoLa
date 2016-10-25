@@ -26,7 +26,9 @@ export THEANO_FLAGS="base_compiledir=$SCRATCH/theano.NOBACKUP"
 echo "Go back home"
 cd ~/DeepTop/dnn_template
 
+echo "Received" $1
+
 echo "Starting TrainClassifiers.py"
-python TrainClassifiers.py
+python TrainClassifiers.py $1 &> $1_log.txt
 
 echo "Done.."
