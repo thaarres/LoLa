@@ -35,6 +35,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
 import pandas
@@ -362,13 +363,23 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
     plt.ylabel("1/fake match efficiency", fontsize=16)
     plt.legend(loc=1)
 
-    plt.xlim(0,1)
+    plt.xlim(0,2.0)
     plt.ylim(1,100000)
 
     plt.yscale('log')    
     plt.show()
 
     plt.savefig("multi-ROC-inv"+suffix+".png")
+
+
+
+    plt.xlim(0.2,0.5)
+    plt.ylim(30,80)
+
+    plt.yscale('linear')    
+    plt.show()
+
+    plt.savefig("multi-ROC-inv-zoom"+suffix+".png")
 
 
 ########################################
@@ -416,15 +427,17 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 
             for br in brs:
 
-                if br in ["entry","img", "img_dr"]:
+                if br in ["entry","img", "img_dr", "img_e", "img_et", "img_min"]:
                     pass
                 else:
                     df[br] = d[br]
 
             
             for i in range(1600):
-                df["img_{0}".format(i)] = d["img"][:,i]
-                df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
+                #df["img_{0}".format(i)] = d["img"][:,i]
+                #df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
+                #df["e{0}".format(i)]  = d["img_e"][:,i]
+                df["et{0}".format(i)] = d["img_min"][:,i]
 
             
             df["is_signal_new"] = is_signal
@@ -463,6 +476,8 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
     One batch is what we pass to the classifiert for training at once, so we want this to be
     finer than the "chunksize" - these just need to fit in the memory. """
 
+    print "Welcome to datagen_batch"
+
     # Init the generator that reads from the file    
     get_data = datagen(sel=sel, 
                        brs=brs, 
@@ -473,6 +488,8 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
 
     df = []    
     i_start = 0
+
+    print "get_data finished"
 
     while True:
 
