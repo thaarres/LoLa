@@ -64,12 +64,12 @@ default_params = {
     "dense_dropout"   : 0.0,
 
     # Common parameters
-    "n_chunks"          : 10,
+    "n_chunks"          : 20,
     "batch_size"        : 1024,
-    "lr"                : 0.0005,
+    "lr"                : 0.002,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 5,
+    "nb_epoch"          : 400,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -83,8 +83,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/home/ubuntu/store/train-et.h5"
-infname_test  = "/home/ubuntu/store/test-et.h5"
+infname_train = "/home/ec2-user/train-et.h5"
+infname_test  = "/home/ec2-user/test-et.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_testv0", 
+    Classifier("NNXd_et_retrain_aws_v0", 
                "keras",
                params,
                False,

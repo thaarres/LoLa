@@ -211,7 +211,7 @@ def train_keras(clf):
     test_gen  = generator(clf.datagen_test)
 
     early_stop = EarlyStopping(monitor='val_loss', 
-                               patience=20, 
+                               patience=10, 
                                verbose=0, 
                                mode='auto')
 
