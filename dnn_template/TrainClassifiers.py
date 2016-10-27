@@ -8,13 +8,17 @@ from TrainClassifiersBase import *
 # Configuration
 ########################################
 
-CUTOFF = float(sys.argv[1])
+#CUTOFF = float(sys.argv[1])
+SCALE = float(sys.argv[1])
+SUFFIX = sys.argv[2]
 
-print "Received CUTOFF = ", CUTOFF
+print SCALE, SUFFIX
+
 
 brs = ["entry", 
-       #"img",
-       #"img_dr",
+       "img",
+       #"img_min",
+       #"img_et",
        "tau2",
        "tau3",       
        "tau2_sd",
@@ -28,9 +32,12 @@ brs = ["entry",
        "is_signal_new",
 ]
 
+
 pixel_brs = []
+pixel_brs += ["img_{0}".format(i) for i in range(1600)]
 #pixel_brs  = ["e{0}".format(i) for i in range(1600)]
-pixel_brs += ["et{0}".format(i) for i in range(1600)]
+#pixel_brs += ["et{0}".format(i) for i in range(1600)]
+
 
 default_params = {        
 
@@ -59,25 +66,25 @@ default_params = {
     "lr"                : 0.0005,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 800,
+    "nb_epoch"          : 5,
     "samples_per_epoch" : None, # later filled from input files
 }
 
 colors = ['black', 'red','blue','green','orange','green','magenta']
 
 # Reading from ROOT file
-infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_and_dR_maps_sig.root"
-infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_and_dR_maps_bkg.root"
+infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_sig.root"
+infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_bkg.root"
 cut_train =  "(entry%3==0)"
 cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
-if "t3ui" in hostname:
-    infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-img-and-dr.h5"
-    infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-img-and-dr.h5"
-else:
-    infname_train = "/scratch/daint/gregork/train-img-unproc-v2.h5"
-    infname_test  = "/scratch/daint/gregork/test-img-unproc-v2.h5"
+#if "t3ui" in hostname:
+infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
+infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
+#else:
+#    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
+#    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
 
 
 ########################################
@@ -187,13 +194,14 @@ else:
 # However it uses the raw values in the image
 # If we want a rescaled one, use to_image_scaled 
 def to_image(df):
-    return np.expand_dims(np.expand_dims(df[ ["et{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
+    foo =  np.expand_dims(np.expand_dims(df[ ["img_{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)        
+    return foo
+
 
 # This function produces the necessary shape for MVA training/evaluation
 # (batch_size,2,40,40)
 # We also rescale the img branch (divide by 600)
-def to_image_3d(df):
-    
+def to_image_3d(df):    
     img = np.expand_dims(np.expand_dims(df[ ["e{0}".format(i) for i in range(1600)]], axis=-1).reshape(-1,40,40), axis=1)
     img = img/600
 
@@ -223,15 +231,12 @@ def to_image_scaled(df):
     
     tmp = to_image(df)
 
+    tmp *= SCALE
+
     # Lower et/pt/e cut-off
-    #min_value = CUTOFF
+    #min_value = 5.0
     #if min_value:
     #    tmp[tmp < min_value] = 0
-
-    #max_value = CUTOFF
-    #if max_value:
-    #    tmp[tmp > max_value] = 0
-
 
     return tmp/600.
 
@@ -372,18 +377,7 @@ def model_3d(params):
 
 classifiers = [
 
-    Classifier("NNXd_unpre_v2", 
-               "keras",
-               params,
-               False,
-               datagen_train_pixel,
-               datagen_test_pixel,               
-               model_2d(params),
-               image_fun = to_image_scaled,           
-               class_names = {0: "background", 1: "signal"}               
-               ),
-
-#    Classifier("NNXd_et_cutoff_v4max_{0}".format(CUTOFF), 
+#    Classifier("NNXd_unpre_v2", 
 #               "keras",
 #               params,
 #               False,
@@ -404,6 +398,18 @@ classifiers = [
 #               image_fun = to_image_3d,               
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
+
+#    Classifier("NNXd_3d", 
+#               "keras",
+#               params,
+#               False,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               model_3d(params),
+#               image_fun = to_image_3d,               
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
+
 
 #    Classifier("NN1d", 
 #               "keras",
@@ -427,8 +433,7 @@ classifiers = [
 #                   learning_rate=0.1,
 #                   max_depth=2,
 #                   subsample=0.9,
-#                   verbose=True),
-#               
+#                   verbose=True),               
 #               image_fun = None,
 #               class_names = {0: "background", 1: "signal"},
 #               varlist = ["tau2",
@@ -439,7 +444,7 @@ classifiers = [
 #                          "filtered.M()",
 #                          "softdropped.M()"]
 #               ),
-#
+
 #    Classifier("BDT_3v", 
 #               "scikit",
 #               params,
@@ -459,7 +464,7 @@ classifiers = [
 #                          "tau3",       
 #                          "softdropped.M()"]
 #               ),
-#
+
 #    Classifier("BDT_Ada", 
 #               "scikit",
 #               params,
@@ -477,7 +482,27 @@ classifiers = [
 #                          "softdropped.M()"]
 #               ),
 
+#    Classifier("NNXd_unpre", 
+#               "keras",
+#               params,
+#               True,
+#               datagen_train_pixel,
+#               datagen_test_pixel,               
+#               model_2d(params),
+#               image_fun = to_image,           
+#               class_names = {0: "background", 1: "signal"}               
+#               ),
 
+    Classifier("NNXd_et_testv0", 
+               "keras",
+               params,
+               False,
+               datagen_train_pixel,
+               datagen_test_pixel,               
+               model_2d(params),
+               image_fun = to_image_scaled,           
+               class_names = {0: "background", 1: "signal"}               
+               ),
 
 ]
 
@@ -491,8 +516,8 @@ if params["root_to_h5"]:
 
         print "Doing", sample
 
-        n_batches = params["samples_per_epoch"]/params["batch_size"]
-
+        n_batches = params["samples_per_epoch"]/params["batch_size"]        
+    
         for i_batch in range(n_batches):
             print "Converting batch {0}/{1}".format(i_batch, n_batches)
 
@@ -501,7 +526,45 @@ if params["root_to_h5"]:
             else:
                 df = datagen_test.next()
 
-            df.to_hdf(sample+'-img-and-dr.h5','table',append=True)
+        
+            df.to_hdf(sample+'-img-et-v2.h5','table',append=True)
+
+
+#
+#sig = np.zeros((40,40))
+#bkg = np.zeros((40,40))
+#
+#for i in range(50):
+#
+#    df = datagen_train_pixel.next()    
+#    
+#    if sum(df["is_signal_new"]==0):
+#        bkg += to_image_scaled(df[df["is_signal_new"]==0]).sum(axis=0)[0]
+#
+#    if sum(df["is_signal_new"]==1):
+#        sig += to_image_scaled(df[df["is_signal_new"]==1]).sum(axis=0)[0]
+#
+#bkg += 0.001
+#sig += 0.001
+#
+#plt.clf()
+#plt.imshow(sig)
+#plt.savefig("sig.png")
+#
+#plt.clf()
+#plt.imshow(np.log(sig))
+#plt.savefig("sig_log.png")
+#
+#plt.clf()
+#plt.imshow(bkg)
+#plt.savefig("bkg.png")
+#
+#plt.clf()
+#
+#plt.imshow(np.log(bkg))
+#plt.savefig("bkg_log.png")
+#
+#
 
 
 ########################################
@@ -510,7 +573,7 @@ if params["root_to_h5"]:
 
 for clf in classifiers:
     clf.prepare()
-#    eval_single(clf,"-on-et")
+    #eval_single(clf, SUFFIX)
 #analyze_multi(classifiers)
 
 
