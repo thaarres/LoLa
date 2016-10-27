@@ -9,8 +9,11 @@ from TrainClassifiersBase import *
 ########################################
 
 #CUTOFF = float(sys.argv[1])
-SCALE = float(sys.argv[1])
-SUFFIX = sys.argv[2]
+#SCALE = float(sys.argv[1])
+#SUFFIX = sys.argv[2]
+
+SCALE = 1.0
+SUFFIX = "_test"
 
 print SCALE, SUFFIX
 
@@ -80,8 +83,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
-infname_test  = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/train-et.h5"
+infname_train = "/home/ubuntu/store/train-et.h5"
+infname_test  = "/home/ubuntu/store/test-et.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -101,6 +104,9 @@ for param in default_params.keys():
     else:
         params[param] = default_params[param]
 
+print "Parameters are:"
+for k,v in params.iteritems():
+    print "{0}={1}".format(k,v)
 
 ########################################
 # H5FS: Count effective training samples
