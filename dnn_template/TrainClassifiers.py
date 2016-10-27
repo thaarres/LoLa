@@ -66,7 +66,7 @@ default_params = {
     # Common parameters
     "n_chunks"          : 20,
     "batch_size"        : 1024,
-    "lr"                : 0.001,
+    "lr"                : 0.0005,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
     "nb_epoch"          : 400,
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_retrain_aws_v1", 
+    Classifier("NNXd_et_retrain_aws_v2", 
                "keras",
                params,
                False,
