@@ -66,7 +66,7 @@ default_params = {
     # Common parameters
     "n_chunks"          : 20,
     "batch_size"        : 1024,
-    "lr"                : 0.0005,
+    "lr"                : 0.0008,
     "decay"             : 1e-6,
     "momentum"          : 0.9,            
     "nb_epoch"          : 400,
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_retrain_aws_v2", 
+    Classifier("NNXd_et_retrain_aws_v3", 
                "keras",
                params,
                False,
@@ -533,7 +533,7 @@ if params["root_to_h5"]:
                 df = datagen_test.next()
 
         
-            df.to_hdf(sample+'-img-et-v2.h5','table',append=True)
+            df.to_hdf(sample+'-img-et-v3.h5','table',append=True)
 
 
 #
