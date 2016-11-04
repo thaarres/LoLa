@@ -83,8 +83,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/home/ec2-user/train-et.h5"
-infname_test  = "/home/ec2-user/test-et.h5"
+infname_train = "/home/ec2-user/train-img-et-5deg.h5"
+infname_test  = "/home/ec2-user/test-img-et-5deg.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_retrain_aws_v5", 
+    Classifier("NNXd_et_5deg_v1", 
                "keras",
                params,
                False,
