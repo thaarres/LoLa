@@ -55,8 +55,8 @@ default_params = {
     "conv_size"       : 4,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
-    "n_dense_layers"  : 8,
-    "n_dense_nodes"   : 256,
+    "n_dense_layers"  : 2,
+    "n_dense_nodes"   : 64,
     "dense_batchnorm" : 0,
 
     "conv_dropout"    : 0.0,
@@ -64,12 +64,12 @@ default_params = {
     "dense_dropout"   : 0.0,
 
     # Common parameters
-    "n_chunks"          : 20,
+    "n_chunks"          : 10,
     "batch_size"        : 1024,
-    "lr"                : 0.0001,
-    "decay"             : 1e-6,
+    "lr"                : 0.01,
+    "decay"             : 0.0001,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 400,
+    "nb_epoch"          : 100,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_retrain_aws_v4", 
+    Classifier("NNXd_et_retrain_aws_v5", 
                "keras",
                params,
                False,
