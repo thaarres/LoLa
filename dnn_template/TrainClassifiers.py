@@ -69,7 +69,7 @@ default_params = {
     "lr"                : 0.001,
     "decay"             : 0.00001,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 100,
+    "nb_epoch"          : 200,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -240,9 +240,9 @@ def to_image_scaled(df):
     tmp *= SCALE
 
     # Lower et/pt/e cut-off
-    #min_value = 5.0
-    #if min_value:
-    #    tmp[tmp < min_value] = 0
+    min_value = 5.0
+    if min_value:
+        tmp[tmp < min_value] = 0
 
     return tmp/600.
 
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_v2", 
+    Classifier("NNXd_et_5deg_v3", 
                "keras",
                params,
                False,
