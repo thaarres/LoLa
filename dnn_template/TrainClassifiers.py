@@ -66,10 +66,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1024,
-    "lr"                : 0.0005,
-    "decay"             : 0.000001,
+    "lr"                : 0.001,
+    "decay"             : 0.00001,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 500,
+    "nb_epoch"          : 100,
     "samples_per_epoch" : None, # later filled from input files
 }
 
