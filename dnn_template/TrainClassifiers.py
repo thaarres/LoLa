@@ -83,8 +83,8 @@ cut_test  =  "(entry%3==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/home/ec2-user/train-img-et-5deg.h5"
-infname_test  = "/home/ec2-user/test-img-et-5deg.h5"
+infname_train = "/home/ec2-user/train-img-et-5deg-v2.h5"
+infname_test  = "/home/ec2-user/test-img-et-5deg-v2.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -240,9 +240,9 @@ def to_image_scaled(df):
     tmp *= SCALE
 
     # Lower et/pt/e cut-off
-    min_value = 5.0
-    if min_value:
-        tmp[tmp < min_value] = 0
+    #min_value = 5.0
+    #if min_value:
+    #    tmp[tmp < min_value] = 0
 
     return tmp/600.
 
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_v5", 
+    Classifier("NNXd_et_5deg_sample_v2_v0", 
                "keras",
                params,
                False,
