@@ -52,7 +52,7 @@ default_params = {
     "n_blocks"        : 2,    
     "n_conv_layers"   : 2,        
     "conv_nfeat"      : 8,
-    "conv_size"       : 4,
+    "conv_size"       : 6,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
     "n_dense_layers"  : 2,
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v0", 
+    Classifier("NNXd_et_5deg_sample_v3_v1", 
                "keras",
                params,
                False,
