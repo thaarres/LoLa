@@ -69,7 +69,7 @@ default_params = {
     "lr"                : 0.002,
     "decay"             : 0.002/100,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 200,
+    "nb_epoch"          : 600,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -78,13 +78,13 @@ colors = ['black', 'red','blue','green','orange','green','magenta']
 # Reading from ROOT file
 infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_sig.root"
 infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_bkg.root"
-cut_train =  "(entry%3==0)"
-cut_test  =  "(entry%3==1)"
+cut_train =  "(entry%2==0)"
+cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/home/ec2-user/train-img-et-5deg-v2.h5"
-infname_test  = "/home/ec2-user/test-img-et-5deg-v2.h5"
+infname_train = "/home/ec2-user/train-img-et-5deg-v3.h5"
+infname_test  = "/home/ec2-user/test-img-et-5deg-v3.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v2_v2", 
+    Classifier("NNXd_et_5deg_sample_v3_v0", 
                "keras",
                params,
                False,
