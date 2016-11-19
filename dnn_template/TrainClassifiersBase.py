@@ -49,7 +49,7 @@ import h5py
 print "Imported numpy+friends"
 
 from keras.models import Sequential
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
@@ -145,8 +145,8 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
                 print "Loading", self.name, "from file: Done..."
-                print "Now training a bit"
-                train_keras(self)
+                #print "Now training a bit"
+                #train_keras(self)
 
 
 ########################################
@@ -215,6 +215,9 @@ def train_keras(clf):
                                verbose=0, 
                                mode='auto')
 
+    filepath="weights-" + clf.name + "-{epoch:02d}-{val_acc:.2f}.hdf5"
+    checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
+
 
     ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"],
@@ -222,7 +225,7 @@ def train_keras(clf):
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [early_stop])
+                                  callbacks = [checkpoint, early_stop])
 
     print "Done"
 

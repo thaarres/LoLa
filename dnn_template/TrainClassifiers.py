@@ -13,7 +13,7 @@ from TrainClassifiersBase import *
 #SUFFIX = sys.argv[2]
 
 SCALE = 1.0
-SUFFIX = "_test"
+SUFFIX = ""
 
 print SCALE, SUFFIX
 
@@ -52,7 +52,7 @@ default_params = {
     "n_blocks"        : 2,    
     "n_conv_layers"   : 2,        
     "conv_nfeat"      : 8,
-    "conv_size"       : 6,
+    "conv_size"       : 3,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
     "n_dense_layers"  : 2,
@@ -499,7 +499,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v1", 
+    Classifier("NNXd_et_5deg_sample_v3_v2", 
                "keras",
                params,
                False,
@@ -579,7 +579,7 @@ if params["root_to_h5"]:
 
 for clf in classifiers:
     clf.prepare()
-    #eval_single(clf, SUFFIX)
+    eval_single(clf, SUFFIX)
 #analyze_multi(classifiers)
 
 
