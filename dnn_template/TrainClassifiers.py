@@ -51,7 +51,7 @@ default_params = {
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
     "n_conv_layers"   : 2,        
-    "conv_nfeat"      : 2,
+    "conv_nfeat"      : 6,
     "conv_size"       : 4,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
@@ -499,10 +499,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v4", 
+    Classifier("NNXd_et_5deg_sample_v3_v5", 
                "keras",
                params,
-               False,
+               True,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
