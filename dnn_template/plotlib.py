@@ -321,7 +321,7 @@ def draw_data_mc(tf, hname, samples, **kwargs):
         hs_syst[systUp] = getHistograms(tf, samples, hname+systUp)
         hs_syst[systDown] = getHistograms(tf, samples, hname+systDown)
         if len(hs_syst[systUp])==0 or len(hs_syst[systDown])==0:
-            print "Could not read histograms for {0}".format(hname+systUp)
+            print("Could not read histograms for {0}".format(hname+systUp))
 
     sample_d = dict(samples)
     for hd in [hs] + hs_syst.values():
@@ -378,7 +378,7 @@ def draw_data_mc(tf, hname, samples, **kwargs):
                 h = tf.get(dn + "/" + hname)
                 datas += [tf.get(dn + "/" + hname).Clone()]
             except rootpy.io.file.DoesNotExist:
-                print "missing", dn, hname
+                print("missing", dn, hname)
         if len(datas)>0:
             data = sum(datas)
             data.rebin(rebin)

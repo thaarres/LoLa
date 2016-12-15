@@ -2,7 +2,9 @@
 # Imports
 ########################################
 
+print("pre-import")
 from TrainClassifiersBase import *
+print("post-import")
 
 ########################################
 # Configuration
@@ -15,7 +17,7 @@ from TrainClassifiersBase import *
 SCALE = 1.0
 SUFFIX = ""
 
-print SCALE, SUFFIX
+print(SCALE, SUFFIX)
 
 
 brs = ["entry", 
@@ -49,7 +51,7 @@ default_params = {
     "read_h5"    : True,
     
     # Parameters for 2d convolutional architecture    
-    "n_blocks"        : 3,    
+    "n_blocks"        : 2,    
     "n_conv_layers"   : 2,        
     "conv_nfeat"      : 6,
     "conv_size"       : 4,
@@ -83,8 +85,8 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/home/ec2-user/train-img-et-5deg-v3.h5"
-infname_test  = "/home/ec2-user/test-img-et-5deg-v3.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v3.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v3.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -104,9 +106,9 @@ for param in default_params.keys():
     else:
         params[param] = default_params[param]
 
-print "Parameters are:"
-for k,v in params.iteritems():
-    print "{0}={1}".format(k,v)
+print("Parameters are:")
+for k,v in params.items():
+    print("{0}={1}".format(k,v))
 
 ########################################
 # H5FS: Count effective training samples
@@ -171,7 +173,7 @@ else:
             n_test_samples = total
 
         
-print "Total number of training samples = ", n_train_samples
+print("Total number of training samples = ", n_train_samples)
 params["samples_per_epoch"] = n_train_samples
 params["samples_per_epoch_test"] = n_test_samples
 
@@ -181,7 +183,7 @@ params["samples_per_epoch_test"] = n_test_samples
 ########################################
 
 if params["read_h5"]:
-    print n_train_samples
+    print(n_train_samples)
 
     # TODO: fix the fencepost fencepost error lurking somewhere
     datagen_train = datagen_batch_h5(brs, infname_train, batch_size=n_train_samples-100)
@@ -499,10 +501,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v10", 
+    Classifier("NNXd_et_5deg_sample_v3_v11", 
                "keras",
                params,
-               True,
+               False,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
@@ -520,17 +522,17 @@ classifiers = [
 if params["root_to_h5"]:
     for sample in ["train", "test"]:
 
-        print "Doing", sample
+        print("Doing", sample)
 
         n_batches = params["samples_per_epoch"]/params["batch_size"]        
     
         for i_batch in range(n_batches):
-            print "Converting batch {0}/{1}".format(i_batch, n_batches)
+            print("Converting batch {0}/{1}".format(i_batch, n_batches))
 
             if sample == "train":
-                df = datagen_train.next()
+                df = next(datagen_train)
             else:
-                df = datagen_test.next()
+                df = next(datagen_test)
 
         
             df.to_hdf(sample+'-img-et-v3.h5','table',append=True)

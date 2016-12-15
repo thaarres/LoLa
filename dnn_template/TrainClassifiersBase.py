@@ -2,12 +2,12 @@
 # Imports
 ########################################
 
-print "Imports: Starting..."
+print("Imports: Starting...")
 
 import socket
 hostname = socket.gethostname()
 
-print "We are at:", hostname
+print("We are at:", hostname)
 
 import sys
 
@@ -25,11 +25,11 @@ import os
 import pickle
 import pdb
 
-print "Imported basics"
+print("Imported basics")
 
 if "t3ui" in hostname:
     import ROOT
-    print "Imported ROOT"
+    print("Imported ROOT")
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -46,10 +46,12 @@ if "t3ui" in hostname:
 
 import h5py
 
-print "Imported numpy+friends"
+print("Imported numpy+friends")
+
+
 
 from keras.models import Sequential
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
@@ -59,7 +61,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooli
 from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
-print "Imported keras"
+print("Imported keras")
 
 if "t3ui" in hostname:
     import sklearn
@@ -75,12 +77,39 @@ if "t3ui" in hostname:
     from sklearn.preprocessing import normalize
     from sklearn.svm import LinearSVC
     from sklearn.preprocessing import StandardScaler  
-    print "Imported sklearn"
+    print("Imported sklearn")
 
 from plotlib import *
 
-print "Imports: Done..."
+print("Imports: Done...")
 
+
+class LossPlotter(Callback):
+
+    def __init__(self):
+        super(Callback, self).__init__()
+
+        self.loss_hist = []
+        self.val_loss_hist = []
+        
+
+    def on_train_begin(self, logs={}):
+        pass
+
+    def on_batch_end(self, batch, logs={}):
+        pass
+
+    def on_epoch_end(self, epoch, logs):
+
+        self.loss_hist.append(logs["loss"])
+        self.val_loss_hist.append(logs["val_loss"])
+
+        plt.clf()
+        plt.plot(self.loss_hist)
+        plt.plot(self.val_loss_hist)
+        plt.savefig("loss_{0}.png".format(epoch))
+
+        
 
 ########################################
 # Class: Classifier
@@ -135,16 +164,16 @@ class Classifier:
                 f.close()
             elif self.backend == "keras":
 
-                print "Loading", self.name
+                print("Loading", self.name)
                 f = open(os.path.join(self.inpath,self.name + ".yaml"), "r")
                 yaml_string = f.read()
                 f.close()       
-                print "Getting yaml"
+                print("Getting yaml")
                 self.model = model_from_yaml(yaml_string)                
-                print "Got yaml"
+                print("Got yaml")
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
-                print "Loading", self.name, "from file: Done..."
+                print("Loading", self.name, "from file: Done...")
                 #print "Now training a bit"
                 #train_keras(self)
 
@@ -155,12 +184,12 @@ class Classifier:
 
 def train_scikit(clf):
 
-    print "Starting train_scikit with the parameters: "
-    for k,v in clf.params.iteritems():
-        print "\t", k,"=",v
-    print "Classifier name:",clf.name
+    print("Starting train_scikit with the parameters: ")
+    for k,v in clf.params.items():
+        print("\t", k,"=",v)
+    print("Classifier name:",clf.name)
         
-    df = clf.datagen_train.next()
+    df = next(clf.datagen_train)
 
     # Shuffle
     df = df.iloc[np.random.permutation(len(df))]
@@ -181,9 +210,9 @@ def train_scikit(clf):
 
 def train_keras(clf):
 
-    print "Starting train_keras with the parameters: "
-    for k,v in clf.params.iteritems():
-        print "\t", k,"=",v
+    print("Starting train_keras with the parameters: ")
+    for k,v in clf.params.items():
+        print("\t", k,"=",v)
       
     # Prepare model and train
     sgd = SGD(lr = clf.params["lr"], 
@@ -192,11 +221,11 @@ def train_keras(clf):
               nesterov=True)
     clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
                 
-    print "Calling fit_generator"
+    print("Calling fit_generator")
 
     def generator(dg):
         while True:
-            df = dg.next()
+            df = next(dg)
             
             # Shuffle
             df = df.iloc[np.random.permutation(len(df))]
@@ -225,9 +254,9 @@ def train_keras(clf):
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [checkpoint, early_stop])
+                                  callbacks = [checkpoint, early_stop, LossPlotter()])
 
-    print "Done"
+    print("Done")
 
     plt.clf()
     plt.plot(ret.history["acc"])
@@ -267,7 +296,7 @@ def train_keras(clf):
 
 def rocplot(clf, df):
     
-    print "rocplot", clf.name
+    print("rocplot", clf.name)
 
     nbins = 100
     min_prob = min(df["sigprob_"+ clf.name])
@@ -484,7 +513,7 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
     One batch is what we pass to the classifiert for training at once, so we want this to be
     finer than the "chunksize" - these just need to fit in the memory. """
 
-    print "Welcome to datagen_batch"
+    print("Welcome to datagen_batch")
 
     # Init the generator that reads from the file    
     get_data = datagen(sel=sel, 
@@ -497,7 +526,7 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
     df = []    
     i_start = 0
 
-    print "get_data finished"
+    print("get_data finished")
 
     while True:
 
@@ -506,7 +535,7 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
             i_start += batch_size
         else:
             # refill data stores            
-            df = get_data.next()
+            df = next(get_data)
             i_start = 0
 
 
@@ -559,9 +588,9 @@ def analyze(clf):
     # Loop over batches
     for i_batch in range(nbatches):
 
-        print "At ", i_batch, "/", nbatches
+        print("At ", i_batch, "/", nbatches)
 
-        df = clf.datagen_test.next()        
+        df = next(clf.datagen_test)
 
         if clf.backend == "keras":
             X = clf.image_fun(df)        
@@ -686,9 +715,9 @@ def analyze_multi(classifiers):
     # Loop over batches
     for i_batch in range(nbatches):
 
-        print "At ", i_batch, "/", nbatches
+        print("At ", i_batch, "/", nbatches)
 
-        df = classifiers[0].datagen_test.next()        
+        df = next(classifiers[0].datagen_test)
 
         for clf in classifiers:
 
@@ -815,16 +844,16 @@ def eval_single(clf, suffix=""):
                   nesterov=True)
         clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
     
-    nbatches = clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1
+    nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
 
     df_all = pandas.DataFrame()
     
     # Loop over batches
     for i_batch in range(nbatches):
 
-        print "At ", i_batch, "/", nbatches
+        print("At ", i_batch, "/", nbatches)
 
-        df = clf.datagen_test.next()        
+        df = next(clf.datagen_test)
 
         if clf.backend == "keras":
             X = clf.image_fun(df)        
