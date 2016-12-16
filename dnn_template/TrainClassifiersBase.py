@@ -86,12 +86,13 @@ print("Imports: Done...")
 
 class LossPlotter(Callback):
 
-    def __init__(self):
+    def __init__(self, name):
         super(Callback, self).__init__()
 
         self.loss_hist = []
         self.val_loss_hist = []
-        
+        self.name = name
+
 
     def on_train_begin(self, logs={}):
         pass
@@ -107,7 +108,7 @@ class LossPlotter(Callback):
         plt.clf()
         plt.plot(self.loss_hist)
         plt.plot(self.val_loss_hist)
-        plt.savefig("loss_{0}.png".format(epoch))
+        plt.savefig("{0}/loss_{1}.png".format(self.name,epoch))
 
         
 
@@ -213,6 +214,9 @@ def train_keras(clf):
     print("Starting train_keras with the parameters: ")
     for k,v in clf.params.items():
         print("\t", k,"=",v)
+
+    if not os.path.exists(clf.name):
+        os.makedirs(clf.name)
       
     # Prepare model and train
     sgd = SGD(lr = clf.params["lr"], 
@@ -244,8 +248,14 @@ def train_keras(clf):
                                verbose=0, 
                                mode='auto')
 
-    filepath="weights-" + clf.name + "-{epoch:02d}-{val_acc:.2f}.hdf5"
+    filepath= clf.name + "/weights-{epoch:02d}-{val_acc:.2f}.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
+
+    # save the architecture
+    model_out_yaml = open(clf.name + "/" + clf.name + ".yaml", "w")
+    model_out_yaml.write(clf.model.to_yaml())
+    model_out_yaml.close()
+
 
 
     ret = clf.model.fit_generator(train_gen,
@@ -254,39 +264,39 @@ def train_keras(clf):
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [checkpoint, early_stop, LossPlotter()])
+                                  callbacks = [checkpoint, early_stop, LossPlotter(clf.name)])
 
     print("Done")
 
     plt.clf()
     plt.plot(ret.history["acc"])
     plt.plot(ret.history["val_acc"])
-    plt.savefig(clf.name + "_acc.png")
+    plt.savefig(clf.name + "/acc.png")
 
     plt.clf()
     plt.plot(ret.history["loss"])
     plt.plot(ret.history["val_loss"])
-    plt.savefig(clf.name + "_loss.png")
+    plt.savefig(clf.name + "/loss.png")
 
-    valacc_out = open(clf.name + "_valacc.txt", "w")
+    valacc_out = open(clf.name + "/valacc.txt", "w")
     valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
     valacc_out.close()
 
-    maxvalacc_out = open(clf.name + "_maxvalacc.txt", "w")
+    maxvalacc_out = open(clf.name + "/maxvalacc.txt", "w")
     maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
     maxvalacc_out.close()
   
-    deltaacc_out = open(clf.name + "_deltaacc.txt", "w")
+    deltaacc_out = open(clf.name + "/" + clf.name + "deltaacc.txt", "w")
     deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
     deltaacc_out.close()
 
     # save the architecture
-    model_out_yaml = open(clf.name + ".yaml", "w")
+    model_out_yaml = open(clf.name + "/" + clf.name + ".yaml", "w")
     model_out_yaml.write(clf.model.to_yaml())
     model_out_yaml.close()
   
     # And the weights
-    clf.model.save_weights(clf.name + '_weights.h5', overwrite=True)
+    clf.model.save_weights(clf.name + "/" + clf.name + '_weights.h5', overwrite=True)
 
     
 

@@ -71,7 +71,7 @@ default_params = {
     "lr"                : 0.002,
     "decay"             : 0.002/100,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 600,
+    "nb_epoch"          : 400,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -501,7 +501,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v11", 
+    Classifier("NNXd_et_5deg_sample_v3_v13" + SUFFIX, 
                "keras",
                params,
                False,
