@@ -12,10 +12,10 @@ print("post-import")
 
 #CUTOFF = float(sys.argv[1])
 #SCALE = float(sys.argv[1])
-#SUFFIX = sys.argv[2]
+SUFFIX = sys.argv[1]
 
 SCALE = 1.0
-SUFFIX = ""
+#SUFFIX = ""
 
 print(SCALE, SUFFIX)
 
@@ -501,7 +501,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v13" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v3_v13a_" + SUFFIX, 
                "keras",
                params,
                False,
