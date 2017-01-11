@@ -12,10 +12,14 @@ print("post-import")
 
 #CUTOFF = float(sys.argv[1])
 #SCALE = float(sys.argv[1])
-SUFFIX = sys.argv[1]
+
+if len(sys.argv)>1:
+    SUFFIX = sys.argv[1]
+else:
+    SUFFIX = ""
 
 SCALE = 1.0
-#SUFFIX = ""
+
 
 print(SCALE, SUFFIX)
 
@@ -85,8 +89,8 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v3.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v3.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v4.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v4.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -501,7 +505,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_v13a_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v4_v1" + SUFFIX, 
                "keras",
                params,
                False,
