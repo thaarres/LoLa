@@ -109,6 +109,7 @@ class LossPlotter(Callback):
         plt.plot(self.loss_hist)
         plt.plot(self.val_loss_hist)
         plt.savefig("{0}/loss_{1}.png".format(self.name,epoch))
+        plt.savefig("{0}/loss_latest.png".format(self.name,epoch))
 
         
 
@@ -244,7 +245,7 @@ def train_keras(clf):
     test_gen  = generator(clf.datagen_test)
 
     early_stop = EarlyStopping(monitor='val_loss', 
-                               patience=20, 
+                               patience=10, 
                                verbose=0, 
                                mode='auto')
 

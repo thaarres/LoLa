@@ -75,7 +75,7 @@ default_params = {
     "lr"                : 0.002,
     "decay"             : 0.002/200,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 200,
+    "nb_epoch"          : 400,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -89,8 +89,8 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v3.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v3.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v4.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v4.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -506,7 +506,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v3_rerun" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v4_v4_" + SUFFIX, 
                "keras",
                params,
                False,
@@ -586,7 +586,7 @@ if params["root_to_h5"]:
 
 for clf in classifiers:
     clf.prepare()
-    eval_single(clf, SUFFIX)
+    eval_single(clf)
 #analyze_multi(classifiers)
 
 
