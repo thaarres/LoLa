@@ -72,10 +72,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1024,
-    "lr"                : 0.001,
-    "decay"             : 0.001/100,
+    "lr"                : 0.002,
+    "decay"             : 0.002/200,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 400,
+    "nb_epoch"          : 200,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -89,8 +89,8 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 #if "t3ui" in hostname:
-infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v4.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v4.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v3.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v3.h5"
 #else:
 #    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
 #    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
@@ -178,6 +178,7 @@ else:
 
         
 print("Total number of training samples = ", n_train_samples)
+print("Total number of testing samples = ", n_test_samples)
 params["samples_per_epoch"] = n_train_samples
 params["samples_per_epoch_test"] = n_test_samples
 
@@ -505,7 +506,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v4_v3" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v3_rerun" + SUFFIX, 
                "keras",
                params,
                False,
