@@ -190,8 +190,8 @@ if params["read_h5"]:
     print(n_train_samples)
 
     # TODO: fix the fencepost fencepost error lurking somewhere
-    datagen_train = datagen_batch_h5(brs, infname_train, batch_size=n_train_samples-100)
-    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=n_test_samples-100) 
+    datagen_train = datagen_batch_h5(brs, infname_train, batch_size=n_train_samples)
+    datagen_test  = datagen_batch_h5(brs, infname_test, batch_size=n_test_samples) 
 
     datagen_train_pixel = datagen_batch_h5(brs+pixel_brs, infname_train, batch_size=params["batch_size"])
     datagen_test_pixel  = datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
@@ -505,7 +505,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v4_v2" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v4_v3" + SUFFIX, 
                "keras",
                params,
                False,
