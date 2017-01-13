@@ -244,10 +244,10 @@ def train_keras(clf):
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
-    early_stop = EarlyStopping(monitor='val_loss', 
-                               patience=10, 
-                               verbose=0, 
-                               mode='auto')
+#    early_stop = EarlyStopping(monitor='val_loss', 
+#                               patience=10, 
+#                               verbose=0, 
+#                               mode='auto')
 
     filepath= clf.name + "/weights-{epoch:02d}-{val_acc:.2f}.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
@@ -258,14 +258,13 @@ def train_keras(clf):
     model_out_yaml.close()
 
 
-
     ret = clf.model.fit_generator(train_gen,
                                   samples_per_epoch = clf.params["samples_per_epoch"],
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [checkpoint, early_stop, LossPlotter(clf.name)])
+                                  callbacks = [checkpoint, LossPlotter(clf.name)])
 
     print("Done")
 
@@ -566,12 +565,14 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
     while True:
 
             
-        if size > i_start+batch_size:            
+        if size >= i_start+batch_size:            
             foo = store.select('table',
                                columns = brs,
                                start = i_start,
                                stop  = i_start + batch_size)
                         
+            #print("Yieldin5D5Dg "+str(len(foo)))
+
             yield foo
             i_start += batch_size
         else:
