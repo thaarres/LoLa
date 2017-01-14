@@ -251,7 +251,7 @@ def train_keras(clf):
 #                               verbose=0, 
 #                               mode='auto')
 
-    filepath= outdir + "/weights-{epoch:02d}-{val_acc:.2f}.hdf5"
+    filepath= outdir + "/weights-latest.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
 
     # save the architecture
