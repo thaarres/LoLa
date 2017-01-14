@@ -216,7 +216,7 @@ def train_keras(clf):
     for k,v in clf.params.items():
         print("\t", k,"=",v)
 
-    ourdir = "/scratch/snx3000/gregork/outputs/" + clf_name
+    outdir = "/scratch/snx3000/gregork/outputs/" + clf.name
 
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -266,7 +266,7 @@ def train_keras(clf):
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [checkpoint, LossPlotter(clf.name)])
+                                  callbacks = [checkpoint, LossPlotter(outdir)])
 
     print("Done")
 
