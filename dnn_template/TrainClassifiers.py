@@ -72,10 +72,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.001,
-    "decay"             : 0.001/400,
+    "lr"                : 0.0005,
+    "decay"             : 0.0005/600,
     "momentum"          : 0.9,            
-    "nb_epoch"          : 400,
+    "nb_epoch"          : 600,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -506,7 +506,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v5_v11_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v5_v13_" + SUFFIX, 
                "keras",
                params,
                False,
