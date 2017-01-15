@@ -173,7 +173,7 @@ class Classifier:
                 print("Getting yaml")
                 self.model = model_from_yaml(yaml_string)                
                 print("Got yaml")
-                self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
+                self.model.load_weights(os.path.join(self.inpath,self.name + "_weights_latest.hdf5"))
                         
                 print("Loading", self.name, "from file: Done...")
                 #print "Now training a bit"

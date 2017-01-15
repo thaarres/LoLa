@@ -509,12 +509,13 @@ classifiers = [
     Classifier("NNXd_et_5deg_sample_v5_v17_" + SUFFIX, 
                "keras",
                params,
-               False,
+               True,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
                image_fun = to_image_scaled,           
-               class_names = {0: "background", 1: "signal"}               
+               class_names = {0: "background", 1: "signal"},
+               inpath = "/scratch/snx3000/gregork/outputs",
                ),
 
 ]
