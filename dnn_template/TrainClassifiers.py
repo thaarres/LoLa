@@ -61,7 +61,7 @@ default_params = {
     "conv_size"       : 4,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
-    "n_dense_layers"  : 2,
+    "n_dense_layers"  : 3,
     "n_dense_nodes"   : 64,
     "dense_batchnorm" : 0,
 
@@ -72,7 +72,7 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.005,
+    "lr"                : 0.004,
     "decay"             : 0.,
     "momentum"          : 0.,            
     "nb_epoch"          : 1200,
@@ -506,10 +506,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v5_v17_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v5_v18_" + SUFFIX, 
                "keras",
                params,
-               True,
+               False,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),

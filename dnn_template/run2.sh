@@ -1,0 +1,69 @@
+#lr=0.0005 decay=0.00000125  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p0005_decay_400 &
+#sleep 10
+#lr=0.0005 decay=0.0000025  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p0005_decay_200 &
+#sleep 10
+#lr=0.0005 decay=0.000005  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p0005_decay_100 &
+#sleep 10
+#lr=0.0005 decay=0.00001  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p0005_decay_50 &
+#sleep 10
+#lr=0.001 decay=0.0000025  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p001_decay_400 &
+#sleep 10
+#lr=0.001 decay=0.000005  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p001_decay_200 &
+#sleep 10
+#lr=0.001 decay=0.00001  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p001_decay_100 &
+#sleep 10
+#lr=0.001 decay=0.00002  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p001_decay_50 &
+#sleep 10
+#lr=0.002 decay=0.000005  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p002_decay_400 &
+#sleep 10
+#lr=0.002 decay=0.00001  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p002_decay_200 &
+#sleep 10
+#lr=0.002 decay=0.00002  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p002_decay_100 &
+#sleep 10
+#lr=0.002 decay=0.00004  srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh lr_0p002_decay_50 &
+
+#srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16	    &
+#sleep 10 
+#momentum=0.5 srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16_mom5	    &
+#sleep 10 
+#lr=0.02 srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16_lr0p02	    &
+#sleep 10 
+#lr=0.02 momentum=0.5 srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16_mom5_lr0p02	    &
+#sleep 10 
+#lr=0.005 srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16_lr0p005	    &
+#sleep 10 
+#lr=0.005 momentum=0.5 srun --time=1200   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh                      v16_mom5_lr0p005	    &
+#sleep 10 
+
+
+
+srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v18_vanilla	    &
+sleep 10 
+n_blocks=1        srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v18_n_blocks_1	    &
+sleep 10 
+n_blocks=3	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_n_blocks_3	    &
+sleep 10 
+n_conv_layers=3	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_n_conv_layers_3	    &
+sleep 10 
+conv_nfeat=4	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_conv_nfeat_4	    &
+sleep 10 
+conv_nfeat=8	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_conv_nfeat_8	    &
+sleep 10 
+conv_size=2	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_conv_size_2	    &
+sleep 10 
+conv_size=6	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_conv_size_6	    &
+sleep 10 
+pool_size=0	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_pool_size_0	    &
+sleep 10 
+n_dense_layers=2  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_n_dense_layers_2    &
+sleep 10 
+n_dense_layers=4  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_n_dense_layers_4    &
+sleep 10 
+n_dense_nodes=32  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v18_n_dense_nodes_32    &
+sleep 10 
+n_dense_nodes=128 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v18_n_dense_nodes_128   &
+sleep 10 
+
+
+
+
