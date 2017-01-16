@@ -57,7 +57,7 @@ default_params = {
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
     "n_conv_layers"   : 2,        
-    "conv_nfeat"      : 6,
+    "conv_nfeat"      : 8,
     "conv_size"       : 4,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
@@ -72,10 +72,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.004,
+    "lr"                : 0.0035,
     "decay"             : 0.,
     "momentum"          : 0.,            
-    "nb_epoch"          : 1200,
+    "nb_epoch"          : 1400,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -506,7 +506,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v5_v18_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v5_v19_" + SUFFIX, 
                "keras",
                params,
                False,
