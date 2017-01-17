@@ -10,19 +10,11 @@ print("post-import")
 # Configuration
 ########################################
 
-#CUTOFF = float(sys.argv[1])
-#SCALE = float(sys.argv[1])
 
 if len(sys.argv)>1:
     SUFFIX = sys.argv[1]
 else:
     SUFFIX = ""
-
-SCALE = 1.0
-
-
-print(SCALE, SUFFIX)
-
 
 brs = ["entry", 
        "img",
@@ -69,13 +61,17 @@ default_params = {
     "block_dropout"   : 0.0,
     "dense_dropout"   : 0.0,
 
+    # Image pre-processing
+    "cutoff"          : 0.0,
+    "scale"           : 1.0,
+
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.0035,
+    "lr"                : 0.003,
     "decay"             : 0.,
     "momentum"          : 0.,            
-    "nb_epoch"          : 1400,
+    "nb_epoch"          : 1600,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -244,12 +240,12 @@ def to_image_scaled(df):
     
     tmp = to_image(df)
 
-    tmp *= SCALE
+    # Rescale Input
+    tmp *= params["scale"]
 
-    # Lower et/pt/e cut-off
-    #min_value = 5.0
-    #if min_value:
-    #    tmp[tmp < min_value] = 0
+    # Lower cut-off
+    if params["cutoff"]:
+        tmp[tmp < params["cutoff"]] = 0
 
     return tmp/600.
 
@@ -506,7 +502,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v5_v19_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v5_v20_" + SUFFIX, 
                "keras",
                params,
                False,

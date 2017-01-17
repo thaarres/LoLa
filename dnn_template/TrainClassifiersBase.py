@@ -108,7 +108,6 @@ class LossPlotter(Callback):
         plt.clf()
         plt.plot(self.loss_hist)
         plt.plot(self.val_loss_hist)
-        plt.savefig("{0}/loss_{1}.png".format(self.name,epoch))
         plt.savefig("{0}/loss_latest.png".format(self.name,epoch))
 
         
