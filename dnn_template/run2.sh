@@ -66,29 +66,39 @@
 
 
 
-srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_vanilla  &
+#srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_vanilla  &
+#sleep 10 
+#cutoff=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p01  &
+#sleep 10 
+#cutoff=0.1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p1  &
+#sleep 10 
+#cutoff=0.5 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p5  &
+#sleep 10 
+#cutoff=1. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_1  &
+#sleep 10 
+#cutoff=2. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_2  &
+#sleep 10 
+#cutoff=3. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_3  &
+#sleep 10 
+#cutoff=5. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_5  &
+#sleep 10 
+#cutoff=10. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_10  &
+#sleep 10 
+#cutoff=15. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_15  &
+#sleep 10 
+#cutoff=20. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_20  &
+#sleep 10 
+#cutoff=30. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_30  &
+#sleep 10 
+#cutoff=50. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_50  &
+#sleep 10 
+
+
+srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v21_vanilla  &
 sleep 10 
-cutoff=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p01  &
+lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v21_lr0p01  &
 sleep 10 
-cutoff=0.1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p1  &
-sleep 10 
-cutoff=0.5 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_0p5  &
-sleep 10 
-cutoff=1. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_1  &
-sleep 10 
-cutoff=2. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_2  &
-sleep 10 
-cutoff=3. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_3  &
-sleep 10 
-cutoff=5. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_5  &
-sleep 10 
-cutoff=10. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_10  &
-sleep 10 
-cutoff=15. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_15  &
-sleep 10 
-cutoff=20. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_20  &
-sleep 10 
-cutoff=30. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_30  &
-sleep 10 
-cutoff=50. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v20_cutoff_50  &
-sleep 10 
+lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v21_lr0p001  &
+
+
+

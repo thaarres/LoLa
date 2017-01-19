@@ -80,16 +80,13 @@ colors = ['black', 'red','blue','green','orange','green','magenta']
 # Reading from ROOT file
 infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_sig.root"
 infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_bkg.root"
+
 cut_train =  "(entry%2==0)"
 cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
-#if "t3ui" in hostname:
-infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v5.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v5.h5"
-#else:
-#    infname_train = "/scratch/daint/gregork/train-img-and-dr.h5"
-#    infname_test  = "/scratch/daint/gregork/test-img-and-dr.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v6.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v6.h5"
 
 
 ########################################
@@ -119,7 +116,9 @@ if params["read_h5"]:
     n_train_samples = (store.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
 
     store_test = pandas.HDFStore(infname_test)
-    n_test_samples = (store.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
+    n_test_samples = (store_test.get_storer('table').nrows/params["batch_size"])*params["batch_size"]
+
+
 
 ########################################
 # ROOT: Count effective training samples
@@ -502,7 +501,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v5_v20_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v5_v21_" + SUFFIX, 
                "keras",
                params,
                False,
