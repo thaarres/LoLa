@@ -81,12 +81,12 @@ colors = ['black', 'red','blue','green','orange','green','magenta']
 infname_sig = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_sig.root"
 infname_bkg = "/mnt/t3nfs01/data01/shome/gregor/JetImages/images_unprocessed_bkg.root"
 
-cut_train =  "(entry%2==0)"
-cut_test  =  "(entry%2==1)"
+#cut_train =  "(entry%2==0)"
+#cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v6.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v5-testonly.h5"
 
 
 ########################################
@@ -504,7 +504,7 @@ classifiers = [
     Classifier("NNXd_et_5deg_sample_v5_v21_" + SUFFIX, 
                "keras",
                params,
-               False,
+               True,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
