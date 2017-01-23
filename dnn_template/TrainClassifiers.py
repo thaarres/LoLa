@@ -85,8 +85,8 @@ cut_train =  "(entry%2==0)"
 cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
-infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v6.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-min-5deg-v6.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v6.h5"
 
 
 ########################################
@@ -501,7 +501,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v6_v23_" + SUFFIX, 
+    Classifier("NNXd_min_5deg_sample_v6_v24_" + SUFFIX, 
                "keras",
                params,
                False,
