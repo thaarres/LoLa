@@ -154,8 +154,6 @@ n_blocks=3	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=norma
 sleep 10 
 n_blocks=4	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_n_blocks_4	    &
 sleep 10 
-n_blocks=5	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_n_blocks_5	    &
-sleep 10 
 n_conv_layers=3	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_n_conv_layers_3	    &
 sleep 10 
 n_conv_layers=4	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_n_conv_layers_4	    &
@@ -171,8 +169,6 @@ sleep 10
 conv_size=6	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_conv_size_6	    &
 sleep 10 
 conv_size=8	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_conv_size_8	    &
-sleep 10 
-conv_size=10	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_conv_size_10	    &
 sleep 10 
 pool_size=0	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v24_pool_size_0	    &
 sleep 10 

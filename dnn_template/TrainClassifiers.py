@@ -86,7 +86,7 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 infname_train = "/scratch/snx3000/gregork/train-img-min-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v6.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v5-testonly.h5"
 
 
 ########################################
@@ -504,7 +504,7 @@ classifiers = [
     Classifier("NNXd_min_5deg_sample_v6_v24_" + SUFFIX, 
                "keras",
                params,
-               False,
+               True,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
