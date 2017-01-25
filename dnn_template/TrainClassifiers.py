@@ -68,7 +68,7 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.006,
+    "lr"                : 0.01,
     "decay"             : 0.,
     "momentum"          : 0.,            
     "nb_epoch"          : 800,
@@ -86,7 +86,7 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 infname_train = "/scratch/snx3000/gregork/train-img-min-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v5-testonly.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v6.h5"
 
 
 ########################################
@@ -501,10 +501,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_min_5deg_sample_v6_v26_" + SUFFIX, 
+    Classifier("NNXd_min_5deg_sample_v6_v27_" + SUFFIX, 
                "keras",
                params,
-               True,
+               False,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
