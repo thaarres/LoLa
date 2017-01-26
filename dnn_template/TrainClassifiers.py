@@ -48,12 +48,12 @@ default_params = {
     
     # Parameters for 2d convolutional architecture    
     "n_blocks"        : 2,    
-    "n_conv_layers"   : 3,        
+    "n_conv_layers"   : 2,        
     "conv_nfeat"      : 8,
     "conv_size"       : 4,
     "conv_batchnorm"  : 0,
     "pool_size"       : 2,
-    "n_dense_layers"  : 4,
+    "n_dense_layers"  : 3,
     "n_dense_nodes"   : 64,
     "dense_batchnorm" : 0,
 
@@ -68,10 +68,10 @@ default_params = {
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
-    "lr"                : 0.01,
+    "lr"                : 0.003,
     "decay"             : 0.,
     "momentum"          : 0.,            
-    "nb_epoch"          : 800,
+    "nb_epoch"          : 1000,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -85,8 +85,8 @@ cut_train =  "(entry%2==0)"
 cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
-infname_train = "/scratch/snx3000/gregork/train-img-min-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v6.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v7.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7.h5"
 
 
 ########################################
@@ -501,7 +501,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_min_5deg_sample_v6_v27_" + SUFFIX, 
+    Classifier("NNXd_min_5deg_sample_v7_v28_" + SUFFIX, 
                "keras",
                params,
                False,

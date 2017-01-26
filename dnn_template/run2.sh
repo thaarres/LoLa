@@ -178,22 +178,49 @@
 #sleep 10 
 
 
-srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_vanilla	    &
+#srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_vanilla	    &
+#sleep 10 
+#n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers4	    &
+#sleep 10 
+#conv_nfeat=12 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers4	    &
+#sleep 10 
+#n_conv_layers=2 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers2	    &
+#sleep 10 
+#n_conv_layers=2 conv_nfeat=12 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers2	    &
+#sleep 10 
+#pool_size=0 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers4_pool0	    &
+#sleep 10 
+#pool_size=0 conv_nfeat=12 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers4_pool0	    &
+#sleep 10 
+#pool_size=0 n_conv_layers=2 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers2_pool0	    &
+#sleep 10 
+#pool_size=0 n_conv_layers=2 conv_nfeat=12 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers2_pool0    &
+#sleep 10 
+
+srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_vanilla  &
 sleep 10 
-n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers4	    &
+cutoff=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_0p01  &
 sleep 10 
-conv_nfeat=12 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers4	    &
+cutoff=0.1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_0p1  &
 sleep 10 
-n_conv_layers=2 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers2	    &
+cutoff=0.5 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_0p5  &
 sleep 10 
-n_conv_layers=2 conv_nfeat=12 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers2	    &
+cutoff=1. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_1  &
 sleep 10 
-pool_size=0 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers4_pool0	    &
+cutoff=2. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_2  &
 sleep 10 
-pool_size=0 conv_nfeat=12 n_conv_layers=4 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers4_pool0	    &
+cutoff=3. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_3  &
 sleep 10 
-pool_size=0 n_conv_layers=2 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_layers2_pool0	    &
+cutoff=5. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_5  &
 sleep 10 
-pool_size=0 n_conv_layers=2 conv_nfeat=12 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers2_pool0    &
+cutoff=10. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_10  &
+sleep 10 
+cutoff=15. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_15  &
+sleep 10 
+cutoff=20. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_20  &
+sleep 10 
+cutoff=30. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_30  &
+sleep 10 
+cutoff=50. srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v28_cutoff_50  &
 sleep 10 
 
