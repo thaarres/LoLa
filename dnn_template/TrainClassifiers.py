@@ -71,7 +71,7 @@ default_params = {
     "lr"                : 0.003,
     "decay"             : 0.,
     "momentum"          : 0.,            
-    "nb_epoch"          : 1000,
+    "nb_epoch"          : 800,
     "samples_per_epoch" : None, # later filled from input files
 }
 
@@ -85,8 +85,8 @@ cut_train =  "(entry%2==0)"
 cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
-infname_train = "/scratch/snx3000/gregork/train-img-min-5deg-v6.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-min-5deg-v5-testonly.h5"
+infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v6.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v6.h5"
 
 
 ########################################
@@ -501,10 +501,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_min_5deg_sample_v6_v27_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v6_v29_" + SUFFIX, 
                "keras",
                params,
-               True,
+               False,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
