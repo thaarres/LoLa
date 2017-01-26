@@ -25,6 +25,8 @@ import os
 import pickle
 import pdb
 
+import random
+
 print("Imported basics")
 
 if "t3ui" in hostname:

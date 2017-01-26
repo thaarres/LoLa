@@ -225,13 +225,26 @@
 #sleep 10 
 
 
-srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v29_vanilla	    &
+#srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v29_vanilla	    &
+#sleep 10 
+#n_conv_layers=1	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_n_conv_layers_1	    &
+#sleep 10 
+#pool_size=0	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_pool_size_0	    &
+#sleep 10 
+#pool_size=4	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_pool_size_4	    &
+#sleep 10 
+
+srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v30_vanilla	    &
 sleep 10 
-n_conv_layers=1	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_n_conv_layers_1	    &
+rnd_scale=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v30_rnd_0p01	    &
 sleep 10 
-pool_size=0	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_pool_size_0	    &
+rnd_scale=0.02 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v30_rnd_0p02	    &
 sleep 10 
-pool_size=4	  srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh 	v29_pool_size_4	    &
+rnd_scale=0.05 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v30_rnd_0p05	    &
 sleep 10 
+rnd_scale=0.1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh     v30_rnd_0p1	    &
+sleep 10 
+
+
 
 
