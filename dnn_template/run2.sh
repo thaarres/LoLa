@@ -244,7 +244,7 @@
 #sleep 10 
 #rnd_scale=0.1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh     v30_rnd_0p1	    &
 #sleep 10 
-
+#
 
 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v31_vanilla	    &
 sleep 10 
