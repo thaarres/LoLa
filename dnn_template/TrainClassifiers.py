@@ -64,7 +64,7 @@ default_params = {
     # Image pre-processing
     "cutoff"          : 0.0,
     "scale"           : 1.0,
-    "rnd_scale"       : 0.1,
+    "rnd_scale"       : 0.0,
 
     # Common parameters
     "n_chunks"          : 10,
@@ -510,7 +510,7 @@ classifiers = [
     Classifier("NNXd_et_5deg_sample_v7_v33_" + SUFFIX, 
                "keras",
                params,
-               False,
+               True,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),
@@ -588,7 +588,7 @@ if params["root_to_h5"]:
 
 for clf in classifiers:
     clf.prepare()
-    eval_single(clf)
+    eval_single(clf, "_scale_{0}".format(params["scale"]))
 #analyze_multi(classifiers)
 
 

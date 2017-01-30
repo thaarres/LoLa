@@ -281,9 +281,55 @@
 #
 
 
-srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+#srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+#sleep 10 
+#lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p01	    &
+#sleep 10 
+#lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p001	    &
+#sleep 10 
+
+
+scale=0.5 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
 sleep 10 
-lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p01	    &
+scale=0.6 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
 sleep 10 
-lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p001	    &
+scale=0.7 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=0.8 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=0.85 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=0.9 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=0.95 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=0.97 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.0 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.03 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.05 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.1 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.15 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.2 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.3 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.4 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.5 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.6 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.7 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.8 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=1.9 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
+sleep 10 
+scale=2.0 srun --time=20   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
 sleep 10 
