@@ -87,7 +87,7 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v7.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7-testonly.h5"
 
 
 ########################################
@@ -507,7 +507,7 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_et_5deg_sample_v7_v33_" + SUFFIX, 
+    Classifier("NNXd_min_5deg_sample_v7_v28_" + SUFFIX, 
                "keras",
                params,
                True,
@@ -588,7 +588,8 @@ if params["root_to_h5"]:
 
 for clf in classifiers:
     clf.prepare()
-    eval_single(clf, "_scale_{0}".format(params["scale"]))
+    #eval_single(clf, "_scale_{0}".format(params["scale"]))
+    eval_single(clf)
 #analyze_multi(classifiers)
 
 
