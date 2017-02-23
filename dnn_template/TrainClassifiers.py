@@ -65,7 +65,8 @@ default_params = {
     "cutoff"          : 0.0,
     "scale"           : 1.0,
     "rnd_scale"       : 0.0,
-
+    "sum2"            : 0,
+    
     # Common parameters
     "n_chunks"          : 10,
     "batch_size"        : 1000,
@@ -87,7 +88,7 @@ cut_test  =  "(entry%2==1)"
 
 # Reading H5FS
 infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v7.h5"
-infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7-testonly.h5"
+infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7.h5"
 
 
 ########################################
@@ -177,7 +178,6 @@ print("Total number of training samples = ", n_train_samples)
 print("Total number of testing samples = ", n_test_samples)
 params["samples_per_epoch"] = n_train_samples
 params["samples_per_epoch_test"] = n_test_samples
-
     
 ########################################
 # Prepare data and scalers
@@ -243,6 +243,7 @@ def to_image_scaled(df):
     # Rescale Input
     tmp *= params["scale"]
 
+    # TODO: fixme to per-image instead of per-batch
     if params["rnd_scale"]:
         tmp *= random.gauss(1.0,params["rnd_scale"])
     
@@ -251,8 +252,17 @@ def to_image_scaled(df):
         tmp[tmp < params["cutoff"]] = 0
 
 
+    if params["sum2"]:
 
-    return tmp/600.
+        for i_img in range(len(tmp)):
+            ssq = np.sum(tmp[i_img]**2)
+            if ssq >0:
+                tmp[i_img] /= ssq            
+                        
+        return tmp
+
+    else:
+        return tmp/600.
 
 
 def to_image_1d_scaled(df):
@@ -507,10 +517,10 @@ classifiers = [
 #               class_names = {0: "background", 1: "signal"}               
 #               ),
 
-    Classifier("NNXd_min_5deg_sample_v7_v28_" + SUFFIX, 
+    Classifier("NNXd_et_5deg_sample_v7_v36_" + SUFFIX, 
                "keras",
                params,
-               True,
+               False,
                datagen_train_pixel,
                datagen_test_pixel,               
                model_2d(params),

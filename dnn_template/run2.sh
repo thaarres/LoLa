@@ -197,32 +197,32 @@
 #pool_size=0 n_conv_layers=2 conv_nfeat=12 srun --time=1100   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v27_feat12_layers2_pool0    &
 #sleep 10 
 
-srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_vanilla  &
-sleep 10 
-cutoff=0.01 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p01  &
-sleep 10 
-cutoff=0.1 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p1  &
-sleep 10 
-cutoff=0.5 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p5  &
-sleep 10 
-cutoff=1. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_1  &
-sleep 10 
-cutoff=2. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_2  &
-sleep 10 
-cutoff=3. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_3  &
-sleep 10 
-cutoff=5. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_5  &
-sleep 10 
-cutoff=10. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_10  &
-sleep 10 
-cutoff=15. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_15  &
-sleep 10 
-cutoff=20. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_20  &
-sleep 10 
-cutoff=30. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_30  &
-sleep 10 
-cutoff=50. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_50  &
-sleep 10 
+#srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_vanilla  &
+#sleep 10 
+#cutoff=0.01 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p01  &
+#sleep 10 
+#cutoff=0.1 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p1  &
+#sleep 10 
+#cutoff=0.5 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_0p5  &
+#sleep 10 
+#cutoff=1. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_1  &
+#sleep 10 
+#cutoff=2. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_2  &
+#sleep 10 
+#cutoff=3. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_3  &
+#sleep 10 
+#cutoff=5. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_5  &
+#sleep 10 
+#cutoff=10. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_10  &
+#sleep 10 
+#cutoff=15. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_15  &
+#sleep 10 
+#cutoff=20. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_20  &
+#sleep 10 
+#cutoff=30. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_30  &
+#sleep 10 
+#cutoff=50. srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_cutoff_50  &
+#sleep 10 
 
 
 #srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v29_vanilla	    &
@@ -282,12 +282,18 @@ sleep 10
 
 
 
-#srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_vanilla	    &
-#sleep 10 
-#lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p01	    &
-#sleep 10 
-#lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v33_lr0p001	    &
-#sleep 10 
+srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_vanilla	    &
+sleep 10 
+lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_lr0p01	    &
+sleep 10 
+lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_lr0p001	    &
+sleep 10 
+sum2=1 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_sum2_vanilla	    &
+sleep 10 
+sum2=1 lr=0.01 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_sum2_lr0p01	    &
+sleep 10 
+sum2=1 lr=0.001 srun --time=1400   --nodes=1 --gres=gpu:1 -C gpu  --partition=normal  run_daint.sh    v36_sum2_lr0p001	    &
+sleep 10 
 
 
 #scale=0.75 srun --time=40   --nodes=1 --gres=gpu:1 -C gpu  --partition=high  run_daint.sh    v28_vanilla	    &
