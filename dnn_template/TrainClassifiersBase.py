@@ -177,8 +177,6 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights_latest.hdf5"))
                         
                 print("Loading", self.name, "from file: Done...")
-                #print "Now training a bit"
-                #train_keras(self)
 
 
 ########################################
