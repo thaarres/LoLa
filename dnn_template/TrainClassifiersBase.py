@@ -305,12 +305,44 @@ def train_keras(clf):
     
 
 ########################################
+# Helper: calc_aoc
+########################################
+
+def calc_aoc(r):
+    """ Calculate the area under the curve """
+
+    # r is a list of x-y coordinate pairs
+    # sorted from highest x to lowest x
+    # (but we take the abs to calculate the width, so the ordering does not matter)
+
+    area = 0
+
+    min_eff = 0.03
+
+    # First bin
+    if r[0][0] > min_eff and r[0][1] > 0:
+        area +=  abs((r[0][0]-r[1][0])/2.) * 1/r[0][1]
+
+    # All the bins in between
+    for right, center, left in zip(r, r[1:], r[2:]):        
+        width = abs((center[0]-right[0])/2.) + abs((center[0]-left[0])/2.)
+        if center[0] > min_eff and center[1] > 0 :
+            area += width * 1/center[1]
+
+    # Last bin
+    if r[-1][0]>min_eff and r[-1][1]>0:
+        area += abs((r[-2][0]-r[-1][0])/2.) * 1/r[-1][1]
+
+    return area
+
+
+########################################
 # Helper: rocplot
 ########################################
 
 def rocplot(clf, df):
     
-    print("rocplot", clf.name)
+    print "rocplot", clf.name
 
     nbins = 100
     min_prob = min(df["sigprob_"+ clf.name])
@@ -382,7 +414,7 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
     rocs = []
     
     for clf_name,df in zip(classifiers, dfs):
-        nbins = 100
+        nbins = 1000
         min_prob = min(df["sigprob_"+ clf_name])
         max_prob = max(df["sigprob_"+ clf_name])
 
@@ -402,20 +434,32 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
         
     plt.clf()        
     for clf_name, roc, label, ls in zip(classifiers, rocs, labels, styles):
+
+        area = calc_aoc(roc)
+        
         plt.plot(roc[:, 0], 
                  1./roc[:, 1], 
                  lw=1, 
-                 label = label,
+                 label = label + " ({0:.2f})".format(area),
                  ls=ls)
+        
+        tfn = clf_name + "_roc.txt"
+        tf = open(tfn, "w")
+        tf.write("#e_sig, e_bkg\n")
+        for p in roc:
+            tf.write("{0}, {1}\n".format(p[0],p[1]))
+        tf.close()
                 
     # Setup nicely
     plt.legend(loc=2)
     plt.xlabel( "signal match efficiency", fontsize=16)
     plt.ylabel("1/fake match efficiency", fontsize=16)
-    plt.legend(loc=1)
+    plt.legend(loc=1, prop={'size':7},frameon=False)
 
-    plt.xlim(0,2.0)
-    plt.ylim(1,100000)
+
+
+    plt.xlim(0.0,1.2)
+    plt.ylim(1,5000)
 
     plt.yscale('log')    
     plt.show()
@@ -424,13 +468,29 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
 
 
 
-    plt.xlim(0.2,0.5)
-    plt.ylim(30,80)
+    plt.xlim(0.3,0.4)
+    plt.ylim(20,160)
 
     plt.yscale('linear')    
     plt.show()
 
     plt.savefig("multi-ROC-inv-zoom"+suffix+".png")
+
+
+
+    for clf_name, roc, label, ls in zip(classifiers, rocs, labels, styles):
+
+        target = 0.3
+        esig  = 100
+        ebkg  = 100 
+        
+
+        for i in range(len(roc)):
+            if abs(target-roc[i][0]) < abs(target-esig):
+                esig = roc[i][0]
+                ebkg = roc[i][1]
+        
+        print label, 1./ebkg
 
 
 ########################################
