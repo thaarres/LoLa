@@ -1,6 +1,7 @@
 
-def main(**kwargs):
+def main(kwargs):
 
+    print(kwargs)
 
     import TrainClassifiersBase as TCB
 
@@ -51,6 +52,8 @@ def main(**kwargs):
         "block_dropout"   : 0.0,
         "dense_dropout"   : 0.0,
 
+        "pool_type"       : "max",
+
         # Image pre-processing
         "cutoff"          : 0.0,
         "scale"           : 1.0,
@@ -63,9 +66,16 @@ def main(**kwargs):
         "lr"                : 0.005,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 5,
+        "nb_epoch"          : 50,
         "samples_per_epoch" : None, # later filled from input files
     }
+
+
+    name = "v39_"
+    for k,v in kwargs.items():
+        name += "{0}_{1}_".format(k,v)
+    default_params["model_name"]=name        
+        
 
     colors = ['black', 'red','blue','green','orange','green','magenta']
 
@@ -84,8 +94,11 @@ def main(**kwargs):
     params = {}
     for param in default_params.keys():
 
+
         if param in kwargs.keys():
-            params[param] = kwargs[param]
+            cls = default_params[param].__class__
+            value = cls(kwargs[param])
+            params[param] = value
         else:
             params[param] = default_params[param]
 
@@ -93,6 +106,12 @@ def main(**kwargs):
     for k,v in params.items():
         print("{0}={1}".format(k,v))
 
+    tot_pool = params["pool_size"]**params["n_blocks"]
+ 
+    if tot_pool > 0:
+        if not ((40 % tot_pool == 0) and (tot_pool <= 40)):
+            print("Total pool of {0} is too large. Exiting.".format(tot_pool))
+            return 10.
 
     ########################################
     # H5FS: Count effective training samples
@@ -221,13 +240,20 @@ def main(**kwargs):
             for i_conv_layer in range(params["n_conv_layers"]):
 
                 if i_conv_layer == 0 and i_block ==0:
-                    model.add(TCB.ZeroPadding2D(padding=(1, 1), input_shape=(1, 40, 40)))
+                    #model.add(TCB.ZeroPadding2D(padding=(1, 1), input_shape=(1, 40, 40)))
+                    model.add(TCB.Convolution2D(params["conv_nfeat"],
+                                                params["conv_size" ], 
+                                                params["conv_size" ],
+                                                border_mode='same',
+                                                input_shape=(1, 40, 40)))
                 else:
-                    model.add(TCB.ZeroPadding2D(padding=(1, 1)))
-
-                model.add(TCB.Convolution2D(params["conv_nfeat"],
-                                        params["conv_size" ], 
-                                        params["conv_size" ]))
+                    #model.add(TCB.ZeroPadding2D(padding=(1, 1)))
+                    model.add(TCB.Convolution2D(params["conv_nfeat"],
+                                                params["conv_size" ], 
+                                                params["conv_size" ],
+                                                border_mode='same'))
+            
+                
                 model.add(activ())
 
                 if params["conv_batchnorm"]:
@@ -236,8 +262,12 @@ def main(**kwargs):
                 if params["conv_dropout"] > 0.0:
                     model.add(TCB.Dropout(params["conv_dropout"]))
 
+            
             if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
-                model.add(TCB.MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+                if params["pool_type"] == "max":
+                    model.add(TCB.MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+                elif params["pool_type"] == "avg":
+                    model.add(TCB.AveragePooling2D(pool_size=(params["pool_size"], params["pool_size"])))
 
             if params["block_dropout"] > 0.0:
                 model.add(TCB.Dropout(params["block_dropout"]))
@@ -367,14 +397,14 @@ def main(**kwargs):
     # Train/Load classifiers and make ROCs
     ########################################
 
+    # Returns best val loss for keras training
     for clf in classifiers:
+        return clf.prepare()
+                
+        #if params["suffix"]:
+        #    TCB.eval_single(clf, params["suffix"])
+        #else:
+        #    TCB.eval_single(clf)
 
-        clf.prepare()
-        
-        if params["suffix"]:
-            TCB.eval_single(clf, params["suffix"])
-        else:
-            TCB.eval_single(clf)
 
-    return "Done"
 

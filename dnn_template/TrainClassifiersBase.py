@@ -159,7 +159,8 @@ class Classifier:
             if self.backend == "scikit":
                 train_scikit(self)
             elif self.backend == "keras":
-                train_keras(self)
+                return train_keras(self)
+            
         else:
             if self.backend == "scikit":
                 f = open(os.path.join(self.inpath,self.name + ".pickle"), "r")
@@ -177,7 +178,6 @@ class Classifier:
                 self.model.load_weights(os.path.join(self.inpath,self.name + "_weights_latest.hdf5"))
                         
                 print("Loading", self.name, "from file: Done...")
-
 
 ########################################
 # Helper: train_scitkit
@@ -245,10 +245,10 @@ def train_keras(clf):
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
-#    early_stop = EarlyStopping(monitor='val_loss', 
-#                               patience=10, 
-#                               verbose=0, 
-#                               mode='auto')
+    early_stop = EarlyStopping(monitor='val_loss', 
+                               patience=10, 
+                               verbose=0, 
+                               mode='auto')
 
     filepath= outdir + "/weights-latest.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
@@ -265,7 +265,7 @@ def train_keras(clf):
                                   verbose=2, 
                                   validation_data=test_gen,
                                   nb_val_samples = clf.params["samples_per_epoch"],
-                                  callbacks = [checkpoint, LossPlotter(outdir)])
+                                  callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
 
     print("Done")
 
@@ -298,6 +298,9 @@ def train_keras(clf):
   
     # And the weights
     clf.model.save_weights(outdir + "/" + clf.name + '_weights.h5', overwrite=True)
+
+    best_val_loss = min(ret.history["val_loss"])
+    return best_val_loss
 
     
 
