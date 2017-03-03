@@ -21,6 +21,7 @@ def fixPath():
 
 sys.path = fixPath()
 
+
 import os
 import pickle
 import pdb
@@ -29,9 +30,6 @@ import random
 
 print("Imported basics")
 
-if "t3ui" in hostname:
-    import ROOT
-    print("Imported ROOT")
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -43,14 +41,11 @@ from matplotlib.colors import LogNorm
 import pandas
 
 if "t3ui" in hostname:
-    import root_numpy
     from matplotlib.colors import LogNorm
 
 import h5py
 
 print("Imported numpy+friends")
-
-
 
 from keras.models import Sequential
 from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
@@ -64,6 +59,9 @@ from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
 print("Imported keras")
+
+
+
 
 if "t3ui" in hostname:
     import sklearn

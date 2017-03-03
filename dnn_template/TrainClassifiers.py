@@ -33,19 +33,22 @@ def main(kwargs):
         "model_name" : "NNXd_et_5deg_sample_v7_v37",
         
         "suffix" : "",
-        
+
+        # Input path
+        "input_path" : "/scratch/snx3000/gregork/",
+
         # False: Train; True: read weights file 
         "read_from_file" : False,
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
-        "n_conv_layers"   : 2,        
+        "n_conv_layers"   : 1,        
         "conv_nfeat"      : 2,
         "conv_size"       : 4,
         "conv_batchnorm"  : 0,
         "pool_size"       : 2,
-        "n_dense_layers"  : 1,
-        "n_dense_nodes"   : 28,
+        "n_dense_layers"  : 3,
+        "n_dense_nodes"   : 100,
         "dense_batchnorm" : 0,
 
         "conv_dropout"    : 0.0,
@@ -63,10 +66,10 @@ def main(kwargs):
         # Common parameters
         "n_chunks"          : 10,
         "batch_size"        : 1000,
-        "lr"                : 0.005,
+        "lr"                : 0.1,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 50,
+        "nb_epoch"          : 10,
         "samples_per_epoch" : None, # later filled from input files
     }
 
@@ -82,18 +85,12 @@ def main(kwargs):
     cut_train =  "(entry%2==0)"
     cut_test  =  "(entry%2==1)"
 
-    # Reading H5FS
-    infname_train = "/scratch/snx3000/gregork/train-img-et-5deg-v7.h5"
-    infname_test  = "/scratch/snx3000/gregork/test-img-et-5deg-v7.h5"
-
-
     ########################################
     # Read in parameters
     ########################################
 
     params = {}
     for param in default_params.keys():
-
 
         if param in kwargs.keys():
             cls = default_params[param].__class__
@@ -112,6 +109,12 @@ def main(kwargs):
         if not ((40 % tot_pool == 0) and (tot_pool <= 40)):
             print("Total pool of {0} is too large. Exiting.".format(tot_pool))
             return 10.
+
+
+    # Reading H5FS
+    infname_train = TCB.os.path.join(params["input_path"], "train-img-et-5deg-v7.h5")
+    infname_test  = TCB.os.path.join(params["input_path"], "test-img-et-5deg-v7.h5")
+
 
     ########################################
     # H5FS: Count effective training samples

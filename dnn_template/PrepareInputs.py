@@ -245,6 +245,6 @@ for sample in ["test", "train"]:
 
         print len(df)
 
-        df.to_hdf(sample+'-img-min-5deg-v7-testonly-footest1.h5','table',append=True)
+        df.to_hdf(sample+'-img-min-5deg-v7-3k.h5','table',append=True)
 
 
