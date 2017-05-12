@@ -4,6 +4,9 @@
 
 print("Imports: Starting...")
 
+import faulthandler
+faulthandler.enable()
+
 import socket
 hostname = socket.gethostname()
 
@@ -54,7 +57,7 @@ from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
+from keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
 from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
@@ -90,7 +93,7 @@ class LossPlotter(Callback):
         super(Callback, self).__init__()
 
         self.loss_hist = []
-        self.val_loss_hist = []
+  #      self.val_loss_hist = []
         self.name = name
 
 
@@ -103,11 +106,11 @@ class LossPlotter(Callback):
     def on_epoch_end(self, epoch, logs):
 
         self.loss_hist.append(logs["loss"])
-        self.val_loss_hist.append(logs["val_loss"])
+#        self.val_loss_hist.append(logs["val_loss"])
 
         plt.clf()
         plt.plot(self.loss_hist)
-        plt.plot(self.val_loss_hist)
+ #       plt.plot(self.val_loss_hist)
         plt.savefig("{0}/loss_latest.png".format(self.name,epoch))
 
         
@@ -241,53 +244,56 @@ def train_keras(clf):
 
         
     train_gen = generator(clf.datagen_train)
-    test_gen  = generator(clf.datagen_test)
+    #test_gen  = generator(clf.datagen_test)
 
-    early_stop = EarlyStopping(monitor='val_loss', 
+    early_stop = EarlyStopping(monitor='loss', 
                                patience=10, 
                                verbose=0, 
                                mode='auto')
 
     filepath= outdir + "/weights-latest.hdf5"
-    checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
+    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='auto')
 
     # save the architecture
     model_out_yaml = open(outdir + "/" + clf.name + ".yaml", "w")
     model_out_yaml.write(clf.model.to_yaml())
     model_out_yaml.close()
 
+    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
 
     ret = clf.model.fit_generator(train_gen,
-                                  samples_per_epoch = clf.params["samples_per_epoch"],
+                                  steps_per_epoch = nbatches,
                                   nb_epoch = clf.params["nb_epoch"],
                                   verbose=2, 
-                                  validation_data=test_gen,
-                                  nb_val_samples = clf.params["samples_per_epoch"],
                                   callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
+                                  #validation_data=test_gen,
+                                  #validation_steps = nbatches,
+ 
 
-    print("Done")
+
+    print("fit Done")
 
     plt.clf()
     plt.plot(ret.history["acc"])
-    plt.plot(ret.history["val_acc"])
+    #plt.plot(ret.history["val_acc"])
     plt.savefig(outdir + "/acc.png")
 
     plt.clf()
     plt.plot(ret.history["loss"])
-    plt.plot(ret.history["val_loss"])
+    #plt.plot(ret.history["val_loss"])
     plt.savefig(outdir + "/loss.png")
 
-    valacc_out = open(outdir + "/valacc.txt", "w")
-    valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
-    valacc_out.close()
+    #valacc_out = open(outdir + "/valacc.txt", "w")
+    #valacc_out.write(str(ret.history["val_acc"][-1]) + "\n")
+    #valacc_out.close()
 
-    maxvalacc_out = open(outdir + "/maxvalacc.txt", "w")
-    maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
-    maxvalacc_out.close()
+    #maxvalacc_out = open(outdir + "/maxvalacc.txt", "w")
+    #maxvalacc_out.write(str(max(ret.history["val_acc"])) + "\n")
+    #maxvalacc_out.close()
   
-    deltaacc_out = open(outdir + "/" + clf.name + "deltaacc.txt", "w")
-    deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
-    deltaacc_out.close()
+    #deltaacc_out = open(outdir + "/" + clf.name + "deltaacc.txt", "w")
+    #deltaacc_out.write(str(ret.history["val_acc"][-1] - ret.history["acc"][-1]) + "\n")
+    #deltaacc_out.close()
 
     # save the architecture
     model_out_yaml = open(outdir + "/" + clf.name + ".yaml", "w")
@@ -297,8 +303,8 @@ def train_keras(clf):
     # And the weights
     clf.model.save_weights(outdir + "/" + clf.name + '_weights.h5', overwrite=True)
 
-    best_val_loss = min(ret.history["val_loss"])
-    return best_val_loss
+    best_loss = min(ret.history["loss"])
+    return best_loss
 
     
 
@@ -340,7 +346,7 @@ def calc_aoc(r):
 
 def rocplot(clf, df):
     
-    print "rocplot", clf.name
+    #print("rocplot", clf.name)
 
     nbins = 100
     min_prob = min(df["sigprob_"+ clf.name])
@@ -488,7 +494,7 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
                 esig = roc[i][0]
                 ebkg = roc[i][1]
         
-        print label, 1./ebkg
+        #print(label, 1./ebkg
 
 
 ########################################
@@ -542,7 +548,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
                     df[br] = d[br]
 
             
-            for i in range(1600):
+            for i in range(15*15):
 
                 #df["img_{0}".format(i)] = d["img"][:,i]
                 #df["img_dr_{0}".format(i)] = d["img_dr"][:,i]
@@ -625,7 +631,6 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
     i_start = 0
     
     while True:
-
             
         if size >= i_start+batch_size:            
             foo = store.select('table',
@@ -633,12 +638,15 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
                                start = i_start,
                                stop  = i_start + batch_size)
                         
-            #print("Yieldin5D5Dg "+str(len(foo)))
-
             yield foo
             i_start += batch_size
         else:
+            print("Resetting")
+            store.close()
+            store = pandas.HDFStore(infname)
+            size = store.get_storer('table').nrows    
             i_start = 0
+            
 
 
 def analyze(clf):
@@ -677,8 +685,8 @@ def analyze(clf):
 
             # Now that we have calculated the classifier response, 
             # remove image from dataframe
-            for i in range(1600):
-                df.drop(["img_{0}".format(i)],axis=1)
+            for i in range(15*15):
+                df.drop(["hd_{0}".format(i)],axis=1)
 
         else:        
             X = get_data_vars(df, clf.varlist)
@@ -809,8 +817,8 @@ def analyze_multi(classifiers):
 
         # Now that we have calculated the classifier response, 
         # remove image from dataframe
-        for i in range(1600):
-            df.drop(["img_{0}".format(i)],axis=1)
+        for i in range(15*15):
+            df.drop(["hd_{0}".format(i)],axis=1)
 
         df_all = df_all.append(df)
 
