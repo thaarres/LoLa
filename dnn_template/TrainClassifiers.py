@@ -4,7 +4,6 @@ def main(kwargs):
 
     import TrainClassifiersBase as TCB
 
-
     ########################################
     # Configuration
     ########################################
@@ -21,7 +20,7 @@ def main(kwargs):
         # False: Train; True: read weights file 
         "read_from_file" : False,
         
-        "inputs" : "3d",
+        "inputs" : "2d",
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
@@ -51,18 +50,16 @@ def main(kwargs):
         "lr"                : 0.1,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 200,
+        "nb_epoch"          : 20,
         "samples_per_epoch" : None, # later filled from input files
     }
 
 
-
-    name = "qg1_"
+    name = "w_"
     for k,v in kwargs.items():
         name += "{0}_{1}_".format(k,v)
     default_params["model_name"]=name        
         
-
     colors = ['black', 'red','blue','green','orange','green','magenta']
 
     ########################################
@@ -86,31 +83,20 @@ def main(kwargs):
     tot_pool = params["pool_size"]**params["n_blocks"]
  
     if tot_pool > 0:
-        if not ((15 % tot_pool == 0) and (tot_pool <= 15)):
+        if not ((40 % tot_pool == 0) and (tot_pool <= 40)):
             print("Total pool of {0} is too large. Exiting.".format(tot_pool))
             return 10.
 
-
-    brs = ["jetPt", 
-           "is_signal_new",
-    ]
+    brs = ["is_singal_new"]
 
     pixel_brs = []
 
-    if params["inputs"] == "hd":
-        pixel_brs += ["hd_{0}".format(i) for i in range(15*15)]
-    elif params["inputs"] == "em" :
-        pixel_brs += ["em_{0}".format(i) for i in range(15*15)]
-    elif params["inputs"] == "tk":
-        pixel_brs += ["tk_{0}".format(i) for i in range(15*15)]
-    elif params["inputs"] == "3d":
-        pixel_brs += ["hd_{0}".format(i) for i in range(15*15)]
-        pixel_brs += ["em_{0}".format(i) for i in range(15*15)]
-        pixel_brs += ["tk_{0}".format(i) for i in range(15*15)]
+    if params["inputs"] == "2d":
+        pixel_brs += ["img_{0}".format(i) for i in range(40*40)]
 
     # Reading H5FS
-    infname_train = TCB.os.path.join(params["input_path"], "train-qg_v0.h5")
-    infname_test  = TCB.os.path.join(params["input_path"], "test-qg_v0.h5")
+    infname_train = TCB.os.path.join(params["input_path"], "deepw-train-v1.h5")
+    infname_test  = TCB.os.path.join(params["input_path"], "deepw-test-v1.h5")
 
 
     ########################################
@@ -118,15 +104,15 @@ def main(kwargs):
     ########################################
 
     store_train = TCB.pandas.HDFStore(infname_train)
-    n_train_samples = int((store_train.get_storer('table').nrows/params["batch_size"])*params["batch_size"])
+    n_train_samples = int((store_train.get_storer('table').nrows/params["batch_size"]))*params["batch_size"]
 
-    #store_test = TCB.pandas.HDFStore(infname_test)
-    #n_test_samples = int((store_test.get_storer('table').nrows/params["batch_size"])*params["batch_size"])
+    store_test = TCB.pandas.HDFStore(infname_test)
+    n_test_samples = int((store_test.get_storer('table').nrows/params["batch_size"]))*params["batch_size"]
 
     print("Total number of training samples = ", n_train_samples)
-    #print("Total number of testing samples = ", n_test_samples)
+    print("Total number of testing samples = ", n_test_samples)
     params["samples_per_epoch"] = n_train_samples
-    #params["samples_per_epoch_test"] = n_test_samples
+    params["samples_per_epoch_test"] = n_test_samples
 
 
     ########################################
@@ -136,35 +122,16 @@ def main(kwargs):
     print(n_train_samples)
 
     datagen_train_pixel = TCB.datagen_batch_h5(brs+pixel_brs, infname_train, batch_size=params["batch_size"])
-    #datagen_test_pixel  = TCB.datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
+    datagen_test_pixel  = TCB.datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
 
-    def to_image_hd(df):
-        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["hd_{0}".format(i) for i in range(15*15)]], axis=-1).reshape(-1,15,15), axis=1)        
+    def to_image_2d(df):
+        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["img_{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
         return foo
-
-    def to_image_em(df):
-        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["em_{0}".format(i) for i in range(15*15)]], axis=-1).reshape(-1,15,15), axis=1)        
-        return foo
-
-    def to_image_tk(df):
-        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["tk_{0}".format(i) for i in range(15*15)]], axis=-1).reshape(-1,15,15), axis=1)        
-        return foo
-
-
-    def to_image_3d(df):    
-        
-        hd = to_image_hd(df)
-        em = to_image_em(df)
-        tk = to_image_tk(df)
-        
-        return TCB.np.concatenate((hd, em, tk),axis=1) 
-
 
     def model_2d(params):
 
         activ = lambda : TCB.Activation('relu')
         model = TCB.Sequential()
-
 
         nclasses = 2
 
@@ -172,18 +139,14 @@ def main(kwargs):
             for i_conv_layer in range(params["n_conv_layers"]):
 
                 if i_conv_layer == 0 and i_block ==0:
-                    #model.add(TCB.ZeroPadding2D(padding=(1, 1), input_shape=(1, 15, 15)))
                     model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                params["conv_size" ], 
-                                                params["conv_size" ],
-                                                border_mode='same',
-                                                input_shape=(1, 15, 15)))
+                                                (params["conv_size" ], params["conv_size" ]),
+                                                padding='same',
+                                                input_shape=(1, 40, 40)))
                 else:
-                    #model.add(TCB.ZeroPadding2D(padding=(1, 1)))
                     model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                params["conv_size" ], 
-                                                params["conv_size" ],
-                                                border_mode='same'))
+                                                (params["conv_size" ], params["conv_size" ]),
+                                                padding='same'))
             
                 
                 model.add(activ())
@@ -223,78 +186,17 @@ def main(kwargs):
         return model
 
 
-    def model_3d(params):
 
-        activ = lambda : TCB.Activation('relu')
-        model = TCB.Sequential()
-
-        nclasses = 2
-
-        for i_block in range(params["n_blocks"]):
-            for i_conv_layer in range(params["n_conv_layers"]):
-
-                if i_conv_layer == 0 and i_block ==0:
-                    model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                params["conv_size" ], 
-                                                params["conv_size" ],
-                                                border_mode='same',
-                                                input_shape=(3, 15, 15)))
-                else:
-
-                    model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                params["conv_size" ], 
-                                                params["conv_size" ],
-                                                border_mode='same'))
-
-                model.add(activ())
-
-            if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
-                if params["pool_type"] == "max":
-                    model.add(TCB.MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
-                elif params["pool_type"] == "avg":
-                    model.add(TCB.AveragePooling2D(pool_size=(params["pool_size"], params["pool_size"])))
-
-
-        model.add(TCB.Flatten())
-
-        for i_dense_layer in range(params["n_dense_layers"]):
-            model.add(TCB.Dense(params["n_dense_nodes"]))
-            model.add(activ())    
-
-            if params["dense_batchnorm"]:
-                model.add(TCB.BatchNormalization())
-
-            if params["dense_dropout"] > 0.0:
-                model.add(TCB.Dropout(params["dense_dropout"]))
-
-
-        model.add(TCB.Dense(nclasses))
-        model.add(TCB.Activation('softmax'))
-
-        return model
-        
-
-    if params["inputs"] == "hd":
-        the_model = model_2d
-        the_image_fun = to_image_hd
-    elif params["inputs"] == "em":
-        the_model = model_2d
-        the_image_fun = to_image_em
-    elif params["inputs"] == "tk":
-        the_model = model_2d
-        the_image_fun = to_image_tk
-    elif params["inputs"] == "3d":
-        the_model = model_3d
-        the_image_fun = to_image_3d
+    the_model = model_2d
+    the_image_fun = to_image_2d
 
     classifiers = [
         TCB.Classifier(params["model_name"],
                    "keras",
                    params,
                    params["read_from_file"],
-                   datagen_train_pixel,
-                   None,
-                   #datagen_test_pixel,               
+                   datagen_train_pixel,                   
+                   datagen_test_pixel,               
                    the_model(params),
                    image_fun = the_image_fun,           
                    class_names = {0: "background", 1: "signal"},
@@ -308,12 +210,13 @@ def main(kwargs):
 
     # Returns best val loss for keras training
     for clf in classifiers:
-        return clf.prepare()
+        clf.prepare()
                 
-        #if params["suffix"]:
-        #    TCB.eval_single(clf, params["suffix"])
-        #else:
-        #    TCB.eval_single(clf)
+        if params["suffix"]:
+            ret = TCB.eval_single(clf, params["suffix"])
+        else:
+            ret = TCB.eval_single(clf)
 
-
+        return ret
+    
 

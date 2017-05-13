@@ -66,21 +66,23 @@ print("Imported keras")
 
 
 
-if "t3ui" in hostname:
-    import sklearn
-    from sklearn import preprocessing
-    from sklearn.ensemble import AdaBoostClassifier
-    from sklearn.tree  import DecisionTreeClassifier
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.ensemble import GradientBoostingClassifier
-    from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.multiclass import OutputCodeClassifier
-    from sklearn.multiclass import OneVsRestClassifier
-    from sklearn.multiclass import OneVsOneClassifier
-    from sklearn.preprocessing import normalize
-    from sklearn.svm import LinearSVC
-    from sklearn.preprocessing import StandardScaler  
-    print("Imported sklearn")
+
+import sklearn
+from sklearn import preprocessing
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree  import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.multiclass import OutputCodeClassifier
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.multiclass import OneVsOneClassifier
+from sklearn.preprocessing import normalize
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import StandardScaler  
+from sklearn.metrics import roc_auc_score
+print("Imported sklearn")
+ 
 
 from plotlib import *
 
@@ -197,7 +199,7 @@ def train_scikit(clf):
     df = df.iloc[np.random.permutation(len(df))]
 
     X = get_data_vars(df, clf.varlist)
-    y = df["is_signal_new"].values    
+    y = df["is_singal_new"].values    
     
     clf.model.fit(X, y)
 
@@ -238,13 +240,13 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["is_signal_new"].values,2)
+            y = np_utils.to_categorical(df["is_singal_new"].values,2)
 
             yield X,y
 
         
     train_gen = generator(clf.datagen_train)
-    #test_gen  = generator(clf.datagen_test)
+    test_gen  = generator(clf.datagen_test)
 
     early_stop = EarlyStopping(monitor='loss', 
                                patience=10, 
@@ -259,18 +261,14 @@ def train_keras(clf):
     model_out_yaml.write(clf.model.to_yaml())
     model_out_yaml.close()
 
-    nbatches = clf.params["samples_per_epoch"]/clf.params["batch_size"]
-
     ret = clf.model.fit_generator(train_gen,
-                                  steps_per_epoch = nbatches,
-                                  nb_epoch = clf.params["nb_epoch"],
+                                  steps_per_epoch = clf.params["samples_per_epoch"]/clf.params["batch_size"],
+                                  #validation_steps = clf.params["samples_per_epoch_test"]/clf.params["batch_size"],
                                   verbose=2, 
-                                  callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
+                                  epochs = clf.params["nb_epoch"],
                                   #validation_data=test_gen,
-                                  #validation_steps = nbatches,
- 
-
-
+                                  callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
+    
     print("fit Done")
 
     plt.clf()
@@ -303,9 +301,7 @@ def train_keras(clf):
     # And the weights
     clf.model.save_weights(outdir + "/" + clf.name + '_weights.h5', overwrite=True)
 
-    best_loss = min(ret.history["loss"])
-    return best_loss
-
+    
     
 
 ########################################
@@ -358,10 +354,10 @@ def rocplot(clf, df):
     plt.clf()
                 
     # Signal 
-    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf.name])    
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 1,"sigprob_"+clf.name])    
     
     # Background
-    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf.name])    
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 0,"sigprob_"+clf.name])    
 
     # And turn into ROC
     r, e = calc_roc(h1, h2)
@@ -416,7 +412,7 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
         styles = ["--"] * len(classifiers)
     
     rocs = []
-    
+
     for clf_name,df in zip(classifiers, dfs):
         nbins = 1000
         min_prob = min(df["sigprob_"+ clf_name])
@@ -426,10 +422,10 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
             max_prob = 1.1 * abs(min_prob)
 
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf_name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 1,"sigprob_"+clf_name])    
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf_name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -555,7 +551,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
                 #df["e{0}".format(i)]  = d["img_e"][:,i]
                 df["et{0}".format(i)] = d["img_min"][:,i]
             
-            df["is_signal_new"] = is_signal
+            df["is_singal_new"] = is_signal
 
             dfs.append(df)
 
@@ -572,10 +568,10 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 #        
 #        # and we have to cast astype(object) in between for this to work..
 #        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
-#        df_sig["is_signal_new"] = 1
+#        df_sig["is_singal_new"] = 1
 #
 #        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
-#        df_bkg["is_signal_new"] = 0
+#        df_bkg["is_singal_new"] = 0
 #
 #        
 #                    
@@ -641,7 +637,6 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
             yield foo
             i_start += batch_size
         else:
-            print("Resetting")
             store.close()
             store = pandas.HDFStore(infname)
             size = store.get_storer('table').nrows    
@@ -731,8 +726,8 @@ def analyze(clf):
                          
         [variable, cuts, nbins, xmin, xmax, name] = plot
         
-        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
-        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
+        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 1)])
+        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 0)])
 
         sig = df_all.loc[cut_sig,variable]
         bkg = df_all.loc[cut_bkg,variable]
@@ -749,14 +744,14 @@ def analyze(clf):
 
 
     # And 2D Plots:
-    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
-    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+    prob_sig = df_all.loc[(df_all["is_singal_new"] == 1),"sigprob"]
+    prob_bkg = df_all.loc[(df_all["is_singal_new"] == 0),"sigprob"]
     for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
                 "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
                 "tau32_sd", "tau32"]:
 
-        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
-        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+        var_sig = df_all.loc[(df_all["is_singal_new"] == 1), var]
+        var_bkg = df_all.loc[(df_all["is_singal_new"] == 0), var]
 
         name = var.replace("(","").replace(")","").replace(".","_")
         
@@ -869,8 +864,8 @@ def analyze_multi(classifiers):
 #                         
 #        [variable, cuts, nbins, xmin, xmax, name] = plot
 #        
-#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
-#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
+#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 1)])
+#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 0)])
 #
 #        sig = df_all.loc[cut_sig,variable]
 #        bkg = df_all.loc[cut_bkg,variable]
@@ -887,14 +882,14 @@ def analyze_multi(classifiers):
 #
 #
 ##    # And 2D Plots:
-##    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
-##    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+##    prob_sig = df_all.loc[(df_all["is_singal_new"] == 1),"sigprob"]
+##    prob_bkg = df_all.loc[(df_all["is_singal_new"] == 0),"sigprob"]
 ##    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
 ##                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
 ##                "tau32_sd", "tau32"]:
 ##
-##        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
-##        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+##        var_sig = df_all.loc[(df_all["is_singal_new"] == 1), var]
+##        var_bkg = df_all.loc[(df_all["is_singal_new"] == 0), var]
 ##
 ##        name = var.replace("(","").replace(")","").replace(".","_")
 ##        
@@ -917,14 +912,14 @@ def eval_single(clf, suffix=""):
 
     # Prepare all neural networks
 
-    if clf.backend == "keras":
-
-        # Prepare the model
-        sgd = SGD(lr = clf.params["lr"], 
-                  decay = clf.params["decay"], 
-                  momentum = clf.params["momentum"], 
-                  nesterov=True)
-        clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
+#    if clf.backend == "keras":
+#
+#        # Prepare the model
+#        sgd = SGD(lr = clf.params["lr"], 
+#                  decay = clf.params["decay"], 
+#                  momentum = clf.params["momentum"], 
+#                  nesterov=True)
+#        clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
     
     nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
 
@@ -951,7 +946,7 @@ def eval_single(clf, suffix=""):
 
         # Now that we have calculated the classifier response, 
         # remove the rest
-        cols_to_keep = set(["entry", "is_signal_new", "sigprob_" + clf.name])
+        cols_to_keep = set(["entry", "is_singal_new", "sigprob_" + clf.name])
         cols_to_drop = list(set(df.columns) - cols_to_keep)
         df = df.drop(cols_to_drop,axis=1)
 
@@ -959,6 +954,41 @@ def eval_single(clf, suffix=""):
 
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
+
+    aoc = roc_auc_score(df_all["is_singal_new"], df_all["sigprob_" + clf.name])
+
+    print("AOC: {0}".format(aoc))
+#        
+#    plt.plot(r[:, 0], 
+#             1./r[:, 1], 
+#             lw=1, 
+#             label = clf.name + " ({0:.2f})".format(area),
+#             ls=ls)
+#                        
+#    # Setup nicely
+#    plt.legend(loc=2)
+#    plt.xlabel( "signal match efficiency", fontsize=16)
+#    plt.ylabel("1/fake match efficiency", fontsize=16)
+#    plt.legend(loc=1, prop={'size':7},frameon=False)
+#
+#    plt.xlim(0.0,1.2)
+#    plt.ylim(1,5000)
+#
+#    plt.yscale('log')    
+#    plt.show()
+#
+#    plt.savefig("multi-ROC-inv"+suffix+".png")
+#
+#    plt.xlim(0.3,0.4)
+#    plt.ylim(20,160)
+#
+#    plt.yscale('linear')    
+#    plt.show()
+#
+#    plt.savefig("multi-ROC-inv-zoom"+suffix+".png")
+
+
+
 
 
 ########################################

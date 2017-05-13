@@ -39,14 +39,11 @@ export OMP_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
-
-
-
 echo "Go back home"
-cd ~/DeepQuark/dnn_template
+cd ~/DeepW/dnn_template
 
 echo "Received" $1
 
 echo "Starting TrainSimple.py"
-python SimpleTrainEval.py 
+python SimpleTrain.py 
 
