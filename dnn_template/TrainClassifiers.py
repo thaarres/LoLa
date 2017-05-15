@@ -23,14 +23,14 @@ def main(kwargs):
         "inputs" : "2d",
 
         # Parameters for 2d convolutional architecture    
-        "n_blocks"        : 1,    
+        "n_blocks"        : 2,    
         "n_conv_layers"   : 2,        
-        "conv_nfeat"      : 4,
+        "conv_nfeat"      : 8,
         "conv_size"       : 2,
         "conv_batchnorm"  : 0,
         "pool_size"       : 0,
-        "n_dense_layers"  : 1,
-        "n_dense_nodes"   : 20,
+        "n_dense_layers"  : 4,
+        "n_dense_nodes"   : 80,
         "dense_batchnorm" : 0,
 
         "conv_dropout"    : 0.0,
@@ -50,7 +50,7 @@ def main(kwargs):
         "lr"                : 0.1,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 20,
+        "nb_epoch"          : 100,
         "samples_per_epoch" : None, # later filled from input files
     }
 
@@ -184,7 +184,6 @@ def main(kwargs):
         model.add(TCB.Activation('softmax'))
 
         return model
-
 
 
     the_model = model_2d

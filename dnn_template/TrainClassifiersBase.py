@@ -958,36 +958,8 @@ def eval_single(clf, suffix=""):
     aoc = roc_auc_score(df_all["is_singal_new"], df_all["sigprob_" + clf.name])
 
     print("AOC: {0}".format(aoc))
-#        
-#    plt.plot(r[:, 0], 
-#             1./r[:, 1], 
-#             lw=1, 
-#             label = clf.name + " ({0:.2f})".format(area),
-#             ls=ls)
-#                        
-#    # Setup nicely
-#    plt.legend(loc=2)
-#    plt.xlabel( "signal match efficiency", fontsize=16)
-#    plt.ylabel("1/fake match efficiency", fontsize=16)
-#    plt.legend(loc=1, prop={'size':7},frameon=False)
-#
-#    plt.xlim(0.0,1.2)
-#    plt.ylim(1,5000)
-#
-#    plt.yscale('log')    
-#    plt.show()
-#
-#    plt.savefig("multi-ROC-inv"+suffix+".png")
-#
-#    plt.xlim(0.3,0.4)
-#    plt.ylim(20,160)
-#
-#    plt.yscale('linear')    
-#    plt.show()
-#
-#    plt.savefig("multi-ROC-inv-zoom"+suffix+".png")
 
-
+    return aoc
 
 
 
