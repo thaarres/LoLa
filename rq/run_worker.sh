@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "hostname"
+hostname
+
 echo "Go to scratch"
 cd $SCRATCH
 
@@ -31,14 +34,21 @@ export MKL_NUM_THREADS=1
 
 
 echo "Go back home"
-cd ~/DeepQuark/dnn_template
+cd ~/DeepW/dnn_template
 
 echo "Preparing tunnel"
 ssh -fL 9000:daint101:23836 daint101 sleep 84000
 
-export PYTHONPATH=/users/gregork/DeepQuark/dnn_template:$PYTHONPATH
+echo "lsof"
+lsof -i -n | egrep '\<ssh\>'
+
+export PYTHONPATH=/users/gregork/DeepW/dnn_template:$PYTHONPATH
+
+echo "python version:"
+python --version
 
 echo "Starting worker"
+
  ~/.local/bin/hyperopt-mongo-worker --mongo=localhost:9000/foo_db --poll-interval=10 --max-consecutive-failures=2000
 
 echo "Done.."
