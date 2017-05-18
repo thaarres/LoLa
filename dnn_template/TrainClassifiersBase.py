@@ -95,7 +95,7 @@ class LossPlotter(Callback):
         super(Callback, self).__init__()
 
         self.loss_hist = []
-  #      self.val_loss_hist = []
+        self.val_loss_hist = []
         self.name = name
 
 
@@ -108,11 +108,11 @@ class LossPlotter(Callback):
     def on_epoch_end(self, epoch, logs):
 
         self.loss_hist.append(logs["loss"])
-#        self.val_loss_hist.append(logs["val_loss"])
+        self.val_loss_hist.append(logs["val_loss"])
 
         plt.clf()
         plt.plot(self.loss_hist)
- #       plt.plot(self.val_loss_hist)
+        plt.plot(self.val_loss_hist)
         plt.savefig("{0}/loss_latest.png".format(self.name,epoch))
 
         
@@ -248,37 +248,40 @@ def train_keras(clf):
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
-    early_stop = EarlyStopping(monitor='loss', 
+    early_stop = EarlyStopping(monitor='val_loss', 
                                patience=10, 
                                verbose=0, 
                                mode='auto')
 
     filepath= outdir + "/weights-latest.hdf5"
-    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='auto')
+    checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
 
     # save the architecture
     model_out_yaml = open(outdir + "/" + clf.name + ".yaml", "w")
     model_out_yaml.write(clf.model.to_yaml())
     model_out_yaml.close()
 
+    print("Steps: Train: {0} Test: {1}".format(int(clf.params["samples_per_epoch"]/clf.params["batch_size"]),
+                                               int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"])))
+
     ret = clf.model.fit_generator(train_gen,
                                   steps_per_epoch = clf.params["samples_per_epoch"]/clf.params["batch_size"],
-                                  #validation_steps = clf.params["samples_per_epoch_test"]/clf.params["batch_size"],
+                                  validation_steps = clf.params["samples_per_epoch_test"]/clf.params["batch_size"],
                                   verbose=2, 
                                   epochs = clf.params["nb_epoch"],
-                                  #validation_data=test_gen,
+                                  validation_data=test_gen,
                                   callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
     
     print("fit Done")
 
     plt.clf()
     plt.plot(ret.history["acc"])
-    #plt.plot(ret.history["val_acc"])
+    plt.plot(ret.history["val_acc"])
     plt.savefig(outdir + "/acc.png")
 
     plt.clf()
     plt.plot(ret.history["loss"])
-    #plt.plot(ret.history["val_loss"])
+    plt.plot(ret.history["val_loss"])
     plt.savefig(outdir + "/loss.png")
 
     #valacc_out = open(outdir + "/valacc.txt", "w")
@@ -621,14 +624,21 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
 def datagen_batch_h5(brs, infname, batch_size=1024):
     """Generates data in batchaes using partial reading of h5 files """
 
+    print("Opening " + infname)
     store = pandas.HDFStore(infname)
     size = store.get_storer('table').nrows    
+    print("Opened " + infname)
 
     i_start = 0
+    step = 0
     
+
     while True:
             
         if size >= i_start+batch_size:            
+
+            #print("{0}: {1} {2}".format(infname, i_start, step))
+
             foo = store.select('table',
                                columns = brs,
                                start = i_start,
@@ -636,13 +646,21 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
                         
             yield foo
             i_start += batch_size
+            step += 1
+
+            if size < i_start+batch_size:
+                print("Closing " + infname)
+                store.close()
+                print("Closed " + infname)
+
         else:
-            store.close()
+
+            print("Opening " + infname)
             store = pandas.HDFStore(infname)
             size = store.get_storer('table').nrows    
-            i_start = 0
-            
+            print("Opened " + infname)
 
+            i_start = 0
 
 def analyze(clf):
 
