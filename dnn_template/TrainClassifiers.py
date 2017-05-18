@@ -87,7 +87,7 @@ def main(kwargs):
             print("Total pool of {0} is too large. Exiting.".format(tot_pool))
             return 10.
 
-    brs = ["is_singal_new"]
+    brs = ["is_signal_new"]
 
     pixel_brs = []
 

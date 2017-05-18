@@ -199,7 +199,7 @@ def train_scikit(clf):
     df = df.iloc[np.random.permutation(len(df))]
 
     X = get_data_vars(df, clf.varlist)
-    y = df["is_singal_new"].values    
+    y = df["is_signal_new"].values    
     
     clf.model.fit(X, y)
 
@@ -240,7 +240,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["is_singal_new"].values,2)
+            y = np_utils.to_categorical(df["is_signal_new"].values,2)
 
             yield X,y
 
@@ -357,10 +357,10 @@ def rocplot(clf, df):
     plt.clf()
                 
     # Signal 
-    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 1,"sigprob_"+clf.name])    
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf.name])    
     
     # Background
-    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 0,"sigprob_"+clf.name])    
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf.name])    
 
     # And turn into ROC
     r, e = calc_roc(h1, h2)
@@ -425,10 +425,10 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
             max_prob = 1.1 * abs(min_prob)
 
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 1,"sigprob_"+clf_name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf_name])    
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_singal_new"] == 0,"sigprob_"+clf_name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -554,7 +554,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
                 #df["e{0}".format(i)]  = d["img_e"][:,i]
                 df["et{0}".format(i)] = d["img_min"][:,i]
             
-            df["is_singal_new"] = is_signal
+            df["is_signal_new"] = is_signal
 
             dfs.append(df)
 
@@ -571,10 +571,10 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 #        
 #        # and we have to cast astype(object) in between for this to work..
 #        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
-#        df_sig["is_singal_new"] = 1
+#        df_sig["is_signal_new"] = 1
 #
 #        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
-#        df_bkg["is_singal_new"] = 0
+#        df_bkg["is_signal_new"] = 0
 #
 #        
 #                    
@@ -744,8 +744,8 @@ def analyze(clf):
                          
         [variable, cuts, nbins, xmin, xmax, name] = plot
         
-        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 1)])
-        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 0)])
+        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
+        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
 
         sig = df_all.loc[cut_sig,variable]
         bkg = df_all.loc[cut_bkg,variable]
@@ -762,14 +762,14 @@ def analyze(clf):
 
 
     # And 2D Plots:
-    prob_sig = df_all.loc[(df_all["is_singal_new"] == 1),"sigprob"]
-    prob_bkg = df_all.loc[(df_all["is_singal_new"] == 0),"sigprob"]
+    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
+    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
     for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
                 "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
                 "tau32_sd", "tau32"]:
 
-        var_sig = df_all.loc[(df_all["is_singal_new"] == 1), var]
-        var_bkg = df_all.loc[(df_all["is_singal_new"] == 0), var]
+        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
+        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
 
         name = var.replace("(","").replace(")","").replace(".","_")
         
@@ -882,8 +882,8 @@ def analyze_multi(classifiers):
 #                         
 #        [variable, cuts, nbins, xmin, xmax, name] = plot
 #        
-#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 1)])
-#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_singal_new"] == 0)])
+#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
+#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
 #
 #        sig = df_all.loc[cut_sig,variable]
 #        bkg = df_all.loc[cut_bkg,variable]
@@ -900,14 +900,14 @@ def analyze_multi(classifiers):
 #
 #
 ##    # And 2D Plots:
-##    prob_sig = df_all.loc[(df_all["is_singal_new"] == 1),"sigprob"]
-##    prob_bkg = df_all.loc[(df_all["is_singal_new"] == 0),"sigprob"]
+##    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
+##    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
 ##    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
 ##                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
 ##                "tau32_sd", "tau32"]:
 ##
-##        var_sig = df_all.loc[(df_all["is_singal_new"] == 1), var]
-##        var_bkg = df_all.loc[(df_all["is_singal_new"] == 0), var]
+##        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
+##        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
 ##
 ##        name = var.replace("(","").replace(")","").replace(".","_")
 ##        
@@ -964,7 +964,7 @@ def eval_single(clf, suffix=""):
 
         # Now that we have calculated the classifier response, 
         # remove the rest
-        cols_to_keep = set(["entry", "is_singal_new", "sigprob_" + clf.name])
+        cols_to_keep = set(["entry", "is_signal_new", "sigprob_" + clf.name])
         cols_to_drop = list(set(df.columns) - cols_to_keep)
         df = df.drop(cols_to_drop,axis=1)
 
@@ -973,7 +973,7 @@ def eval_single(clf, suffix=""):
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
 
-    aoc = roc_auc_score(df_all["is_singal_new"], df_all["sigprob_" + clf.name])
+    aoc = roc_auc_score(df_all["is_signal_new"], df_all["sigprob_" + clf.name])
 
     print("AOC: {0}".format(aoc))
 
