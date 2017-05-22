@@ -216,6 +216,6 @@ def main(kwargs):
         else:
             ret = TCB.eval_single(clf)
 
-        return ret
+        return -1. * ret
     
 
