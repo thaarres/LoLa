@@ -1,7 +1,7 @@
 from TrainClassifiers import main
 
 params = {"input_path" : "/scratch/snx3000/gregork/",
-          "model_name" : "pre_w_14",        
+          "model_name" : "benchmark_w_default",        
 }
 
 main(params)
