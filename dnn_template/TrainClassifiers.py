@@ -95,7 +95,7 @@ def main(kwargs):
         pixel_brs += ["img_{0}".format(i) for i in range(40*40)]
 
     # Reading H5FS
-    infname_train = TCB.os.path.join(params["input_path"], "deepw-train-v2.h5")
+    infname_train = TCB.os.path.join(params["input_path"], "deepw-train-v2-blosc-5.h5")
     infname_test  = TCB.os.path.join(params["input_path"], "deepw-test-v2.h5")
 
 
