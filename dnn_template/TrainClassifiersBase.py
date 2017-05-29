@@ -80,7 +80,7 @@ from sklearn.multiclass import OneVsOneClassifier
 from sklearn.preprocessing import normalize
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler  
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, log_loss, classification_report, confusion_matrix
 print("Imported sklearn")
  
 
@@ -199,7 +199,7 @@ def train_scikit(clf):
     df = df.iloc[np.random.permutation(len(df))]
 
     X = get_data_vars(df, clf.varlist)
-    y = df["is_signal_new"].values    
+    y = df["class"].values    
     
     clf.model.fit(X, y)
 
@@ -228,7 +228,7 @@ def train_keras(clf):
               decay = clf.params["decay"], 
               momentum = clf.params["momentum"], 
               nesterov=True)
-    clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
+    clf.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=["accuracy"])
                 
     print("Calling fit_generator")
 
@@ -240,7 +240,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["is_signal_new"].values,2)
+            y = np_utils.to_categorical(df["class_new"].values,5)
 
             yield X,y
 
@@ -357,10 +357,10 @@ def rocplot(clf, df):
     plt.clf()
                 
     # Signal 
-    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf.name])    
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 1,"sigprob_"+clf.name])    
     
     # Background
-    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf.name])    
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 0,"sigprob_"+clf.name])    
 
     # And turn into ROC
     r, e = calc_roc(h1, h2)
@@ -425,10 +425,10 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
             max_prob = 1.1 * abs(min_prob)
 
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf_name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 1,"sigprob_"+clf_name])    
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf_name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -554,7 +554,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
                 #df["e{0}".format(i)]  = d["img_e"][:,i]
                 df["et{0}".format(i)] = d["img_min"][:,i]
             
-            df["is_signal_new"] = is_signal
+            df["class_new"] = is_signal
 
             dfs.append(df)
 
@@ -571,10 +571,10 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
 #        
 #        # and we have to cast astype(object) in between for this to work..
 #        df_sig = pandas.DataFrame(np.asarray(d_sig.astype(object),dtype=datatype))
-#        df_sig["is_signal_new"] = 1
+#        df_sig["class"] = 1
 #
 #        df_bkg = pandas.DataFrame(np.asarray(d_bkg.astype(object),dtype=datatype))
-#        df_bkg["is_signal_new"] = 0
+#        df_bkg["class"] = 0
 #
 #        
 #                    
@@ -744,8 +744,8 @@ def analyze(clf):
                          
         [variable, cuts, nbins, xmin, xmax, name] = plot
         
-        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
-        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
+        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["class_new"] == 1)])
+        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["class_new"] == 0)])
 
         sig = df_all.loc[cut_sig,variable]
         bkg = df_all.loc[cut_bkg,variable]
@@ -762,14 +762,14 @@ def analyze(clf):
 
 
     # And 2D Plots:
-    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
-    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+    prob_sig = df_all.loc[(df_all["class_new"] == 1),"sigprob"]
+    prob_bkg = df_all.loc[(df_all["class_new"] == 0),"sigprob"]
     for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
                 "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
                 "tau32_sd", "tau32"]:
 
-        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
-        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+        var_sig = df_all.loc[(df_all["class_new"] == 1), var]
+        var_bkg = df_all.loc[(df_all["class_new"] == 0), var]
 
         name = var.replace("(","").replace(")","").replace(".","_")
         
@@ -882,8 +882,8 @@ def analyze_multi(classifiers):
 #                         
 #        [variable, cuts, nbins, xmin, xmax, name] = plot
 #        
-#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 1)])
-#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["is_signal_new"] == 0)])
+#        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["class"] == 1)])
+#        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["class"] == 0)])
 #
 #        sig = df_all.loc[cut_sig,variable]
 #        bkg = df_all.loc[cut_bkg,variable]
@@ -900,14 +900,14 @@ def analyze_multi(classifiers):
 #
 #
 ##    # And 2D Plots:
-##    prob_sig = df_all.loc[(df_all["is_signal_new"] == 1),"sigprob"]
-##    prob_bkg = df_all.loc[(df_all["is_signal_new"] == 0),"sigprob"]
+##    prob_sig = df_all.loc[(df_all["class"] == 1),"sigprob"]
+##    prob_bkg = df_all.loc[(df_all["class"] == 0),"sigprob"]
 ##    for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
 ##                "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
 ##                "tau32_sd", "tau32"]:
 ##
-##        var_sig = df_all.loc[(df_all["is_signal_new"] == 1), var]
-##        var_bkg = df_all.loc[(df_all["is_signal_new"] == 0), var]
+##        var_sig = df_all.loc[(df_all["class"] == 1), var]
+##        var_bkg = df_all.loc[(df_all["class"] == 0), var]
 ##
 ##        name = var.replace("(","").replace(")","").replace(".","_")
 ##        
@@ -924,6 +924,16 @@ def analyze_multi(classifiers):
 
 
 
+
+def response(row):
+    
+    scores = [row[n] for n in ["cprob_{0}_{1}".format(i_class, name) for i_class in range(n_classes)]]
+    
+    for i_class in range(n_classes):
+        if scores[i_class] == max(scores):
+            return i_class
+    
+    return -1
 
 
 def eval_single(clf, suffix=""):
@@ -962,22 +972,39 @@ def eval_single(clf, suffix=""):
         # we're just interested in the signal prob (bg prob = 1 - signal_prob)        
         df["sigprob_" + clf.name] = probs[:,1] 
 
+        # Label is maximum classiier
+        df["label_" + clf.name]   = np.apply_along_axis(lambda x:np.argmax(x),1,probs)
+        
+        # Add per-class probs
+        probnames= []
+        for iclass in range(clf.params["n_classes"]):
+            probname = "cprob_{0}_{1}".format(iclass, clf.name)            
+            df[probname] = probs[:,iclass]
+            probnames.append(probname)
+            
         # Now that we have calculated the classifier response, 
         # remove the rest
-        cols_to_keep = set(["entry", "is_signal_new", "sigprob_" + clf.name])
+        cols_to_keep = set(["entry", 
+                            "class_new", 
+                            "label_" + clf.name,
+                            "sigprob_" + clf.name] + probnames )
         cols_to_drop = list(set(df.columns) - cols_to_keep)
         df = df.drop(cols_to_drop,axis=1)
 
         df_all = df_all.append(df)
 
+    log_loss = log_loss(df_all["class_new"], df_all["label_" + clf.name])
+    print("Log loss: {0}".format(log_loss))
+
+    cm = confusion_matrix(df_all["class_new"], df_all["label" + clf.name])
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    print("Confusion Matrix:")
+    print(cm)
+
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
-
-    aoc = roc_auc_score(df_all["is_signal_new"], df_all["sigprob_" + clf.name])
-
-    print("AOC: {0}".format(aoc))
-
-    return aoc
+    
+    return log_loss
 
 
 

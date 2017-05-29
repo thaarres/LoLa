@@ -22,6 +22,8 @@ def main(kwargs):
         
         "inputs" : "2d",
 
+        "n_classes" : 5,
+
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 2,    
         "n_conv_layers"   : 2,        
@@ -50,7 +52,7 @@ def main(kwargs):
         "lr"                : 0.1,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 100,
+        "nb_epoch"          : 10,
         "samples_per_epoch" : None, # later filled from input files
     }
 
@@ -87,16 +89,16 @@ def main(kwargs):
             print("Total pool of {0} is too large. Exiting.".format(tot_pool))
             return 10.
 
-    brs = ["is_signal_new"]
+    brs = ["class_new"]
 
     pixel_brs = []
 
     if params["inputs"] == "2d":
-        pixel_brs += ["img_{0}".format(i) for i in range(40*40)]
+        pixel_brs += ["c{0}".format(i) for i in range(40*40)]
 
     # Reading H5FS
-    infname_train = TCB.os.path.join(params["input_path"], "deepw-train-v2-blosc-5.h5")
-    infname_test  = TCB.os.path.join(params["input_path"], "deepw-test-v2.h5")
+    infname_train = TCB.os.path.join(params["input_path"], "deeph-train-v1-resort.h5")
+    infname_test  = TCB.os.path.join(params["input_path"], "deeph-test-v1-resort.h5")
 
 
     ########################################
@@ -125,7 +127,7 @@ def main(kwargs):
     datagen_test_pixel  = TCB.datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
 
     def to_image_2d(df):
-        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["img_{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
+        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["c{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
         return foo
 
     def model_2d(params):
@@ -133,7 +135,7 @@ def main(kwargs):
         activ = lambda : TCB.Activation('relu')
         model = TCB.Sequential()
 
-        nclasses = 2
+        nclasses = 5
 
         for i_block in range(params["n_blocks"]):
             for i_conv_layer in range(params["n_conv_layers"]):
@@ -198,7 +200,7 @@ def main(kwargs):
                    datagen_test_pixel,               
                    the_model(params),
                    image_fun = the_image_fun,           
-                   class_names = {0: "background", 1: "signal"},
+                   class_names = {0: "c0", 1: "c1", 2:"c2", 3:"c3", 4:"c4"},
                    inpath = "/scratch/snx3000/gregork/outputs",
                )
     ]
@@ -216,6 +218,6 @@ def main(kwargs):
         else:
             ret = TCB.eval_single(clf)
 
-        return -1. * ret
+        return ret
     
 

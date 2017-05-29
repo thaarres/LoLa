@@ -40,7 +40,7 @@ export NUMEXPR_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
 echo "Go back home"
-cd ~/DeepW/dnn_template
+cd ~/DeepH/dnn_template
 
 echo "Received" $1
 
