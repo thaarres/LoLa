@@ -34,21 +34,21 @@ export MKL_NUM_THREADS=1
 
 
 echo "Go back home"
-cd ~/DeepW/dnn_template
+cd ~/DeepH/dnn_template
 
 echo "Preparing tunnel"
-ssh -fL 9000:daint101:23836 daint101 sleep 84000
+ssh -fL 9100:daint101:23888 daint101 sleep 84000
 
 echo "lsof"
 lsof -i -n | egrep '\<ssh\>'
 
-export PYTHONPATH=/users/gregork/DeepW/dnn_template:$PYTHONPATH
+export PYTHONPATH=/users/gregork/DeepH/dnn_template:$PYTHONPATH
 
 echo "python version:"
 python --version
 
 echo "Starting worker"
 
- ~/.local/bin/hyperopt-mongo-worker --mongo=localhost:9000/foo_db --poll-interval=10 --max-consecutive-failures=2000
+ ~/.local/bin/hyperopt-mongo-worker --mongo=localhost:9100/foo_db --poll-interval=10 --max-consecutive-failures=2000
 
 echo "Done.."

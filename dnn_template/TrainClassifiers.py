@@ -25,14 +25,14 @@ def main(kwargs):
         "n_classes" : 5,
 
         # Parameters for 2d convolutional architecture    
-        "n_blocks"        : 2,    
+        "n_blocks"        : 1,    
         "n_conv_layers"   : 2,        
-        "conv_nfeat"      : 8,
-        "conv_size"       : 2,
+        "conv_nfeat"      : 32,
+        "conv_size"       : 3,
         "conv_batchnorm"  : 0,
         "pool_size"       : 0,
-        "n_dense_layers"  : 4,
-        "n_dense_nodes"   : 80,
+        "n_dense_layers"  : 3,
+        "n_dense_nodes"   : 800,
         "dense_batchnorm" : 0,
 
         "conv_dropout"    : 0.0,
@@ -49,10 +49,10 @@ def main(kwargs):
 
         # Common parameters
         "batch_size"        : 2000,
-        "lr"                : 0.1,
+        "lr"                : 0.02,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 10,
+        "nb_epoch"          : 200,
         "samples_per_epoch" : None, # later filled from input files
     }
 
