@@ -973,8 +973,8 @@ def eval_single(clf, suffix=""):
         df["sigprob_" + clf.name] = probs[:,1] 
 
         # Label is maximum classiier
-        df["label_" + clf.name]   = np.apply_along_axis(lambda x:np.argmax(x),1,probs)
-        
+        df["label_" + clf.name]   = np.apply_along_axis(lambda x:int(np.argmax(x)),1,probs)
+                
         # Add per-class probs
         probnames= []
         for iclass in range(clf.params["n_classes"]):
@@ -993,10 +993,10 @@ def eval_single(clf, suffix=""):
 
         df_all = df_all.append(df)
 
-    log_loss = log_loss(df_all["class_new"], df_all["label_" + clf.name])
-    print("Log loss: {0}".format(log_loss))
+    ll = log_loss(df_all["class_new"], df_all[probnames])
+    print("Log loss: {0}".format(ll))
 
-    cm = confusion_matrix(df_all["class_new"], df_all["label" + clf.name])
+    cm = confusion_matrix(df_all["class_new"], df_all["label_" + clf.name])
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     print("Confusion Matrix:")
     print(cm)
@@ -1004,7 +1004,7 @@ def eval_single(clf, suffix=""):
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
     
-    return log_loss
+    return ll
 
 
 
