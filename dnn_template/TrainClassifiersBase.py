@@ -219,11 +219,11 @@ def train_keras(clf):
         os.makedirs(outdir)
       
     # Prepare model and train
-    sgd = SGD(lr = clf.params["lr"], 
-              decay = clf.params["decay"], 
-              momentum = clf.params["momentum"], 
-              nesterov=True)
-    clf.model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=["accuracy"])
+    #sgd = SGD(lr = clf.params["lr"], 
+    #          decay = clf.params["decay"], 
+    #          momentum = clf.params["momentum"], 
+    #          nesterov=True)
+    clf.model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=["accuracy"])
                 
     print("Calling fit_generator")
 
