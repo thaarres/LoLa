@@ -1,4 +1,5 @@
 import pdb
+import sys
 
 import numpy as np
 
@@ -13,6 +14,9 @@ from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
 print("Imported keras")
+
+sys.path.append("../LorentzLayer")
+from lola import LoLa
 
 #
 # Prepare Jet Image
@@ -31,8 +35,10 @@ def to_constit(df, n_constit):
     brs = []
     brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(n_constit)]
 
-    #ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
-    ret = df[brs]
+    ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
+    
+    # Reasonable jet scale for ML to work with
+    ret = ret/500.
 
     return ret
 
@@ -104,13 +110,44 @@ def model_fcn(params):
 
     activ = lambda : Activation('relu')
     model = Sequential()
-
-    model.add(Dense(40, activation='relu', input_shape=(20,)))
+    
+    model.add(Flatten(input_shape=(4,params["n_constit"])))
+    model.add(Dense(40, activation='relu'))
     model.add(Dense(20, activation='relu'))
     model.add(Dense(20, activation='relu'))
     model.add(Dense(20, activation='relu'))
 
     model.add(Dense(params["n_classes"]))
     model.add(Activation('softmax'))
+
+    return model
+
+#
+# LoLa
+#
+
+def model_lola(params):
+
+    model = Sequential()
+
+    debug = False
+
+    model.add(LoLa(input_shape=(4, params["n_constit"]),
+                   train_poly   = params["train_poly"],
+                   train_offset = params["train_offset"],
+                   train_metric = params["train_metric"],
+                   n_filters    = params["lola_filters"],
+                   debug        = debug,
+               ))
+ 
+    model.add(Flatten())
+
+    model.add(Dense(20))
+    model.add(Activation('relu'))
+
+    model.add(Dense(20))
+    model.add(Activation('relu'))
+
+    model.add(Dense(params["n_classes"], activation='softmax'))
 
     return model

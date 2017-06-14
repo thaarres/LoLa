@@ -49,6 +49,12 @@ def main(kwargs):
 
         "pool_type"       : "max",
 
+        # Parameters for LorentzLayer
+        "train_poly"   : True,
+        "train_offset" : True,
+        "train_metric" : False,
+        "lola_filters"  : 2,
+
         # Image pre-processing
         "cutoff"          : 0.0,
         "scale"           : 1.0,
@@ -103,10 +109,10 @@ def main(kwargs):
 
     if params["inputs"] == "2d":
         pixel_brs += ["c{0}".format(i) for i in range(40*40)]
-    if params["inputs"] == "constit":
+    elif params["inputs"] == "constit_fcn":
         pixel_brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(params["n_constit"])]
-
-    print pixel_brs
+    elif params["inputs"] == "constit_lola":
+        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(params["n_constit"])]
 
     # Reading H5FS
     infname_train = TCB.os.path.join(params["input_path"], params["name_train"])
@@ -141,8 +147,11 @@ def main(kwargs):
     if params["inputs"] == "2d":
         the_model     = TCB.Models.model_2d
         the_image_fun = TCB.Models.to_image_2d
-    elif params["inputs"] == "constit":
+    elif params["inputs"] == "constit_fcn":
         the_model     = TCB.Models.model_fcn
+        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"])
+    elif params["inputs"] == "constit_lola":
+        the_model     = TCB.Models.model_lola
         the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"])
     
     class_names = {}

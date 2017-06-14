@@ -223,7 +223,9 @@ def train_keras(clf):
     #          decay = clf.params["decay"], 
     #          momentum = clf.params["momentum"], 
     #          nesterov=True)
-    clf.model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=["accuracy"])
+    clf.model.compile(loss='categorical_crossentropy', 
+                      optimizer="adam", 
+                      metrics=["accuracy"])
                 
     print("Calling fit_generator")
 
@@ -683,8 +685,6 @@ def analyze(clf):
     # Loop over batches
     for i_batch in range(nbatches):
 
-        print("At ", i_batch, "/", nbatches)
-
         df = next(clf.datagen_test)
 
         if clf.backend == "keras":
@@ -809,8 +809,6 @@ def analyze_multi(classifiers):
     
     # Loop over batches
     for i_batch in range(nbatches):
-
-        print("At ", i_batch, "/", nbatches)
 
         df = next(classifiers[0].datagen_test)
 
@@ -955,8 +953,6 @@ def eval_single(clf, suffix=""):
     
     # Loop over batches
     for i_batch in range(nbatches):
-
-        print("At ", i_batch, "/", nbatches)
 
         df = next(clf.datagen_test)
 
