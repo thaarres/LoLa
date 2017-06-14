@@ -1,0 +1,95 @@
+import numpy as np
+
+from keras.models import Sequential
+from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
+from keras.layers.core import Dense, Dropout, Activation, Flatten
+from keras.utils import np_utils, generic_utils
+from keras.layers.advanced_activations import PReLU
+from keras.layers.normalization import BatchNormalization
+from keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
+from keras.layers.core import Reshape
+from keras.models import model_from_yaml
+
+print("Imported keras")
+
+#
+# Prepare Jet Image
+#
+
+def to_image_2d(df):
+    foo =  np.expand_dims(np.expand_dims(df[ ["c{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
+    return foo
+
+#
+# Prepare Constituents
+#
+
+def to_constit(df):
+
+    n_consts = 5
+    brs = []
+    brs += ["{0}_{1}".format(feature,constit) for feature in ["E","X","Y","Z"] for constit in range(n_consts)]
+    
+    #foo =  np.expand_dims(np.expand_dims(df[ ["c{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
+    #return foo
+
+
+#
+# 2D ConvNet
+#
+
+def model_2d(params):
+
+    activ = lambda : Activation('relu')
+    model = Sequential()
+
+    nclasses = params["n_classes"]
+
+    for i_block in range(params["n_blocks"]):
+        for i_conv_layer in range(params["n_conv_layers"]):
+
+            if i_conv_layer == 0 and i_block ==0:
+                model.add(Conv2D(params["conv_nfeat"],
+                                            (params["conv_size" ], params["conv_size" ]),
+                                            padding='same',
+                                            input_shape=(1, 40, 40)))
+            else:
+                model.add(Conv2D(params["conv_nfeat"],
+                                            (params["conv_size" ], params["conv_size" ]),
+                                            padding='same'))
+
+
+            model.add(activ())
+
+            if params["conv_batchnorm"]:
+                model.add(BatchNormalization())
+
+            if params["conv_dropout"] > 0.0:
+                model.add(Dropout(params["conv_dropout"]))
+
+
+        if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
+            if params["pool_type"] == "max":
+                model.add(MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+            elif params["pool_type"] == "avg":
+                model.add(AveragePooling2D(pool_size=(params["pool_size"], params["pool_size"])))
+
+        if params["block_dropout"] > 0.0:
+            model.add(Dropout(params["block_dropout"]))
+
+    model.add(Flatten())
+
+    for i_dense_layer in range(params["n_dense_layers"]):
+        model.add(Dense(params["n_dense_nodes"]))
+        model.add(activ())    
+
+        if params["dense_batchnorm"]:
+            model.add(BatchNormalization())
+
+        if params["dense_dropout"] > 0.0:
+            model.add(Dropout(params["dense_dropout"]))
+
+    model.add(Dense(nclasses))
+    model.add(Activation('softmax'))
+
+    return model

@@ -50,22 +50,15 @@ import h5py
 
 print("Imported numpy+friends")
 
-from keras.models import Sequential
 from keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
-from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import SGD
 from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
 from keras.layers.core import Reshape
 from keras.models import model_from_yaml
 
 print("Imported keras")
-
-
-
-
 
 import sklearn
 from sklearn import preprocessing
@@ -85,6 +78,8 @@ print("Imported sklearn")
  
 
 from plotlib import *
+
+import Models
 
 print("Imports: Done...")
 

@@ -10,7 +10,7 @@ def main(kwargs):
 
     default_params = {        
 
-        "model_name" : "NNXd_et_5deg_sample_v7_v37",
+        "model_name" : "NONE",
         
         "suffix" : "",
 
@@ -130,71 +130,9 @@ def main(kwargs):
     datagen_train_pixel = TCB.datagen_batch_h5(brs+pixel_brs, infname_train, batch_size=params["batch_size"])
     datagen_test_pixel  = TCB.datagen_batch_h5(brs+pixel_brs, infname_test, batch_size=params["batch_size"])
 
-    def to_image_2d(df):
-        foo =  TCB.np.expand_dims(TCB.np.expand_dims(df[ ["c{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
-        return foo
-
-    def model_2d(params):
-
-        activ = lambda : TCB.Activation('relu')
-        model = TCB.Sequential()
-
-        nclasses = params["n_classes"]
-
-        for i_block in range(params["n_blocks"]):
-            for i_conv_layer in range(params["n_conv_layers"]):
-
-                if i_conv_layer == 0 and i_block ==0:
-                    model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                (params["conv_size" ], params["conv_size" ]),
-                                                padding='same',
-                                                input_shape=(1, 40, 40)))
-                else:
-                    model.add(TCB.Conv2D(params["conv_nfeat"],
-                                                (params["conv_size" ], params["conv_size" ]),
-                                                padding='same'))
-            
-                
-                model.add(activ())
-
-                if params["conv_batchnorm"]:
-                    model.add(TCB.BatchNormalization())
-
-                if params["conv_dropout"] > 0.0:
-                    model.add(TCB.Dropout(params["conv_dropout"]))
-
-            
-            if params["pool_size"] > 0 and (i_block < params["n_blocks"] -1):
-                if params["pool_type"] == "max":
-                    model.add(TCB.MaxPooling2D(pool_size=(params["pool_size"], params["pool_size"])))
-                elif params["pool_type"] == "avg":
-                    model.add(TCB.AveragePooling2D(pool_size=(params["pool_size"], params["pool_size"])))
-
-            if params["block_dropout"] > 0.0:
-                model.add(TCB.Dropout(params["block_dropout"]))
-
-        model.add(TCB.Flatten())
-
-        for i_dense_layer in range(params["n_dense_layers"]):
-            model.add(TCB.Dense(params["n_dense_nodes"]))
-            model.add(activ())    
-
-            if params["dense_batchnorm"]:
-                model.add(TCB.BatchNormalization())
-
-            if params["dense_dropout"] > 0.0:
-                model.add(TCB.Dropout(params["dense_dropout"]))
-
-
-        model.add(TCB.Dense(nclasses))
-        model.add(TCB.Activation('softmax'))
-
-        return model
-
-
-    the_model = model_2d
-    the_image_fun = to_image_2d
-    
+    if params["inputs"] == "2d":
+        the_model     = TCB.Models.model_2d
+        the_image_fun = TCB.Models.to_image_2d
     
     class_names = {}
     for i in range(params["n_classes"]):
