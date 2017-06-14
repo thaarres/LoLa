@@ -4,8 +4,8 @@
 
 print("Imports: Starting...")
 
-import faulthandler
-faulthandler.enable()
+#import faulthandler
+#faulthandler.enable()
 
 import socket
 hostname = socket.gethostname()
@@ -213,7 +213,7 @@ def train_keras(clf):
     for k,v in clf.params.items():
         print("\t", k,"=",v)
 
-    outdir = "/scratch/snx3000/gregork/outputs/" + clf.name
+    outdir = clf.params["output_path"] + clf.name
 
     if not os.path.exists(outdir):
         os.makedirs(outdir)
@@ -235,7 +235,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df[clf.params["signal_branch"]].values,5)
+            y = np_utils.to_categorical(df[clf.params["signal_branch"]].values,clf.params["n_classes"])
 
             yield X,y
 
@@ -619,10 +619,14 @@ def datagen_batch(sel, brs, infname_sig, infname_bkg, n_chunks=10, batch_size=10
 def datagen_batch_h5(brs, infname, batch_size=1024):
     """Generates data in batchaes using partial reading of h5 files """
 
-    print("Opening " + infname)
+    verbose = False
+
+    if verbose:
+        print("Opening " + infname)
     store = pandas.HDFStore(infname)
     size = store.get_storer('table').nrows    
-    print("Opened " + infname)
+    if verbose:
+        print("Opened " + infname)
 
     i_start = 0
     step = 0
@@ -631,8 +635,6 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
     while True:
             
         if size >= i_start+batch_size:            
-
-            #print("{0}: {1} {2}".format(infname, i_start, step))
 
             foo = store.select('table',
                                columns = brs,
@@ -644,16 +646,19 @@ def datagen_batch_h5(brs, infname, batch_size=1024):
             step += 1
 
             if size < i_start+batch_size:
-                print("Closing " + infname)
+                if verbose:
+                    print("Closing " + infname)
                 store.close()
-                print("Closed " + infname)
+                if verbose:
+                    print("Closed " + infname)
 
         else:
-
-            print("Opening " + infname)
+            if verbose:
+                print("Opening " + infname)
             store = pandas.HDFStore(infname)
             size = store.get_storer('table').nrows    
-            print("Opened " + infname)
+            if verbose:
+                print("Opened " + infname)
 
             i_start = 0
 
@@ -988,8 +993,10 @@ def eval_single(clf, suffix=""):
 
         df_all = df_all.append(df)
 
-    ll = log_loss(df_all[clf.params["signal_branch"]], df_all[probnames])
-    print("Log loss: {0}".format(ll))
+    #pdb.set_trace()
+
+    #ll = log_loss(df_all[clf.params["signal_branch"]], df_all[probnames])
+    #print("Log loss: {0}".format(ll))
 
     cm = confusion_matrix(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -999,7 +1006,7 @@ def eval_single(clf, suffix=""):
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
     
-    return ll
+    #return ll
 
 
 

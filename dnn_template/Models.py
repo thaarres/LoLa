@@ -1,3 +1,5 @@
+import pdb
+
 import numpy as np
 
 from keras.models import Sequential
@@ -24,15 +26,15 @@ def to_image_2d(df):
 # Prepare Constituents
 #
 
-def to_constit(df):
+def to_constit(df, n_constit):
 
-    n_consts = 5
     brs = []
-    brs += ["{0}_{1}".format(feature,constit) for feature in ["E","X","Y","Z"] for constit in range(n_consts)]
-    
-    #foo =  np.expand_dims(np.expand_dims(df[ ["c{0}".format(i) for i in range(40*40)]], axis=-1).reshape(-1,40,40), axis=1)        
-    #return foo
+    brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(n_constit)]
 
+    #ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
+    ret = df[brs]
+
+    return ret
 
 #
 # 2D ConvNet
@@ -90,6 +92,25 @@ def model_2d(params):
             model.add(Dropout(params["dense_dropout"]))
 
     model.add(Dense(nclasses))
+    model.add(Activation('softmax'))
+
+    return model
+
+#
+# FCN
+#
+
+def model_fcn(params):
+
+    activ = lambda : Activation('relu')
+    model = Sequential()
+
+    model.add(Dense(40, activation='relu', input_shape=(20,)))
+    model.add(Dense(20, activation='relu'))
+    model.add(Dense(20, activation='relu'))
+    model.add(Dense(20, activation='relu'))
+
+    model.add(Dense(params["n_classes"]))
     model.add(Activation('softmax'))
 
     return model

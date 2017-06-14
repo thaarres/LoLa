@@ -14,11 +14,12 @@ def main(kwargs):
         
         "suffix" : "",
 
-        # Inputs
-        "input_path" : "/scratch/snx3000/gregork/",
-        "name_train" : "NONE",
-        "name_test"  : "NONE",
- 
+        # IO
+        "input_path"  : "/scratch/snx3000/gregork/",
+        "name_train"  : "NONE",
+        "name_test"   : "NONE",
+        "output_path" : "/scratch/snx3000/gregork/outputs/", 
+
         # False: Train; True: read weights file 
         "read_from_file" : False,
         
@@ -27,6 +28,9 @@ def main(kwargs):
         "n_classes" : 2,
 
         "signal_branch" : "is_signal_new",
+
+        # Parameters for constituent approach
+        "n_constit" : 5,
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
@@ -99,6 +103,10 @@ def main(kwargs):
 
     if params["inputs"] == "2d":
         pixel_brs += ["c{0}".format(i) for i in range(40*40)]
+    if params["inputs"] == "constit":
+        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(params["n_constit"])]
+
+    print pixel_brs
 
     # Reading H5FS
     infname_train = TCB.os.path.join(params["input_path"], params["name_train"])
@@ -133,6 +141,9 @@ def main(kwargs):
     if params["inputs"] == "2d":
         the_model     = TCB.Models.model_2d
         the_image_fun = TCB.Models.to_image_2d
+    elif params["inputs"] == "constit":
+        the_model     = TCB.Models.model_fcn
+        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"])
     
     class_names = {}
     for i in range(params["n_classes"]):

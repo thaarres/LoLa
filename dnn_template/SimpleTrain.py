@@ -1,7 +1,8 @@
 from TrainClassifiers import main
 
-params = {"input_path" : "/scratch/snx3000/gregork/",
-          "model_name" : "Htest_1",        
+params = {"input_path" : "./",
+          "output_path" : "./",
+          "model_name" : "Htest_2",        
           "n_classes"  : 5,
           "signal_branch" : "class_new",
           "nb_epoch"   : 2,
