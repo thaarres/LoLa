@@ -240,7 +240,7 @@ def train_keras(clf):
             df = df.iloc[np.random.permutation(len(df))]
 
             X = clf.image_fun(df)
-            y = np_utils.to_categorical(df["class_new"].values,5)
+            y = np_utils.to_categorical(df[clf.params["signal_branch"]].values,5)
 
             yield X,y
 
@@ -357,10 +357,10 @@ def rocplot(clf, df):
     plt.clf()
                 
     # Signal 
-    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 1,"sigprob_"+clf.name])    
+    h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 1,"sigprob_"+clf.name])    
     
     # Background
-    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 0,"sigprob_"+clf.name])    
+    h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 0,"sigprob_"+clf.name])    
 
     # And turn into ROC
     r, e = calc_roc(h1, h2)
@@ -425,10 +425,10 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
             max_prob = 1.1 * abs(min_prob)
 
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 1,"sigprob_"+clf_name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 1,"sigprob_"+clf_name])    
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["class_new"] == 0,"sigprob_"+clf_name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -554,7 +554,7 @@ def datagen(sel, brs, infname_sig, infname_bkg, n_chunks=10):
                 #df["e{0}".format(i)]  = d["img_e"][:,i]
                 df["et{0}".format(i)] = d["img_min"][:,i]
             
-            df["class_new"] = is_signal
+            df[clf.params["signal_branch"]] = is_signal
 
             dfs.append(df)
 
@@ -744,8 +744,8 @@ def analyze(clf):
                          
         [variable, cuts, nbins, xmin, xmax, name] = plot
         
-        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all["class_new"] == 1)])
-        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all["class_new"] == 0)])
+        cut_sig = reduce(lambda x,y:x&y,cuts + [(df_all[clf.params["signal_branch"]] == 1)])
+        cut_bkg = reduce(lambda x,y:x&y,cuts + [(df_all[clf.params["signal_branch"]] == 0)])
 
         sig = df_all.loc[cut_sig,variable]
         bkg = df_all.loc[cut_bkg,variable]
@@ -762,14 +762,14 @@ def analyze(clf):
 
 
     # And 2D Plots:
-    prob_sig = df_all.loc[(df_all["class_new"] == 1),"sigprob"]
-    prob_bkg = df_all.loc[(df_all["class_new"] == 0),"sigprob"]
+    prob_sig = df_all.loc[(df_all[clf.params["signal_branch"]] == 1),"sigprob"]
+    prob_bkg = df_all.loc[(df_all[clf.params["signal_branch"]] == 0),"sigprob"]
     for var in ["softdropped.M()" ,"filtered.M()", "fatjet.M()", 
                 "softdropped.Pt()","filtered.Pt()", "fatjet.Pt()", 
                 "tau32_sd", "tau32"]:
 
-        var_sig = df_all.loc[(df_all["class_new"] == 1), var]
-        var_bkg = df_all.loc[(df_all["class_new"] == 0), var]
+        var_sig = df_all.loc[(df_all[clf.params["signal_branch"]] == 1), var]
+        var_bkg = df_all.loc[(df_all[clf.params["signal_branch"]] == 0), var]
 
         name = var.replace("(","").replace(")","").replace(".","_")
         
@@ -985,7 +985,7 @@ def eval_single(clf, suffix=""):
         # Now that we have calculated the classifier response, 
         # remove the rest
         cols_to_keep = set(["entry", 
-                            "class_new", 
+                            clf.params["signal_branch"], 
                             "label_" + clf.name,
                             "sigprob_" + clf.name] + probnames )
         cols_to_drop = list(set(df.columns) - cols_to_keep)
@@ -993,10 +993,10 @@ def eval_single(clf, suffix=""):
 
         df_all = df_all.append(df)
 
-    ll = log_loss(df_all["class_new"], df_all[probnames])
+    ll = log_loss(df_all[clf.params["signal_branch"]], df_all[probnames])
     print("Log loss: {0}".format(ll))
 
-    cm = confusion_matrix(df_all["class_new"], df_all["label_" + clf.name])
+    cm = confusion_matrix(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     print("Confusion Matrix:")
     print(cm)

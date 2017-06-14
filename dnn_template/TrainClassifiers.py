@@ -14,15 +14,19 @@ def main(kwargs):
         
         "suffix" : "",
 
-        # Input path
+        # Inputs
         "input_path" : "/scratch/snx3000/gregork/",
-
+        "name_train" : "NONE",
+        "name_test"  : "NONE",
+ 
         # False: Train; True: read weights file 
         "read_from_file" : False,
         
         "inputs" : "2d",
 
-        "n_classes" : 5,
+        "n_classes" : 2,
+
+        "signal_branch" : "is_signal_new",
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
@@ -89,7 +93,7 @@ def main(kwargs):
             print("Total pool of {0} is too large. Exiting.".format(tot_pool))
             return 10.
 
-    brs = ["class_new"]
+    brs = [params["signal_branch"]]
 
     pixel_brs = []
 
@@ -97,8 +101,8 @@ def main(kwargs):
         pixel_brs += ["c{0}".format(i) for i in range(40*40)]
 
     # Reading H5FS
-    infname_train = TCB.os.path.join(params["input_path"], "deeph-train-v1-resort.h5")
-    infname_test  = TCB.os.path.join(params["input_path"], "deeph-test-v1-resort.h5")
+    infname_train = TCB.os.path.join(params["input_path"], params["name_train"])
+    infname_test  = TCB.os.path.join(params["input_path"], params["name_test"])
 
 
     ########################################
@@ -135,7 +139,7 @@ def main(kwargs):
         activ = lambda : TCB.Activation('relu')
         model = TCB.Sequential()
 
-        nclasses = 5
+        nclasses = params["n_classes"]
 
         for i_block in range(params["n_blocks"]):
             for i_conv_layer in range(params["n_conv_layers"]):
@@ -190,6 +194,11 @@ def main(kwargs):
 
     the_model = model_2d
     the_image_fun = to_image_2d
+    
+    
+    class_names = {}
+    for i in range(params["n_classes"]):
+        class_names[i] = "c{0}".format(i)
 
     classifiers = [
         TCB.Classifier(params["model_name"],
@@ -200,7 +209,7 @@ def main(kwargs):
                    datagen_test_pixel,               
                    the_model(params),
                    image_fun = the_image_fun,           
-                   class_names = {0: "c0", 1: "c1", 2:"c2", 3:"c3", 4:"c4"},
+                   class_names = class_names,
                    inpath = "/scratch/snx3000/gregork/outputs",
                )
     ]
