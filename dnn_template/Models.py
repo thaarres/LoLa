@@ -132,22 +132,28 @@ def model_lola(params):
 
     debug = False
 
-    model.add(LoLa(input_shape=(4, params["n_constit"]),
-                   train_poly   = params["train_poly"],
-                   train_offset = params["train_offset"],
-                   train_metric = params["train_metric"],
-                   train_minmax = params["train_minmax"],
-                   n_filters    = params["lola_filters"],
-                   debug        = debug,
+    model.add(LoLa(input_shape    = (4, params["n_constit"]),
+                   train_poly     = params["train_poly"],
+                   train_offset   = params["train_offset"],
+                   train_metric   = params["train_metric"],
+                   train_minmax   = params["train_minmax"],
+                   n_filters      = params["lola_filters"],
+                   use_angular_dr = params["use_angular_dr"],
+                   debug          = debug,
                ))
 
-    model.add(LoLa(train_poly   = params["train_poly"],
-                   train_offset = params["train_offset"],
-                   train_metric = params["train_metric"],
-                   train_minmax = params["train_minmax"],
-                   n_filters    = params["lola_filters"],
-                   debug        = debug,
-               ))
+    if params["n_lolas"] > 1:
+        for _ in range(params["n_lolas"]-1):
+            model.add(LoLa(input_shape    = (4, params["n_constit"]),
+                           train_poly     = params["train_poly"],
+                           train_offset   = params["train_offset"],
+                           train_metric   = params["train_metric"],
+                           train_minmax   = params["train_minmax"],
+                           n_filters      = params["lola_filters"],
+                           use_angular_dr = params["use_angular_dr"],
+                           debug          = debug,
+                       ))
+            
  
     model.add(Flatten())
 

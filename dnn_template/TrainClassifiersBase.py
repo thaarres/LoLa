@@ -949,11 +949,6 @@ def eval_single(clf, suffix=""):
     
     nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
 
-    for layer in clf.model.layers:
-        weights = layer.get_weights()
-        print(weights)
-
-
     df_all = pandas.DataFrame()
     
     # Loop over batches
