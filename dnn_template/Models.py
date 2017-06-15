@@ -136,6 +136,7 @@ def model_lola(params):
                    train_poly   = params["train_poly"],
                    train_offset = params["train_offset"],
                    train_metric = params["train_metric"],
+                   train_minmax = params["train_minmax"],
                    n_filters    = params["lola_filters"],
                    debug        = debug,
                ))
@@ -143,6 +144,7 @@ def model_lola(params):
     model.add(LoLa(train_poly   = params["train_poly"],
                    train_offset = params["train_offset"],
                    train_metric = params["train_metric"],
+                   train_minmax = params["train_minmax"],
                    n_filters    = params["lola_filters"],
                    debug        = debug,
                ))

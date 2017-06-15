@@ -53,7 +53,8 @@ def main(kwargs):
         "train_poly"   : True,
         "train_offset" : True,
         "train_metric" : False,
-        "lola_filters"  : 2,
+        "train_minmax" : False,
+        "lola_filters"  : 1,
 
         # Image pre-processing
         "cutoff"          : 0.0,

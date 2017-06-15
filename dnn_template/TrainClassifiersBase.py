@@ -73,7 +73,7 @@ from sklearn.multiclass import OneVsOneClassifier
 from sklearn.preprocessing import normalize
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler  
-from sklearn.metrics import roc_auc_score, log_loss, classification_report, confusion_matrix
+from sklearn.metrics import roc_auc_score, log_loss, classification_report, confusion_matrix, roc_curve
 print("Imported sklearn")
  
 
@@ -949,6 +949,11 @@ def eval_single(clf, suffix=""):
     
     nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
 
+    for layer in clf.model.layers:
+        weights = layer.get_weights()
+        print(weights)
+
+
     df_all = pandas.DataFrame()
     
     # Loop over batches
@@ -998,6 +1003,24 @@ def eval_single(clf, suffix=""):
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     print("Confusion Matrix:")
     print(cm)
+
+    AOC = roc_auc_score(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
+    print("AOC: {0}".format(AOC))
+    
+    fpr, tpr, _ = roc_curve(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
+
+    outdir = clf.params["output_path"] + clf.name
+    plt.clf()
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = {0:.2f})'.format(AOC))
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.legend(loc="lower right")
+    plt.savefig(outdir + "/roc.png")
+
 
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
