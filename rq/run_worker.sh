@@ -28,9 +28,9 @@ export LIBRARY_PATH=$CUDNN_BASE/lib64:$LD_LIBRARY_PATH
 # avoid lock-issues 
 export THEANO_FLAGS="base_compiledir=$SCRATCH/theano.NOBACKUP.$(date +%s).$RANDOM"
 
-export OMP_NUM_THREADS=1
-export NUMEXPR_NUM_THREADS=1
-export MKL_NUM_THREADS=1
+#export OMP_NUM_THREADS=1
+#export NUMEXPR_NUM_THREADS=1
+#export MKL_NUM_THREADS=1
 
 
 echo "Go back home"
@@ -49,6 +49,6 @@ python --version
 
 echo "Starting worker"
 
- ~/.local/bin/hyperopt-mongo-worker --mongo=localhost:9100/foo_db --poll-interval=10 --max-consecutive-failures=2000
+ ~/.local/bin/hyperopt-mongo-worker --mongo=localhost:9100/foo_db --poll-interval=10 --max-consecutive-failures=6000
 
 echo "Done.."
