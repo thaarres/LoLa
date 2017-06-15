@@ -112,7 +112,7 @@ def model_fcn(params):
     model = Sequential()
     
     model.add(Flatten(input_shape=(4,params["n_constit"])))
-    model.add(Dense(40, activation='relu'))
+
     model.add(Dense(20, activation='relu'))
     model.add(Dense(20, activation='relu'))
     model.add(Dense(20, activation='relu'))
@@ -134,6 +134,13 @@ def model_lola(params):
 
     model.add(LoLa(input_shape=(4, params["n_constit"]),
                    train_poly   = params["train_poly"],
+                   train_offset = params["train_offset"],
+                   train_metric = params["train_metric"],
+                   n_filters    = params["lola_filters"],
+                   debug        = debug,
+               ))
+
+    model.add(LoLa(train_poly   = params["train_poly"],
                    train_offset = params["train_offset"],
                    train_metric = params["train_metric"],
                    n_filters    = params["lola_filters"],
