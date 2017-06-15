@@ -138,6 +138,8 @@ def model_lola(params):
                    train_metric   = params["train_metric"],
                    train_minmax   = params["train_minmax"],
                    n_filters      = params["lola_filters"],
+                   do_mult_p      = params["do_mult_p"],
+                   mult_p         = params["mult_p"],
                    use_angular_dr = params["use_angular_dr"],
                    debug          = debug,
                ))
@@ -150,6 +152,8 @@ def model_lola(params):
                            train_metric   = params["train_metric"],
                            train_minmax   = params["train_minmax"],
                            n_filters      = params["lola_filters"],
+                           do_mult_p      = params["do_mult_p"],
+                           mult_p         = params["mult_p"],
                            use_angular_dr = params["use_angular_dr"],
                            debug          = debug,
                        ))

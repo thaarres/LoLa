@@ -58,6 +58,9 @@ def main(kwargs):
         "use_angular_dr" : False,
         "n_lolas"        : 1,
 
+        "do_mult_p"      : 0,
+        "mult_p"         : 0,
+
         # Image pre-processing
         "cutoff"          : 0.0,
         "scale"           : 1.0,
