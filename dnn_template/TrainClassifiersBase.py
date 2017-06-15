@@ -422,10 +422,10 @@ def rocplot_multi(classifiers, dfs, labels = [], styles = [],suffix =""):
             max_prob = 1.1 * abs(min_prob)
 
         # Signal 
-        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 1,"sigprob_"+clf_name])    
+        h1 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 1,"sigprob_"+clf_name])
 
         # Background
-        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df[clf.params["signal_branch"]] == 0,"sigprob_"+clf_name])    
+        h2 = make_df_hist((nbins*5,min_prob,max_prob), df.loc[df["is_signal_new"] == 0,"sigprob_"+clf_name])    
 
         # And turn into ROC
         r, e = calc_roc(h1, h2)
@@ -1004,10 +1004,10 @@ def eval_single(clf, suffix=""):
     print("Confusion Matrix:")
     print(cm)
 
-    AOC = roc_auc_score(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
+    AOC = roc_auc_score(df_all[clf.params["signal_branch"]], df_all["sigprob_" + clf.name])
     print("AOC: {0}".format(AOC))
     
-    fpr, tpr, _ = roc_curve(df_all[clf.params["signal_branch"]], df_all["label_" + clf.name])
+    fpr, tpr, _ = roc_curve(df_all[clf.params["signal_branch"]], df_all["sigprob_" + clf.name])
 
     outdir = clf.params["output_path"] + clf.name
     plt.clf()
