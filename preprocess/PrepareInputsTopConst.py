@@ -37,8 +37,8 @@ cols += ["Y_{0}".format(i_cand) for i_cand in range(n_cands)]
 cols += ["Z_{0}".format(i_cand) for i_cand in range(n_cands)]
 cols += ["is_signal_new"]
 
-for is_signal, infname in [[1, "/mnt/t3nfs01/data01/shome/gregor/fatjets_4momenta_sig.root"],
-                           [0, "/mnt/t3nfs01/data01/shome/gregor/fatjets_4momenta_bkg.root"]]:
+for is_signal, infname in [[1, "fatjets_4momenta_sig_large.root"],
+                           [0, "fatjets_4momenta_bkg_large.root"]]:
                            
     print infname
 
@@ -82,9 +82,9 @@ for is_signal, infname in [[1, "/mnt/t3nfs01/data01/shome/gregor/fatjets_4moment
         
         print len(df), len(train), len(test), len(val)
 
-        train.to_hdf('topconst-train-v0.h5','table',append=True)
-        test.to_hdf('topconst-test-v0.h5','table',append=True)
-        val.to_hdf('topconst-val-v0.h5','table',append=True)
+        train.to_hdf('topconst-train-v1.h5','table',append=True)
+        test.to_hdf('topconst-test-v1.h5','table',append=True)
+        val.to_hdf('topconst-val-v1.h5','table',append=True)
 
         close_time = time.time()
 
