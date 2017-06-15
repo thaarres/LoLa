@@ -16,14 +16,14 @@ def main(kwargs):
 
         # IO
         "input_path"  : "/scratch/snx3000/gregork/",
-        "name_train"  : "NONE",
-        "name_test"   : "NONE",
+        "name_train"  : "topconst-train-v1-resort.h5",
+        "name_test"   : "topconst-test-v1-resort.h5",
         "output_path" : "/scratch/snx3000/gregork/outputs/", 
 
         # False: Train; True: read weights file 
         "read_from_file" : False,
         
-        "inputs" : "2d",
+        "inputs" : "constit_lola",
 
         "n_classes" : 2,
 
@@ -65,11 +65,11 @@ def main(kwargs):
         "sum2"            : 0,
 
         # Common parameters
-        "batch_size"        : 2000,
+        "batch_size"        : 1024,
         "lr"                : 0.02,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 200,
+        "nb_epoch"          : 50,
         "samples_per_epoch" : None, # later filled from input files
     }
 

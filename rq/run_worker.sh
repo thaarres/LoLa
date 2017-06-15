@@ -43,6 +43,7 @@ echo "lsof"
 lsof -i -n | egrep '\<ssh\>'
 
 export PYTHONPATH=/users/gregork/DeepH/dnn_template:$PYTHONPATH
+export PYTHONPATH=/users/gregork/DeepH/LorentzLayer:$PYTHONPATH
 
 echo "python version:"
 python --version
