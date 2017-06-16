@@ -50,16 +50,17 @@ def main(kwargs):
         "pool_type"       : "max",
 
         # Parameters for LorentzLayer
-        "train_poly"     : True,
-        "train_offset"   : True,
-        "train_metric"   : False,
-        "train_minmax"   : False,
-        "lola_filters"   : 1,
-        "use_angular_dr" : False,
-        "n_lolas"        : 1,
-
-        "do_mult_p"      : 0,
-        "mult_p"         : 0,
+        "train_poly"              : True,
+        "train_offset"            : "none",
+        "train_metric"            : False,
+        "train_minmax"            : False,
+        "lola_filters"            : 1,
+        "use_angular_dr"          : False,
+        "n_lolas"                 : 1,
+        "do_mult_p"               : 0,
+        "mult_p"                  : 0,
+        "regularize_weight"       : False,
+        "train_regularize_weight" : False,
 
         # Image pre-processing
         "cutoff"          : 0.0,
