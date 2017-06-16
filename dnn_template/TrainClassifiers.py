@@ -73,7 +73,7 @@ def main(kwargs):
         "lr"                : 0.02,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 50,
+        "nb_epoch"          : 100,
         "samples_per_epoch" : None, # later filled from input files
     }
 
