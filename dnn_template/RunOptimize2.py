@@ -14,7 +14,7 @@ from matplotlib.colors import LogNorm
 
 space= {
     "train_poly"     : hp.choice("train_poly",     [True,False]),
-    "train_offset"   : hp.choice("train_offset",   [True,False]),
+    "train_offset"   : hp.choice("train_offset",   ["none", "full", "diag"]),
     "train_metric"   : hp.choice("train_metric",   [True,False]),
     "train_minmax"   : hp.choice("train_minmax",   [True,False]),
     "use_angular_dr" : hp.choice("use_angular_dr", [True,False]),
@@ -27,7 +27,7 @@ space= {
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l4')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l5')
 
 #print(len(trials.losses()))
 #print(trials.losses())
