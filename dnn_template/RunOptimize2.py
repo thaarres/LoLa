@@ -26,7 +26,7 @@ space= {
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l7')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l8')
 
 #print(len(trials.losses()))
 #print(trials.losses())
