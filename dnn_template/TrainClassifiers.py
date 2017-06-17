@@ -16,8 +16,8 @@ def main(kwargs):
 
         # IO
         "input_path"  : "/scratch/snx3000/gregork/",
-        "name_train"  : "topconst-train-v1-resort.h5",
-        "name_test"   : "topconst-test-v1-resort.h5",
+        "name_train"  : "topconst-train-v2-resort.h5",
+        "name_test"   : "topconst-test-v2-resort.h5",
         "output_path" : "/scratch/snx3000/gregork/outputs/", 
 
         # False: Train; True: read weights file 
@@ -30,7 +30,7 @@ def main(kwargs):
         "signal_branch" : "is_signal_new",
 
         # Parameters for constituent approach
-        "n_constit" : 5,
+        "n_constit" : 10,
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
