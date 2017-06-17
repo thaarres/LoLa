@@ -61,6 +61,8 @@ def main(kwargs):
         "mult_p"                  : 0,
         "regularize_weight"       : False,
         "train_regularize_weight" : False,
+        "train_regularize_weight_target" : False,
+        "do_3_metric"             : False,
 
         # Image pre-processing
         "cutoff"          : 0.0,
