@@ -18,8 +18,7 @@ space= {
     "train_metric"   : hp.choice("train_metric",   [True,False]),
     "train_minmax"   : hp.choice("train_minmax",   [True,False]),
     "use_angular_dr" : hp.choice("use_angular_dr", [True,False]),
-    "lola_filters"   : hp.quniform("lola_filters", 1, 10, 1),
-    "n_lolas"        : hp.quniform("n_lolas", 1, 4, 1),
+    "lola_filters"   : hp.choice("lola_filters",  [1,2,4]),
     "do_mult_p"      : hp.choice("do_mult_p",   [0,1,2]),
     "mult_p"         : hp.choice("mult_p",   [-1,0,1]),
     "regularize_weight" : hp.choice("regularize_weight", [True,False]),
@@ -27,7 +26,7 @@ space= {
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l6')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l7')
 
 #print(len(trials.losses()))
 #print(trials.losses())

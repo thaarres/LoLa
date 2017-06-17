@@ -23,13 +23,14 @@ space= {
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l6')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l7')
 
 print(len(trials.losses()))
 print(trials.losses())
 print(min([float(x) for x in trials.losses() if x]))
 print(trials.best_trial)
-
+print("\n\n")
+print(trials.best_trial["misc"]["vals"])
 
 #plt.plot([x if x<1 else 1. for x in trials.losses() if not x is None])
 #plt.show()
