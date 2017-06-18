@@ -56,7 +56,7 @@ def main(kwargs):
         "train_minmax"            : False,
         "lola_filters"            : 1,
         "use_angular_dr"          : False,
-        "n_lolas"                 : 2,
+        "n_lolas"                 : 1,
         "do_mult_p"               : 0,
         "mult_p"                  : 0,
         "regularize_weight"       : False,
