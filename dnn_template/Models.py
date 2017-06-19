@@ -17,6 +17,8 @@ print("Imported keras")
 
 sys.path.append("../LorentzLayer")
 from lola import LoLa
+from convert import Convert
+
 
 #
 # Prepare Jet Image
@@ -147,6 +149,8 @@ def model_lola(params):
                    use_angular_dr          = params["use_angular_dr"],                   
                    debug                   = debug,                               
                ))
+
+    model.add(Convert())
 
     if params["n_lolas"] > 1:
         for _ in range(params["n_lolas"]-1):
