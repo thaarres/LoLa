@@ -21,14 +21,14 @@ space= {
     "lola_filters"   : hp.choice("lola_filters",  [1,2,4]),
     "do_mult_p"      : hp.choice("do_mult_p",   [0,1,2]),
     "mult_p"         : hp.choice("mult_p",   [-1,0,1]),
-    "do_3_metric"    : hp.choice("do_3_metric", [True,False]),
+#    "do_3_metric"    : hp.choice("do_3_metric", [True,False]),
     "regularize_weight" : hp.choice("regularize_weight", [True,False]),
     "train_regularize_weight" : hp.choice("train_regularize_weight", [True,False]),
     "train_regularize_weight_target" : hp.choice("train_regularize_weight_target", [True,False]),
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l10')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l11')
 
 #print(len(trials.losses()))
 #print(trials.losses())

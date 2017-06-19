@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l9')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l11')
 
 print(len(trials.losses()))
 print(trials.losses())
