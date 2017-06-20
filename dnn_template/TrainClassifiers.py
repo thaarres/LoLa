@@ -16,21 +16,21 @@ def main(kwargs):
 
         # IO
         "input_path"  : "/scratch/snx3000/gregork/",
-        "name_train"  : "NONE",
-        "name_test"   : "NONE",
+        "name_train"  : "topconst-train-v3-resort.h5",
+        "name_test"   : "topconst-test-v3-resort.h5",
         "output_path" : "/scratch/snx3000/gregork/outputs/", 
 
         # False: Train; True: read weights file 
         "read_from_file" : False,
         
-        "inputs" : "2d",
+        "inputs" : "constit_lola",
 
         "n_classes" : 2,
 
         "signal_branch" : "is_signal_new",
 
         # Parameters for constituent approach
-        "n_constit" : 5,
+        "n_constit" : 15,
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
@@ -50,13 +50,19 @@ def main(kwargs):
         "pool_type"       : "max",
 
         # Parameters for LorentzLayer
-        "train_poly"     : True,
-        "train_offset"   : True,
-        "train_metric"   : False,
-        "train_minmax"   : False,
-        "lola_filters"   : 1,
-        "use_angular_dr" : False,
-        "n_lolas"        : 1,
+        "train_poly"                     : False,
+        "train_offset"                   : "full",
+        "train_metric"                   : True,
+        "train_minmax"                   : True,
+        "lola_filters"                   : 1,
+        "use_angular_dr"                 : True,
+        "n_lolas"                        : 1,
+        "do_mult_p"                      : 2,
+        "mult_p"                         : 0,
+        "regularize_weight"              : True,
+        "train_regularize_weight"        : False,
+        "train_regularize_weight_target" : True,
+        "do_3_metric"                    : False,
 
         # Image pre-processing
         "cutoff"          : 0.0,
@@ -65,11 +71,11 @@ def main(kwargs):
         "sum2"            : 0,
 
         # Common parameters
-        "batch_size"        : 2000,
+        "batch_size"        : 1024,
         "lr"                : 0.02,
         "decay"             : 0.,
         "momentum"          : 0.,            
-        "nb_epoch"          : 200,
+        "nb_epoch"          : 100,
         "samples_per_epoch" : None, # later filled from input files
     }
 

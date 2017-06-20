@@ -1,6 +1,6 @@
 #!/bin/sh
 #SBATCH --nodes=1
-#SBATCH --time=300
+#SBATCH --time=1000
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=gpu
 #SBATCH --partition=normal

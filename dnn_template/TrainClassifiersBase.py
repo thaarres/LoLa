@@ -1020,7 +1020,7 @@ def eval_single(clf, suffix=""):
     store_df = pandas.HDFStore('output_' + clf.name + suffix + '.h5')
     store_df["all"] = df_all
     
-    #return ll
+    return -1. * AOC
 
 
 

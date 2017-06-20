@@ -12,26 +12,28 @@ import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
 
-
 space= {
-    "n_blocks"       : hp.quniform("n_blocks", 1, 6, 1),
-    "n_conv_layers"  : hp.quniform("n_conv_layers",1, 6, 1),
-    "conv_nfeat"     : hp.quniform("conv_nfeat",1, 32, 1),
-    "conv_size"      : hp.quniform("conv_size", 1, 8, 1),
-    "pool_size"      : hp.choice("pool_size", [0,3,5]),
-    "n_dense_layers" : hp.quniform("n_dense_layers", 1, 10, 1),
-    "n_dense_nodes"  : hp.quniform("n_dense_nodes", 1, 1024, 1),
-    "lr"             : hp.loguniform("lr",-4, 0.),
+    "train_poly"     : hp.choice("train_poly",     [True,False]),
+    "train_offset"   : hp.choice("train_offset",   ["none", "full", "diag"]),
+    "train_metric"   : hp.choice("train_metric",   [True,False]),
+    "train_minmax"   : hp.choice("train_minmax",   [True,False]),
+    "use_angular_dr" : hp.choice("use_angular_dr", [True,False]),
+    "lola_filters"   : hp.choice("lola_filters",  [1,2,4]),
+    "do_mult_p"      : hp.choice("do_mult_p",   [0,1,2]),
+    "mult_p"         : hp.choice("mult_p",   [-1,0,1]),
+#    "do_3_metric"    : hp.choice("do_3_metric", [True,False]),
+    "regularize_weight" : hp.choice("regularize_weight", [True,False]),
+    "train_regularize_weight" : hp.choice("train_regularize_weight", [True,False]),
+    "train_regularize_weight_target" : hp.choice("train_regularize_weight_target", [True,False]),
 }
 
 
-trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='h1')
+trials = MongoTrials('mongo://localhost:23888/foo_db/jobs', exp_key='l11')
 
-
-print(len(trials.losses()))
-print(trials.losses())
-print(min([float(x) for x in trials.losses() if x]))
-print(trials.best_trial)
+#print(len(trials.losses()))
+#print(trials.losses())
+#print(min([float(x) for x in trials.losses() if x]))
+#print(trials.best_trial)
 
 
 #plt.plot([x if x<1 else 1. for x in trials.losses() if not x is None])
@@ -39,7 +41,7 @@ print(trials.best_trial)
 #plt.savefig("test.png")
 
 
-#best = fmin(main, space, trials=trials, algo=tpe.suggest, max_evals=10000,verbose=1)
+best = fmin(main, space, trials=trials, algo=tpe.suggest, max_evals=10000,verbose=1)
 
 
 
