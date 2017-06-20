@@ -27,8 +27,9 @@ brs = ["entry",
 ]
 
 clf_names = [
-    "LoLaTest_3",
-    "BDT_9v_r1_filev7"
+    "Lola_Ref1",
+    "BDT_9v_r1_filev7",
+    "NNXd_min_5deg_sample_v7_v28_v28_vanilla"
 ]
  
 clf_objects = {
@@ -39,7 +40,7 @@ for n in clf_names:
         clf_objects[n] = n
 
 
-pretty_names = [ "LoLa 3" , "old BDT 9v"]
+pretty_names = ["Lola Ref 1", "MotherOfTagger", "DeepTop"]
 
 line_styles = ["solid", ":", "-."] * 30
 
@@ -47,7 +48,7 @@ line_styles = ["solid", ":", "-."] * 30
 plt.clf()
 plt.figure()
 
-colors = ['darkorange', 'limegreen']
+colors = ['darkorange', 'limegreen',"navy", "grey"]
 
 dfs = {}
 for pretty_name, clf_name in zip(pretty_names,clf_names):
@@ -56,20 +57,25 @@ for pretty_name, clf_name in zip(pretty_names,clf_names):
     dfs[clf_name] = store["all"]
 
 
+    print dfs[clf_name].keys()
+
     AOC = roc_auc_score(dfs[clf_name]["is_signal_new"], dfs[clf_name]["sigprob_" + clf_name])
     print("AOC: {0}".format(AOC))
     
     fpr, tpr, _ = roc_curve(dfs[clf_name]["is_signal_new"], dfs[clf_name]["sigprob_" + clf_name])
 
-    plt.plot(fpr, tpr, color=colors.pop(0), lw=2, label='{0} (area = {1:.2f})'.format(pretty_name, AOC))
+    fpr[fpr < 0.0001] = 0.0001
 
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
+    plt.plot(tpr, 1./fpr, color=colors.pop(0), lw=2, label='{0} (area = {1:.2f})'.format(pretty_name, AOC))
 
-plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.legend(loc="lower right")
+plt.xlim([0.05, 1.0])
+plt.ylim([1, 10000])
+plt.yscale('log')
+
+#plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('True Positive Rate')
+plt.ylabel('1 / False Positive Rate')
+plt.legend(loc="lower left")
 plt.savefig("roc.png".format(clf_name))
 
 
