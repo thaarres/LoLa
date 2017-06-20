@@ -150,8 +150,6 @@ def model_lola(params):
                    debug                   = debug,                               
                ))
 
-    model.add(Convert())
-
     if params["n_lolas"] > 1:
         for _ in range(params["n_lolas"]-1):
             model.add(LoLa(
@@ -168,7 +166,8 @@ def model_lola(params):
                 mult_p                  = params["mult_p"],
                 use_angular_dr          = params["use_angular_dr"],                   
                 debug                   = debug))
-            
+
+    model.add(Convert())            
  
     model.add(Flatten())
 
