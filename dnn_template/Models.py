@@ -142,12 +142,13 @@ def model_lola(params):
                    n_filters               = params["lola_filters"],
                    regularize_weight       = params["regularize_weight"],
                    train_regularize_weight = params["train_regularize_weight"],
-                   train_regularize_weight_target = params["train_regularize_weight_target"],
-                   do_3_metric             = params["do_3_metric"],
+                   train_regularize_weight_target = params["train_regularize_weight_target"],                                                                                        
                    do_mult_p               = params["do_mult_p"],
                    mult_p                  = params["mult_p"],
                    use_angular_dr          = params["use_angular_dr"],                   
+                   take_diff               = params["take_diff"],                   
                    debug                   = debug,                               
+                   
                ))
 
     if params["n_lolas"] > 1:
@@ -161,10 +162,10 @@ def model_lola(params):
                 regularize_weight       = params["regularize_weight"],
                 train_regularize_weight = params["train_regularize_weight"],
                 train_regularize_weight_target = params["train_regularize_weight_target"],
-                do_3_metric             = params["do_3_metric"],
                 do_mult_p               = params["do_mult_p"],
                 mult_p                  = params["mult_p"],
                 use_angular_dr          = params["use_angular_dr"],                   
+                take_diff               = params["take_diff"],                   
                 debug                   = debug))
 
     model.add(Convert())            

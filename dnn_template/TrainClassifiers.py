@@ -62,7 +62,7 @@ def main(kwargs):
         "regularize_weight"              : True,
         "train_regularize_weight"        : False,
         "train_regularize_weight_target" : True,
-        "do_3_metric"                    : False,
+        "take_diff"                      : True, 
 
         # Image pre-processing
         "cutoff"          : 0.0,
