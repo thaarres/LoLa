@@ -35,9 +35,9 @@ export LIBRARY_PATH=$CUDNN_BASE/lib64:$LD_LIBRARY_PATH
 # avoid lock-issues 
 export THEANO_FLAGS="base_compiledir=$SCRATCH/theano.NOBACKUP.$(date +%s).$RANDOM"
 
-#export OMP_NUM_THREADS=1
-#export NUMEXPR_NUM_THREADS=1
-#export MKL_NUM_THREADS=1
+export OMP_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+export MKL_NUM_THREADS=1
 
 export PYTHONPATH=~/DeepH/LorentzLayer/:$PYTHONPATH
 
