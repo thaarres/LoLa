@@ -170,18 +170,17 @@ def model_lola(params):
                 take_diff               = params["take_diff"],                   
                 debug                   = debug))
 
-    model.add(Convert())            
+    model.add(Convert(batch_size = params["batch_size"]))            
  
     model.add(Flatten())
 
-    model.add(Dense(80))
+    model.add(Dense(40))
     model.add(Activation('relu'))
 
     model.add(Dense(40))
     model.add(Activation('relu'))
 
-    model.add(Dense(20))
-    model.add(Activation('relu'))
+    
 
     model.add(Dense(params["n_classes"], activation='softmax'))
 

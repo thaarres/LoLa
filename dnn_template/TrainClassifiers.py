@@ -30,7 +30,7 @@ def main(kwargs):
         "signal_branch" : "is_signal_new",
 
         # Parameters for constituent approach
-        "n_constit" : 15,
+        "n_constit" : 10,
 
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
