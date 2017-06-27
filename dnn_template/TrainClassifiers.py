@@ -57,11 +57,11 @@ def main(kwargs):
         "lola_filters"                   : 1,
         "use_angular_dr"                 : True,
         "n_lolas"                        : 1,
-        "do_mult_p"                      : 2,
+        "do_mult_p"                      : 0,
         "mult_p"                         : 0,
-        "regularize_weight"              : True,
+        "regularize_weight"              : False,
         "train_regularize_weight"        : False,
-        "train_regularize_weight_target" : True,
+        "train_regularize_weight_target" : False,
         "take_diff"                      : True, 
 
         # Image pre-processing
@@ -177,7 +177,7 @@ def main(kwargs):
                    the_model(params),
                    image_fun = the_image_fun,           
                    class_names = class_names,
-                   inpath = "/scratch/snx3000/gregork/outputs",
+                   inpath = "Lola_Poly2/",
                )
     ]
 

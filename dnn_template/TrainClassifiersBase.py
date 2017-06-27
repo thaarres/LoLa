@@ -81,6 +81,11 @@ from plotlib import *
 
 import Models
 
+sys.path.append("../LorentzLayer")
+from lola import LoLa
+from convert import Convert
+
+
 print("Imports: Done...")
 
 
@@ -171,9 +176,9 @@ class Classifier:
                 yaml_string = f.read()
                 f.close()       
                 print("Getting yaml")
-                self.model = model_from_yaml(yaml_string)                
+                self.model = model_from_yaml(yaml_string,  custom_objects={"LoLa":LoLa, "Convert":Convert})                
                 print("Got yaml")
-                self.model.load_weights(os.path.join(self.inpath,self.name + "_weights_latest.hdf5"))
+                self.model.load_weights(os.path.join(self.inpath,self.name + "_weights.h5"))
                         
                 print("Loading", self.name, "from file: Done...")
 
@@ -948,6 +953,12 @@ def eval_single(clf, suffix=""):
 #        clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
     
     nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
+
+
+    for layer in clf.model.layers:
+        weights = layer.get_weights()
+        print(weights)
+
 
     df_all = pandas.DataFrame()
     

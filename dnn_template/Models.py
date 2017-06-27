@@ -39,7 +39,9 @@ def to_constit(df, n_constit):
 
     ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
     
-    # Reasonable jet scale for ML to work with
+    #ret2 = np.swapaxes(  np.swapaxes(ret.reshape(1024,-1),0,1)/np.sum(np.sqrt(pow(ret[:,1,:],2)+pow(ret[:,2,:],2)),axis=1),0,1).reshape(1024,4,15)
+
+
     ret = ret/500.
 
     return ret
@@ -172,7 +174,10 @@ def model_lola(params):
  
     model.add(Flatten())
 
-    model.add(Dense(20))
+    model.add(Dense(80))
+    model.add(Activation('relu'))
+
+    model.add(Dense(40))
     model.add(Activation('relu'))
 
     model.add(Dense(20))
