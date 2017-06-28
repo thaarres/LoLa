@@ -17,7 +17,7 @@ print("Imported keras")
 
 sys.path.append("../LorentzLayer")
 from lola import LoLa
-from convert import Convert
+from convertFast import Convert
 
 
 #
@@ -136,22 +136,22 @@ def model_lola(params):
 
     debug = False
 
-    model.add(LoLa(input_shape             = (4, params["n_constit"]),
-                   train_poly              = params["train_poly"],
-                   train_offset            = params["train_offset"],
-                   train_metric            = params["train_metric"],
-                   train_minmax            = params["train_minmax"],
-                   n_filters               = params["lola_filters"],
-                   regularize_weight       = params["regularize_weight"],
-                   train_regularize_weight = params["train_regularize_weight"],
-                   train_regularize_weight_target = params["train_regularize_weight_target"],                                                                                        
-                   do_mult_p               = params["do_mult_p"],
-                   mult_p                  = params["mult_p"],
-                   use_angular_dr          = params["use_angular_dr"],                   
-                   take_diff               = params["take_diff"],                   
-                   debug                   = debug,                               
-                   
-               ))
+    model.add(LoLa(
+        batch_size = params["batch_size"],
+        input_shape             = (4, params["n_constit"]),
+        train_poly              = params["train_poly"],
+        train_offset            = params["train_offset"],
+        train_metric            = params["train_metric"],
+        train_minmax            = params["train_minmax"],
+        n_filters               = params["lola_filters"],
+        regularize_weight       = params["regularize_weight"],
+        train_regularize_weight = params["train_regularize_weight"],
+        train_regularize_weight_target = params["train_regularize_weight_target"],                                                                                        
+        do_mult_p               = params["do_mult_p"],
+        mult_p                  = params["mult_p"],
+        use_angular_dr          = params["use_angular_dr"],                   
+        take_diff               = params["take_diff"],                   
+        debug                   = debug))
 
     if params["n_lolas"] > 1:
         for _ in range(params["n_lolas"]-1):
@@ -170,7 +170,8 @@ def model_lola(params):
                 take_diff               = params["take_diff"],                   
                 debug                   = debug))
 
-    model.add(Convert(batch_size = params["batch_size"]))            
+    #model.add(Convert(batch_size = params["batch_size"]))            
+    model.add(Convert())
  
     model.add(Flatten())
 
