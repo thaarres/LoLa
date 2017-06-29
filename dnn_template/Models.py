@@ -144,10 +144,14 @@ def model_lola(params):
  
     model.add(Flatten())
 
-    model.add(Dense(60))
+
+    model.add(Dense(120))
     model.add(Activation('relu'))
 
-    model.add(Dense(60))
+    model.add(Dense(120))
+    model.add(Activation('relu'))
+
+    model.add(Dense(120))
     model.add(Activation('relu'))
 
     
