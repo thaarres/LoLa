@@ -17,7 +17,7 @@ print("Imported keras")
 
 sys.path.append("../LorentzLayer")
 from fastlola import LoLa
-from convertFast import Convert
+from convertFast2 import Convert
 
 
 #
@@ -139,15 +139,15 @@ def model_lola(params):
     model.add(LoLa(debug       = debug,    
                    input_shape = (4, params["n_constit"])))
 
-    #model.add(Convert(batch_size = params["batch_size"]))            
+
     model.add(Convert())
  
     model.add(Flatten())
 
-    model.add(Dense(40))
+    model.add(Dense(60))
     model.add(Activation('relu'))
 
-    model.add(Dense(40))
+    model.add(Dense(60))
     model.add(Activation('relu'))
 
     
