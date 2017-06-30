@@ -154,6 +154,9 @@ def model_lola(params):
     model.add(Dense(100))
     model.add(Activation('relu'))
 
+    model.add(Dense(50))
+    model.add(Activation('relu'))
+
     
 
     model.add(Dense(params["n_classes"], activation='softmax'))

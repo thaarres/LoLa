@@ -28,7 +28,7 @@ print "Imports: Done..."
 # Configuration
 ########################################
 
-n_cands = 15
+n_cands = 20
 batch_size = 2000
 
 cols  = ["E_{0}".format(i_cand) for i_cand in range(n_cands)] 
@@ -82,9 +82,9 @@ for is_signal, infname in [[1, "fatjets_4momenta_sig_large.root"],
         
         print len(df), len(train), len(test), len(val)
 
-        train.to_hdf('topconst-train-v3.h5','table',append=True)
-        test.to_hdf('topconst-test-v3.h5','table',append=True)
-        val.to_hdf('topconst-val-v3.h5','table',append=True)
+        train.to_hdf('topconst-train-v4.h5','table',append=True)
+        test.to_hdf('topconst-test-v4.h5','table',append=True)
+        val.to_hdf('topconst-val-v4.h5','table',append=True)
 
         close_time = time.time()
 

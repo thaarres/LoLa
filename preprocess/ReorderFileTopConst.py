@@ -9,7 +9,7 @@ import pandas
 import pdb
 
 
-infiles = ["topconst-train-v3.h5", "topconst-test-v3.h5", "topconst-val-v3.h5"]
+infiles = ["topconst-train-v4.h5", "topconst-test-v4.h5", "topconst-val-v4.h5"]
 
 for infname in infiles:
 
