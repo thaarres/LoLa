@@ -3,7 +3,7 @@ from TrainClassifiers import main
 params = {"input_path"              : "./",
           "output_path"             : "./",
           "inputs"                  : "constit_lola",
-          "model_name"              : "Lola_AWSRef1_witheye_3_lessdense",        
+          "model_name"              : "Lola_AWSRef1_witheye_3_lessdense_3d",        
           "nb_epoch"                : 200,
           "batch_size"              : 1024,
           "name_train"              : "topconst-train-v3-resort.h5" ,
