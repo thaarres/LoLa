@@ -3,7 +3,7 @@ from TrainClassifiers import main
 params = {"input_path"              : "./",
           "output_path"             : "./",
           "inputs"                  : "constit_lola",
-          "model_name"              : "Lola_Poly3g",        
+          "model_name"              : "Lola_AWSRef1",        
           "nb_epoch"                : 200,
           "batch_size"              : 1024,
           "name_train"              : "topconst-train-v3-resort.h5" ,
