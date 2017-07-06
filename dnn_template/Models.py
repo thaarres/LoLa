@@ -41,7 +41,7 @@ def to_constit(df, n_constit):
     
     #ret2 = np.swapaxes(  np.swapaxes(ret.reshape(1024,-1),0,1)/np.sum(np.sqrt(pow(ret[:,1,:],2)+pow(ret[:,2,:],2)),axis=1),0,1).reshape(1024,4,15)
 
-    threshold = 0.
+    threshold = 1.
 
     foo = lambda a: [0,0,0,0] if a[0] < threshold else a
  
