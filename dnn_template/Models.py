@@ -153,23 +153,11 @@ def model_lola(params):
             
     model.add(Flatten())
 
-
-
-    model.add(Dense(200))
-    model.add(Activation('relu'))
-
-    model.add(Dense(200))
-    model.add(Activation('relu'))
-
     model.add(Dense(100))
     model.add(Activation('relu'))
 
-    model.add(Dropout(0.2))
-
     model.add(Dense(50))
     model.add(Activation('relu'))
-
-    
 
     model.add(Dense(params["n_classes"], activation='softmax'))
 
