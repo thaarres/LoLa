@@ -10,7 +10,7 @@ from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
-from keras.layers.core import Reshape
+from keras.layers.core import Reshape, Dropout
 from keras.models import model_from_yaml
 
 print("Imported keras")
@@ -144,15 +144,27 @@ def model_lola(params):
     model.add(LoLa(debug       = debug,    
                    input_shape = (4, params["n_constit"])))
 
-
     model.add(Convert())
- 
+
+#    model.add(LoLa(add_total = False,
+#                   add_eye   = False))
+
+
+            
     model.add(Flatten())
 
 
 
+    model.add(Dense(200))
+    model.add(Activation('relu'))
+
+    model.add(Dense(200))
+    model.add(Activation('relu'))
+
     model.add(Dense(100))
     model.add(Activation('relu'))
+
+    model.add(Dropout(0.2))
 
     model.add(Dense(50))
     model.add(Activation('relu'))
