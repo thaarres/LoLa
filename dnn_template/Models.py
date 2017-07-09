@@ -136,10 +136,10 @@ def model_lola(params):
 
     model = Sequential()
 
-    model.add(PreFil(debug = False,
-                     input_shape = (4, params["n_constit"])))
+#    model.add(PreFil(debug = False,
+#                     input_shape = (4, params["n_constit"])))
 
-    model.add(LoLa())
+    model.add(LoLa(input_shape = (4, params["n_constit"])))
                    
 
     model.add(Convert())
