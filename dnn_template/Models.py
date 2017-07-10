@@ -142,6 +142,7 @@ def model_lola(params):
     model.add(LoLa(input_shape = (4, params["n_constit"])))
                    
 
+
     model.add(Convert())
 
 #    model.add(LoLa(add_total = False,
