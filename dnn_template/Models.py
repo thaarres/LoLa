@@ -137,8 +137,32 @@ def model_lola(params):
 
     model = Sequential()
 
-    model.add(CoLa(input_shape = (4, params["n_constit"])))                   
-    model.add(LoLa())
+    model.add(CoLa(input_shape = (4, params["n_constit"])))
+    model.add(LoLa(es  = 1,
+                   xs  = 1,
+                   ys  = 1,
+                   zs  = 1,
+                   ms  = 1,                 
+                   pts = 0,                 
+                   n_train_es  = 0,
+                   n_train_ms  = 0,
+                   n_train_pts = 0,        
+                   n_train_sum_dijs   = 0,
+                   n_train_min_dijs   = 0))
+    
+    model.add(SoLa(sort_by_feature = 4))
+
+    model.add(LoLa(es  = 0,
+                   xs  = 0,
+                   ys  = 0,
+                   zs  = 0,                 
+                   ms  = 1,                 
+                   pts = 1,                 
+                   n_train_es  = 1,
+                   n_train_ms  = 0,
+                   n_train_pts = 0,        
+                   n_train_sum_dijs   = 2,
+                   n_train_min_dijs   = 2))
 
     model.add(Flatten())
 
