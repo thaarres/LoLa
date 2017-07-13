@@ -16,9 +16,10 @@ from keras.models import model_from_yaml
 print("Imported keras")
 
 sys.path.append("../LorentzLayer")
-from fastlola import LoLa
-from convertFast2 import Convert
-from prefil import PreFil
+
+from cola import CoLa
+from lola import LoLa
+from sola import SoLa
 
 #
 # Prepare Jet Image
@@ -136,17 +137,9 @@ def model_lola(params):
 
     model = Sequential()
 
-#    model.add(PreFil(debug = False,
-#                     input_shape = (4, params["n_constit"])))
-
-    model.add(LoLa(input_shape = (4, params["n_constit"])))
+    model.add(CoLa(input_shape = (4, params["n_constit"])))
                    
-
-
-    model.add(Convert())
-
-#    model.add(LoLa(add_total = False,
-#                   add_eye   = False))
+    model.add(LoLa())
 
 
             
