@@ -10,7 +10,7 @@ from keras.utils import np_utils, generic_utils
 from keras.layers.advanced_activations import PReLU
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D, ZeroPadding2D, ZeroPadding3D
-from keras.layers.core import Reshape
+from keras.layers.core import Reshape, Dropout
 from keras.models import model_from_yaml
 
 print("Imported keras")
@@ -18,7 +18,7 @@ print("Imported keras")
 sys.path.append("../LorentzLayer")
 from fastlola import LoLa
 from convertFast2 import Convert
-
+from prefil import PreFil
 
 #
 # Prepare Jet Image
@@ -40,7 +40,9 @@ def to_constit(df, n_constit):
     ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
     
     #ret2 = np.swapaxes(  np.swapaxes(ret.reshape(1024,-1),0,1)/np.sum(np.sqrt(pow(ret[:,1,:],2)+pow(ret[:,2,:],2)),axis=1),0,1).reshape(1024,4,15)
-
+    #threshold = 2.
+    #foo = lambda a: [0,0,0,0] if a[0] < threshold else a
+    #ret = np.apply_along_axis(foo, 1, ret)
 
     ret = ret/500.
 
@@ -134,30 +136,27 @@ def model_lola(params):
 
     model = Sequential()
 
-    debug = False
+#    model.add(PreFil(debug = False,
+#                     input_shape = (4, params["n_constit"])))
 
-    model.add(LoLa(debug       = debug,    
-                   input_shape = (4, params["n_constit"])))
+    model.add(LoLa(input_shape = (4, params["n_constit"])))
+                   
 
 
     model.add(Convert())
- 
+
+#    model.add(LoLa(add_total = False,
+#                   add_eye   = False))
+
+
+            
     model.add(Flatten())
-
-
-    model.add(Dense(200))
-    model.add(Activation('relu'))
-
-    model.add(Dense(200))
-    model.add(Activation('relu'))
 
     model.add(Dense(100))
     model.add(Activation('relu'))
 
     model.add(Dense(50))
     model.add(Activation('relu'))
-
-    
 
     model.add(Dense(params["n_classes"], activation='softmax'))
 
