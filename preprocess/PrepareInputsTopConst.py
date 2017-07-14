@@ -29,7 +29,7 @@ print "Imports: Done..."
 ########################################
 
 n_cands = 20
-batch_size = 20
+batch_size = 100
 
 cols  = ["E_{0}".format(i_cand) for i_cand in range(n_cands)] 
 cols += ["X_{0}".format(i_cand) for i_cand in range(n_cands)]
@@ -64,6 +64,22 @@ for is_signal, infname in [[1, "ttbar.root"],
         vpz = np.array([x for x in batch_array["vpz"]])
         vc  = np.array([x for x in batch_array["vc"]])
 
+
+        idx = (-1*(pow(vpx,2) + pow(vpy,2))).argsort()
+
+        dims0 = np.expand_dims(np.arange(batch_size),-1)
+        dims1 = np.arange(batch_size)
+
+        
+        ve = ve[dims0,idx[dims1]]
+        vpx = vpx[dims0,idx[dims1]]
+        vpy = vpy[dims0,idx[dims1]]
+        vpz = vpz[dims0,idx[dims1]]
+        vc = vc[dims0,idx[dims1]]
+
+
+
+
         for i in range(n_cands):            
             df["E_{0}".format(i)]  = ve[:,i]
             df["PX_{0}".format(i)] = vpx[:,i]
@@ -85,9 +101,9 @@ for is_signal, infname in [[1, "ttbar.root"],
         
         print len(df), len(train), len(test), len(val)
 
-        train.to_hdf('topconst-train-vX.h5','table',append=True)
-        test.to_hdf('topconst-test-vX.h5','table',append=True)
-        val.to_hdf('topconst-val-vX.h5','table',append=True)
+        train.to_hdf('topconst-train-v5.h5','table',append=True)
+        test.to_hdf('topconst-test-v5.h5','table',append=True)
+        val.to_hdf('topconst-val-v5.h5','table',append=True)
 
         close_time = time.time()
 
