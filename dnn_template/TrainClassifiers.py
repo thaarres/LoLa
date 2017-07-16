@@ -32,6 +32,9 @@ def main(kwargs):
         # Parameters for constituent approach
         "n_constit" : 15,
 
+        "n_features"              : 4,
+
+
         # Parameters for 2d convolutional architecture    
         "n_blocks"        : 1,    
         "n_conv_layers"   : 2,        
@@ -116,12 +119,18 @@ def main(kwargs):
 
     pixel_brs = []
 
+    if params["n_features"] == 4:
+        feat_list =  ["E","PX","PY","PZ"] 
+    elif params["n_features"] == 5:
+        feat_list =  ["E","PX","PY","PZ","C"] 
+
+
     if params["inputs"] == "2d":
         pixel_brs += ["c{0}".format(i) for i in range(40*40)]
     elif params["inputs"] == "constit_fcn":
-        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(params["n_constit"])]
+        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in feat_list for constit in range(params["n_constit"])]
     elif params["inputs"] == "constit_lola":
-        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(params["n_constit"])]
+        pixel_brs += ["{0}_{1}".format(feature,constit) for feature in feat_list for constit in range(params["n_constit"])]
 
     # Reading H5FS
     infname_train = TCB.os.path.join(params["input_path"], params["name_train"])
@@ -158,10 +167,10 @@ def main(kwargs):
         the_image_fun = TCB.Models.to_image_2d
     elif params["inputs"] == "constit_fcn":
         the_model     = TCB.Models.model_fcn
-        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"])
+        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"], params["n_features"])
     elif params["inputs"] == "constit_lola":
         the_model     = TCB.Models.model_lola
-        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"])
+        the_image_fun = lambda x: TCB.Models.to_constit(x,params["n_constit"], params["n_features"])
     
     class_names = {}
     for i in range(params["n_classes"]):
