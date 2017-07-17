@@ -46,8 +46,12 @@ def to_constit(df, n_constit, n_features):
 
     ret = np.expand_dims(df[brs],axis=-1).reshape(-1, n_features, n_constit)
     
+
     ret = ret/500.
 
+    if n_features == 5:
+        ret[:,4,:] = ret[:,4,:] * 500.
+        ret[:,4,:] = pow(ret[:,4,:],2)
 
 
     return ret
