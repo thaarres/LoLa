@@ -4,14 +4,13 @@ params = {"input_path"              : "./",
           "output_path"             : "./",
           "inputs"                  : "constit_lola",
           "model_name"              : "Lola_AWS_Ref8_v11_40nc",        
-          "nb_epoch"                : 200,
+          "nb_epoch"                : 3,
           "batch_size"              : 1024,
           "n_constit"               : 40,
           "n_features"              : 4,
           "name_train"              : "topconst-train-v11_40nc-resort.h5" ,
           "name_test"               : "topconst-test-v11_40nc-resort.h5",
-
-
+          "name_val"                : "topconst-val-v11_40nc-resort.h5",
 }
 
 main(params)
