@@ -129,6 +129,7 @@ class Classifier:
                  load_from_file,
                  datagen_train,
                  datagen_test,
+                 datagen_val,
                  model,
                  image_fun,
                  class_names,
@@ -142,6 +143,7 @@ class Classifier:
         self.load_from_file = load_from_file
         self.datagen_train = datagen_train
         self.datagen_test  = datagen_test
+        self.datagen_val  = datagen_val
         self.model = model
         self.image_fun = image_fun
         self.inpath = inpath
@@ -246,7 +248,7 @@ def train_keras(clf):
 
             yield X,y
 
-        
+                
     train_gen = generator(clf.datagen_train)
     test_gen  = generator(clf.datagen_test)
 
@@ -941,18 +943,9 @@ def response(row):
 
 def eval_single(clf, suffix=""):
 
-    # Prepare all neural networks
 
-#    if clf.backend == "keras":
-#
-#        # Prepare the model
-#        sgd = SGD(lr = clf.params["lr"], 
-#                  decay = clf.params["decay"], 
-#                  momentum = clf.params["momentum"], 
-#                  nesterov=True)
-#        clf.model.compile(loss='mean_squared_error', optimizer=sgd, metrics=["accuracy"])
-    
-    nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1)
+
+    nbatches = int(clf.params["samples_per_epoch_val"]/clf.params["batch_size"] - 1)
 
 
     for layer in clf.model.layers:
@@ -965,7 +958,7 @@ def eval_single(clf, suffix=""):
     # Loop over batches
     for i_batch in range(nbatches):
 
-        df = next(clf.datagen_test)
+        df = next(clf.datagen_val)
 
         if clf.backend == "keras":
             X = clf.image_fun(df)        

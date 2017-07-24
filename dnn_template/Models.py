@@ -33,19 +33,26 @@ def to_image_2d(df):
 # Prepare Constituents
 #
 
-def to_constit(df, n_constit):
+def to_constit(df, n_constit, n_features):
 
     brs = []
-    brs += ["{0}_{1}".format(feature,constit) for feature in ["E","PX","PY","PZ"] for constit in range(n_constit)]
 
-    ret = np.expand_dims(df[brs],axis=-1).reshape(-1, 4, n_constit)
+    if n_features == 4:
+        feat_list =  ["E","PX","PY","PZ"] 
+    elif n_features == 5:
+        feat_list =  ["E","PX","PY","PZ","C"] 
+
+    brs += ["{0}_{1}".format(feature,constit) for feature in feat_list for constit in range(n_constit)]
+
+    ret = np.expand_dims(df[brs],axis=-1).reshape(-1, n_features, n_constit)
     
-    #ret2 = np.swapaxes(  np.swapaxes(ret.reshape(1024,-1),0,1)/np.sum(np.sqrt(pow(ret[:,1,:],2)+pow(ret[:,2,:],2)),axis=1),0,1).reshape(1024,4,15)
-    #threshold = 2.
-    #foo = lambda a: [0,0,0,0] if a[0] < threshold else a
-    #ret = np.apply_along_axis(foo, 1, ret)
 
     ret = ret/500.
+
+    if n_features == 5:
+        ret[:,4,:] = ret[:,4,:] * 500.
+        ret[:,4,:] = pow(ret[:,4,:],2)
+
 
     return ret
 
@@ -137,12 +144,14 @@ def model_lola(params):
 
     model = Sequential()
 
-    model.add(CoLa(input_shape = (4, params["n_constit"]),
+    model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
                    add_total = True,
                    add_eye   = True,
                    n_out_particles = 15))
 
-    model.add(LoLa(es  = 0,
+    model.add(LoLa(
+        train_metric = True,
+        es  = 0,
                    xs  = 0,
                    ys  = 0,
                    zs  = 0,                 
@@ -152,24 +161,7 @@ def model_lola(params):
                    n_train_ms  = 0,
                    n_train_pts = 0,        
                    n_train_sum_dijs   = 2,
-                   n_train_min_dijs   = 2))
-
-#    model.add(LoLa(
-#        debug = True,
-#        es  = 1,
-#        xs  = 1,
-#        ys  = 1,
-#        zs  = 1,
-#        ms  = 1,                 
-#        pts = 0,                 
-#        n_train_es  = 0,
-#        n_train_ms  = 0,
-#        n_train_pts = 0,        
-#        n_train_sum_dijs   = 0,
-#        n_train_min_dijs   = 0))
-    
- #   model.add(SoLa(sort_by_feature = 4))
-
+                   n_train_min_dijs   = 0))
 
     model.add(Flatten())
 
