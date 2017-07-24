@@ -149,7 +149,9 @@ def model_lola(params):
                    add_eye   = True,
                    n_out_particles = 15))
 
-    model.add(LoLa(es  = 0,
+    model.add(LoLa(
+        train_metric = True,
+        es  = 0,
                    xs  = 0,
                    ys  = 0,
                    zs  = 0,                 
@@ -159,7 +161,7 @@ def model_lola(params):
                    n_train_ms  = 0,
                    n_train_pts = 0,        
                    n_train_sum_dijs   = 2,
-                   n_train_min_dijs   = 2))
+                   n_train_min_dijs   = 0))
 
     model.add(Flatten())
 
