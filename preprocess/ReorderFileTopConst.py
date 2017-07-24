@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import time
 import random
@@ -9,7 +10,11 @@ import pandas
 import pdb
 
 
-infiles = ["topconst-train-v5.h5", "topconst-test-v5.h5", "topconst-val-v5.h5"]
+n_const = int(sys.argv[1])
+
+infiles = ["topconst-train-v15_{0}nc.h5".format(n_const), 
+           "topconst-test-v15_{0}nc.h5".format(n_const), 
+           "topconst-val-v15_{0}nc.h5".format(n_const)]
 
 for infname in infiles:
 
