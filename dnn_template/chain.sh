@@ -1,7 +1,7 @@
-for NC in 20
+for NC in 30 40 50 60
 do 
 for i in 1 2 3 4 5
-do python SimpleTrainAWS.py $NC $i > out_${NC}_MM${i}.txt; 
+do python SimpleTrainAWS.py $NC $i > out_${NC}_v16_${i}.txt; 
 done
 done
 

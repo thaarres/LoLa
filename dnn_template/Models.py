@@ -150,18 +150,18 @@ def model_lola(params):
                    n_out_particles = 15))
 
     model.add(LoLa(
-        train_metric = True,
+        train_metric = False,
         es  = 0,
-                   xs  = 0,
-                   ys  = 0,
-                   zs  = 0,                 
-                   ms  = 1,                 
-                   pts = 1,                 
-                   n_train_es  = 1,
-                   n_train_ms  = 0,
-                   n_train_pts = 0,        
-                   n_train_sum_dijs   = 2,
-                   n_train_min_dijs   = 0))
+        xs  = 0,
+        ys  = 0,
+        zs  = 0,                 
+        ms  = 1,                 
+        pts = 1,                 
+        n_train_es  = 1,
+        n_train_ms  = 0,
+        n_train_pts = 0,        
+        n_train_sum_dijs   = 2,
+        n_train_min_dijs   = 2))
 
     model.add(Flatten())
 
