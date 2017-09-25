@@ -20,6 +20,7 @@ sys.path.append("../LorentzLayer")
 from cola import CoLa
 from lola import LoLa
 from sola import SoLa
+from ala import ALa
 
 #
 # Prepare Jet Image
@@ -148,6 +149,8 @@ def model_lola(params):
                    add_total = True,
                    add_eye   = True,
                    n_out_particles = 15))
+
+    model.add(ALa(debug = False, threshold = 3/500.))
 
     model.add(LoLa(
         train_metric = False,
