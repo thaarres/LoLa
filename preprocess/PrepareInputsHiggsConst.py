@@ -30,8 +30,8 @@ print "Imports: Done..."
 
 n_cands = int(sys.argv[1])
 batch_size = 1000
-do_charge = True
-do_vertex = True
+do_charge = False
+do_vertex = False
 version = "v0_cand{0}_c{1}_vtx{2}".format(n_cands, do_charge, do_vertex)
 
 print "version=",version
@@ -49,8 +49,8 @@ if do_vertex:
 
 cols += ["is_signal_new"]
 
-for is_signal, infname in [[1, "~/zhb_analysedevents_1.root"],
-                           [0, "~/zh_analysedevents_1.root"]]:
+for is_signal, infname in [[1, "~/inputs/1300ttbar.root"],
+                           [0, "~/inputs/1300qcd.root"]]:
                            
     print infname
 
