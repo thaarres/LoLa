@@ -124,7 +124,8 @@ def main(kwargs):
         feat_list =  ["E","PX","PY","PZ"] 
     elif params["n_features"] == 5:
         feat_list =  ["E","PX","PY","PZ","C"] 
-
+    elif params["n_features"] == 8:
+        feat_list =  ["E","PX","PY","PZ","C", "VX", "VY", "VZ"] 
 
     if params["inputs"] == "2d":
         pixel_brs += ["c{0}".format(i) for i in range(40*40)]

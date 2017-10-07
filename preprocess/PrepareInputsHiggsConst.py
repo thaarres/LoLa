@@ -30,8 +30,8 @@ print "Imports: Done..."
 
 n_cands = int(sys.argv[1])
 batch_size = 1000
-do_charge = False
-do_vertex = False
+do_charge = True
+do_vertex = True
 version = "v0_cand{0}_c{1}_vtx{2}".format(n_cands, do_charge, do_vertex)
 
 print "version=",version

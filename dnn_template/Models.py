@@ -20,7 +20,7 @@ sys.path.append("../LorentzLayer")
 from cola import CoLa
 from lola import LoLa
 from sola import SoLa
-from ala import ALa
+#from ala import ALa
 
 #
 # Prepare Jet Image
@@ -42,6 +42,8 @@ def to_constit(df, n_constit, n_features):
         feat_list =  ["E","PX","PY","PZ"] 
     elif n_features == 5:
         feat_list =  ["E","PX","PY","PZ","C"] 
+    elif n_features == 8:
+        feat_list =  ["E","PX","PY","PZ","C","VX", "VY", "VZ"] 
 
     brs += ["{0}_{1}".format(feature,constit) for feature in feat_list for constit in range(n_constit)]
 
@@ -54,6 +56,12 @@ def to_constit(df, n_constit, n_features):
         ret[:,4,:] = ret[:,4,:] * 500.
         ret[:,4,:] = pow(ret[:,4,:],2)
 
+    if n_features == 8:
+        ret[:,4,:] = ret[:,4,:] * 500.
+        ret[:,4,:] = pow(ret[:,4,:],2)
+        ret[:,5,:] = ret[:,5,:] * 500.
+        ret[:,6,:] = ret[:,6,:] * 500.
+        ret[:,7,:] = ret[:,7,:] * 500.
 
     return ret
 
@@ -150,7 +158,7 @@ def model_lola(params):
                    add_eye   = True,
                    n_out_particles = 15))
 
-    model.add(ALa(debug = False, threshold = 3/500.))
+#    model.add(ALa(debug = False, threshold = 3/500.))
 
     model.add(LoLa(
         train_metric = False,
