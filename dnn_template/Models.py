@@ -52,6 +52,13 @@ def to_constit(df, n_constit, n_features):
 
     ret = ret/500.
 
+
+    # # Random sort inputs
+    # ret = np.swapaxes(ret,1,2) # b f c -> b c f
+    # for _ in range(n_constit):
+    #     np.random.shuffle(ret[_]) # resort constits for
+    # ret = np.swapaxes(ret,1,2) # b c f -> b f c
+
     if n_features == 5:
         ret[:,4,:] = ret[:,4,:] * 500.
         ret[:,4,:] = pow(ret[:,4,:],2)
