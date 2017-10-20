@@ -161,7 +161,7 @@ def model_lola(params):
     model = Sequential()
 
     model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
-                   add_total = True,
+                   add_total = False,
                    add_eye   = True,
                    n_out_particles = 15))
 
