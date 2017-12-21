@@ -12,9 +12,14 @@ import pdb
 
 n_const = int(sys.argv[1])
 
-infiles = ["topconst-train-v15_{0}nc.h5".format(n_const), 
-           "topconst-test-v15_{0}nc.h5".format(n_const), 
-           "topconst-val-v15_{0}nc.h5".format(n_const)]
+infiles = [
+# "higgsconst-train-v1_cand{0}_cFalse_vtxFalse.h5".format(n_const), 
+# "higgsconst-test-v1_cand{0}_cFalse_vtxFalse.h5".format(n_const), 
+# "higgsconst-val-v1_cand{0}_cFalse_vtxFalse.h5".format(n_const), 
+    "top-train-v17b_cand40_cTrue_vtxTrue.h5",
+    "top-test-v17b_cand40_cTrue_vtxTrue.h5",
+    "top-val-v17b_cand40_cTrue_vtxTrue.h5",
+]
 
 for infname in infiles:
 
@@ -24,11 +29,14 @@ for infname in infiles:
 
     batch_size = 10
 
-    all_batches =  range(entries / batch_size)
+    n_batches = entries / batch_size
+
+    all_batches =  range(n_batches)
 
     random.shuffle(all_batches)
 
-    print all_batches
+    # Half the sample
+    #all_batches = random.sample(all_batches, int(n_batches * 0.5))
 
     for i_batch, batch in enumerate(all_batches):
 

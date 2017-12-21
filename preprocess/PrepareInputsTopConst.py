@@ -31,7 +31,7 @@ print "Imports: Done..."
 n_cands = int(sys.argv[1])
 batch_size = 1000
 do_charge = False
-version = "v15_{0}nc".format(n_cands)
+version = "v17_{0}nc".format(n_cands)
 
 cols  = ["E_{0}".format(i_cand) for i_cand in range(n_cands)] 
 cols += ["X_{0}".format(i_cand) for i_cand in range(n_cands)]
@@ -41,8 +41,8 @@ if do_charge:
     cols += ["C_{0}".format(i_cand) for i_cand in range(n_cands)]
 cols += ["is_signal_new"]
 
-for is_signal, infname in [[1, "highpTttbar.root"],
-                           [0, "highpTqcd.root"]]:
+for is_signal, infname in [[1, "350tt_b.root"],
+                           [0, "350qcd_b.root"]]:
 
 #for is_signal, infname in [[1, "antikT_sig_boosted.root"],
 #                           [0, "antikT_bkg_boosted.root"]]:
