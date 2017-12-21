@@ -35,7 +35,6 @@ def to_image_2d(df):
 #
 
 def to_constit(df, n_constit, n_features):
-
     brs = []
 
     if n_features == 4:
@@ -66,10 +65,13 @@ def to_constit(df, n_constit, n_features):
     if n_features == 8:
         ret[:,4,:] = ret[:,4,:] * 500.
         ret[:,4,:] = pow(ret[:,4,:],2)
-        ret[:,5,:] = ret[:,5,:] * 500.
-        ret[:,6,:] = ret[:,6,:] * 500.
-        ret[:,7,:] = ret[:,7,:] * 500.
+        #ret[:,5,:] = ret[:,5,:] * 500.
+        #ret[:,6,:] = ret[:,6,:] * 500.
+        #ret[:,7,:] = ret[:,7,:] * 500.
 
+
+    ret[:,4:,:30] = np.zeros((512,4,30))
+        
     return ret
 
 #
@@ -160,19 +162,23 @@ def model_lola(params):
 
     model = Sequential()
 
-    model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
-                   add_total = True,
-                   add_eye   = True,
-                   n_out_particles = 15))
-
-#    model.add(ALa(debug = False, threshold = 3/500.))
+#    model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
+#                   add_total   = False,
+#                   add_eye     = True,
+#                   debug =  False,
+#                   n_out_particles = 5))
 
     model.add(LoLa(
+        input_shape = (params["n_features"], params["n_constit"]),
         train_metric = False,
         es  = 0,
         xs  = 0,
         ys  = 0,
         zs  = 0,                 
+        cs  = 0, 
+        vxs = 1, 
+        vys = 1,
+        vzs = 1,        
         ms  = 1,                 
         pts = 1,                 
         n_train_es  = 1,
