@@ -1,3 +1,4 @@
+
 #######################################
 # Imports
 ########################################
@@ -9,27 +10,34 @@ from TrainClassifiersBase import *
 # Configuration
 ########################################
 
-brs = ["entry", 
-       "tau2",
-       "tau3",       
-       "tau2_sd",
-       "tau3_sd",     
-       "f_rec",
-       "m_rec",
-       "dRopt",  
-       "fatjet.M()",
-       "fatjet.Pt()",
-       "filtered.M()",
-       "filtered.Pt()",
-       "softdropped.M()",
-       "softdropped.Pt()",
-       "is_signal_new",
-]
-
 clf_names = [
-    "Lola_Ref1",
     "BDT_9v_r1_filev7",
-    "NNXd_min_5deg_sample_v7_v28_v28_vanilla"
+#    "NNXd_min_5deg_sample_v6_v27_v27_vanilla",
+##    "Lola_AWS_Ref8_v12_40nc_1",
+#    "Lola_HD_4_v12_run1_NoTotalC40",
+
+
+#    "Lola_HD_4_v12_run1_NoTotalC40",
+    "Lola_HD_v14_run1_NoTotalC40_1",
+#    "Lola_HD_3_v13_run1_NoTotalC40",
+#    "Lola_HD_2_v16_run1_NoTotalC40",
+
+
+    
+#    "Lola_HD_v17_crosscheck_1",
+
+#    "Lola_HD_v17a_vz_zeroer_4",
+    
+    "Lola_HD_v17a_xyz_min_nocola_zeroer_rescale_1",
+
+
+
+
+#    "Lola_AWS_Ref8_v12_40nc_1",
+#    "Lola_AWS_Ref8_v14_50nc_5",
+#    "Lola_AWS_Ref8_v13_40nc_1",
+#    "Lola_AWS_Ref8_v16_30nc_1",
+
 ]
  
 clf_objects = {
@@ -40,15 +48,45 @@ for n in clf_names:
         clf_objects[n] = n
 
 
-pretty_names = ["Lola Ref 1", "MotherOfTagger", "DeepTop"]
+pretty_names = [#r"low $p_{T}$  calo", 
+                #r"low $p_{T}$ PF", 
+                #r"high $p_{T}$ calo",  
+                #r"high $p_{T}$ PF"
+    
+    r"Reference",
+    r"LoLa",
+    r"LoLa + Vertex",
+    
+    ]
 
-line_styles = ["solid", ":", "-."] * 30
+#pretty_names = [r"MotherOfTaggers", 
+#                r"DeepTop: Image",
+#                r"DeepTop: LoLa",                 
+#]
+
+#line_styles = ["solid", "solid", "dashed",]
+
+line_styles = ["dashed", "solid", "dashed", "solid"]
+
+fontsize = 28
 
 
 plt.clf()
-plt.figure()
+plt.figure(figsize=(10,10))
 
-colors = ['darkorange', 'limegreen',"navy", "grey"]
+
+plt.xticks([0.2,
+            0.4,
+            0.6,
+            0.8,
+            1.0])
+
+plt.tick_params(axis='both', which='major', labelsize=fontsize)
+
+
+
+#colors = ['darkorange', 'limegreen', "grey","navy", "red", "purple", "teal"]
+colors = ['grey', 'darkorange', 'limegreen', "navy", "red", "purple", "teal"]
 
 dfs = {}
 for pretty_name, clf_name in zip(pretty_names,clf_names):
@@ -66,22 +104,42 @@ for pretty_name, clf_name in zip(pretty_names,clf_names):
 
     fpr[fpr < 0.0001] = 0.0001
 
-    plt.plot(tpr, 1./fpr, color=colors.pop(0), lw=2, label='{0} (area = {1:.2f})'.format(pretty_name, AOC))
+    #plt.plot(tpr, 1./fpr, color=colors.pop(0), lw=2, label='{0} (area = {1:.2f})'.format(pretty_name, AOC))
+    plt.plot(tpr, 1./fpr, color=colors.pop(0), linestyle=line_styles.pop(0),lw=2, label='{0}'.format(pretty_name))
 
-plt.xlim([0.05, 1.0])
-plt.ylim([1, 10000])
+plt.xlim([0.1, 1.0])
+plt.ylim([1, 2000])
 plt.yscale('log')
 
 #plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.xlabel('True Positive Rate')
-plt.ylabel('1 / False Positive Rate')
-plt.legend(loc="lower left")
-plt.savefig("roc.png".format(clf_name))
-
+plt.xlabel('True Positive Rate', fontsize=fontsize)
+plt.ylabel('1 / False Positive Rate', fontsize=fontsize)
+plt.legend(loc="upper right",frameon=False, fontsize=fontsize)
+plt.savefig("roc.pdf".format(clf_name))
 
 
 # # Correlation Plots 
-#print "Getting base"
+# 
+# 
+# brs = ["entry", 
+#        "tau2",
+#        "tau3",       
+#        "tau2_sd",
+#        "tau3_sd",     
+#        "f_rec",
+#        "m_rec",
+#        "dRopt",  
+#        "fatjet.M()",
+#        "fatjet.Pt()",
+#        "filtered.M()",
+#        "filtered.Pt()",
+#        "softdropped.M()",
+#        "softdropped.Pt()",
+#        "is_signal_new",
+# ]
+# 
+# 
+# #print "Getting base"
 #
 #infname = "/mnt/t3nfs01/data01/shome/gregor/DeepTop/dnn_template/test-img-et-5deg-v7-testonly.h5"
 #store_base = pandas.HDFStore(infname)
