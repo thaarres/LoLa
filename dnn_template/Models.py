@@ -70,7 +70,7 @@ def to_constit(df, n_constit, n_features):
         #ret[:,7,:] = ret[:,7,:] * 500.
 
 
-    ret[:,4:,:30] = np.zeros((512,4,30))
+    #ret[:,4:,:30] = np.zeros((512,4,30))
         
     return ret
 
@@ -162,23 +162,22 @@ def model_lola(params):
 
     model = Sequential()
 
-#    model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
-#                   add_total   = False,
-#                   add_eye     = True,
-#                   debug =  False,
-#                   n_out_particles = 5))
+    model.add(CoLa(input_shape = (params["n_features"], params["n_constit"]),
+                   add_total   = False,
+                   add_eye     = True,
+                   debug =  False,
+                   n_out_particles = 5))
 
-    model.add(LoLa(
-        input_shape = (params["n_features"], params["n_constit"]),
+    model.add(LoLa(        
         train_metric = False,
         es  = 0,
         xs  = 0,
         ys  = 0,
         zs  = 0,                 
         cs  = 0, 
-        vxs = 1, 
-        vys = 1,
-        vzs = 1,        
+        vxs = 0, 
+        vys = 0,
+        vzs = 0,        
         ms  = 1,                 
         pts = 1,                 
         n_train_es  = 1,
