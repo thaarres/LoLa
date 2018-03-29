@@ -12,8 +12,7 @@ import scipy.ndimage.filters
 #converts input four-vectors (from csv file) into jet image, a la DeepTop
 #writes out in compressed hdf5 format
 
-#DON'T USE YET -- possible bug in rotation...
-#and slow as hell, skip pandas step and write direct numpy->hdf5??
+#slow as hell, skip pandas step and write direct numpy->hdf5??
 
 # calculate pseudorapidity of pixel entries
 def eta(pT, pz):
@@ -44,8 +43,8 @@ def phi(px, py):
             phis[ix] = 0
             continue
         phis[ix] += math.atan2(py[ix],px[ix]) #between -pi and pi
-#    if phis[ix] < 0: phis[ix] += math.pi #between 0 and 2pi
-#    if phis[ix] > 2*math.pi: phis[ix] -= math.pi #between 0 and 2pi
+        if phis[ix] < 0: phis[ix] += 2*math.pi #between 0 and 2pi
+        if phis[ix] > 2*math.pi: phis[ix] -= 2*math.pi #between 0 and 2pi
     return phis
 
 xpixels = np.arange(-3.6, 3.6, 0.1)
@@ -59,18 +58,20 @@ def orig_image(eta,phi,e):
     z = np.zeros((len(xpixels),len(ypixels)))
     for ix, x in enumerate(e):
 
+        #convert phi to degrees (between -180 and 180)
+        phi[ix]=math.degrees(phi[ix])-180
+        
         #make sure pixel entry is in grid
         if eta[ix] < xpixels[0] or eta[ix] > xpixels[-1] or phi[ix] < ypixels[0] or phi[ix] > ypixels[-1]: continue
-#        print ix, x
         xpixel = np.where( eta[ix] >= xpixels)[0][-1]
-        ypixel = np.where( phi[ix] >= xpixels)[0][-1]
-        z[xpixel,ypixel] += e[ix] #
+        ypixel = np.where( phi[ix] >= ypixels)[0][-1]
+        z[ypixel,xpixel] = e[ix]
     return z
 
 #image preprocessing options
-Shift, Rotate, Flip, Crop = False, False, False, False #return original image
-Shift, Rotate, Flip, Crop = True, False, False, True #'minimal' preprocessing
-#Shift, Rotate, Flip, Crop = True, True, True, True #the whole shebang
+#Shift, Rotate, Flip, Crop = False, False, False, False #return original image
+#Shift, Rotate, Flip, Crop = True, False, False, True #'minimal' preprocessing
+Shift, Rotate, Flip, Crop = True, True, True, True #the whole shebang
 
 def preprocess_image(z,entry):
 
@@ -84,7 +85,7 @@ def preprocess_image(z,entry):
     p2 = [xmax[-2], ymax[-2]] #second maximum
     p3 = [xmax[-3], ymax[-3]] #third maximum
 
-    #shift maxima by 1/2-pixel, to get rotation right - @TODO: problem here? 
+    #shift maxima by 1/2-pixel, to get rotation right
     center = np.matrix([ (xgrid[p1[0],p1[1]]+(xpixels[1]-xpixels[0])/2.)/xpixels.max(),
         (ygrid[p1[0],p1[1]]+(ypixels[1]-ypixels[0])/2.)/180.])
     second = np.matrix([ (xgrid[p2[0],p2[1]]+(xpixels[1]-xpixels[0])/2.)/xpixels.max(),
@@ -128,7 +129,9 @@ def preprocess_image(z,entry):
         Npix = z_new.shape
         z_new = z_new[Npix[0]/2-imgpix/2:Npix[0]/2+imgpix/2,Npix[1]/2-imgpix/2:Npix[1]/2+imgpix/2]
 
+    Plot=True
     if Plot:
+        print 'plotting jet', entry 
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         
@@ -138,7 +141,7 @@ def preprocess_image(z,entry):
         ax1.set_xlabel('$\\eta$')
         ax1.set_ylabel('$\\phi$')
         cb=plt.colorbar(p1)
-        fig.savefig('test.png')
+        fig.savefig('test%d.png' % entry)
 
     return z_new
             
@@ -153,12 +156,11 @@ df_sig["is_signal"] = 1
 df_bkg["is_signal"] = 0
 df = pandas.concat([df_sig, df_bkg], ignore_index=True)
 
-#drop nans - @TODO: a more elegant way of doing this?
+#drop jets with nan entries
 df.dropna(how='any',inplace=True)
 
 #iterate through dataframe, build image for each row(jet)
 for index, row in df.iterrows():
-#    print index
     px = row.filter(like='PX').values
     py = row.filter(like='PY').values
     pz = row.filter(like='PZ').values
@@ -170,6 +172,7 @@ for index, row in df.iterrows():
 
     z_orig = orig_image(eta_cand,phi_cand,e)
     z_preproc = preprocess_image(z_orig,index)
+    #sys.exit()
 
     #slow
 #    for i in range(n_cands):            
