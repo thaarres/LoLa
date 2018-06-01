@@ -250,7 +250,7 @@ def train_keras(clf):
 
                 
     train_gen = generator(clf.datagen_train)
-    test_gen  = generator(clf.datagen_test)
+    val_gen  = generator(clf.datagen_val) # CORRECTED
 
     early_stop = EarlyStopping(monitor='val_loss', 
                                patience=5, 
@@ -265,15 +265,15 @@ def train_keras(clf):
     model_out_yaml.write(clf.model.to_yaml())
     model_out_yaml.close()
 
-    print("Steps: Train: {0} Test: {1}".format(int(clf.params["samples_per_epoch"]/clf.params["batch_size"]),
-                                               int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"])))
+    print("Steps: Train: {0} Validation: {1}".format(int(clf.params["samples_per_epoch"]/clf.params["batch_size"]), # CORRECTED
+                                               int(clf.params["samples_per_epoch_val"]/clf.params["batch_size"]))) # CORRECTED
 
     ret = clf.model.fit_generator(train_gen,
                                   steps_per_epoch = clf.params["samples_per_epoch"]/clf.params["batch_size"],
-                                  validation_steps = clf.params["samples_per_epoch_test"]/clf.params["batch_size"],
+                                  validation_steps = clf.params["samples_per_epoch_val"]/clf.params["batch_size"], # CORRECTED
                                   verbose=2, 
                                   epochs = clf.params["nb_epoch"],
-                                  validation_data=test_gen,
+                                  validation_data=val_gen, # CORRECTED
                                   callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
     
     print("fit Done")
@@ -945,7 +945,7 @@ def eval_single(clf, suffix=""):
 
 
 
-    nbatches = int(clf.params["samples_per_epoch_val"]/clf.params["batch_size"] - 1)
+    nbatches = int(clf.params["samples_per_epoch_test"]/clf.params["batch_size"] - 1) # CORRECTED
 
 
     for layer in clf.model.layers:
@@ -958,7 +958,7 @@ def eval_single(clf, suffix=""):
     # Loop over batches
     for i_batch in range(nbatches):
 
-        df = next(clf.datagen_val)
+        df = next(clf.datagen_test) # CORRECTED
 
         if clf.backend == "keras":
             X = clf.image_fun(df)        
