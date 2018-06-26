@@ -272,11 +272,13 @@ class LoLa(Layer):
             weight_index += 1
 
         for i in range(self.n_train_ms):
-            out_features.append(theano.tensor.tensordot(Ms, self.w[weight_index,:,:], axes=[1,0]))
+            # out_features.append(theano.tensor.tensordot(Ms, self.w[weight_index,:,:], axes=[1,0]))
+            out_features.append(tf.tensordot(Ms, self.w[weight_index,:,:], axes=[[1], [0]]))
             weight_index += 1
 
         for i in range(self.n_train_pts):
-            out_features.append(theano.tensor.tensordot(Pts, self.w[weight_index,:,:], axes=[1,0]))
+            # out_features.append(theano.tensor.tensordot(Pts, self.w[weight_index,:,:], axes=[1,0]))
+            out_features.append(tf.tensordot(Pts, self.w[weight_index,:,:], axes=[[1], [0]]))
             weight_index += 1
 
 

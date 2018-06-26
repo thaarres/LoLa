@@ -12,8 +12,6 @@ sys.setrecursionlimit(10000)
 
 import numpy as np
 
-import theano
-
 from keras import backend as K
 from keras.engine.topology import Layer
 from keras import initializers

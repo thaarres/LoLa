@@ -20,7 +20,7 @@ print("Done importing SK Learn")
 
 NC = 20
 
-params = {"input_path"              : "../preprocess/",
+params = {"input_path"              : "/data/taarre/",
           "output_path"             : "./",
           "inputs"                  : "constit_lola",
           "model_name"              : "wLola_v1",        
@@ -228,7 +228,7 @@ def generator(dg,params=params):
 			
 
 train_gen = generator(datagen_train) #return input, target. Continuously running until data is finished
-test_gen  = generator(datagen_test)  #return input, target
+val_gen  = generator(datagen_val)  #return input, target
 
 early_stop = EarlyStopping(monitor='val_loss',
                            patience=5,
@@ -243,15 +243,15 @@ model_out_yaml = open(outdir + "/" + params["model_name"] + ".yaml", "w")
 model_out_yaml.write(model.to_yaml())
 model_out_yaml.close()
 
-print("Steps: Train: {0} Test: {1}".format(int(params["samples_per_epoch"]/params["batch_size"]),
-                                           int(params["samples_per_epoch_test"]/params["batch_size"])))
+print("Steps: Train: {0} Validation: {1}".format(int(params["samples_per_epoch"]/params["batch_size"]),
+                                           int(params["samples_per_epoch_val"]/params["batch_size"])))
 
 ret = model.fit_generator(train_gen,#Fits model on data generated batch-by-batch by Python generator. The generator is run in parallel to  model, for efficiency.
                           steps_per_epoch = params["samples_per_epoch"]/params["batch_size"], #epoch finishes when this has been seen by model.Number of unique samples of dataset divided by batch size.
-                          validation_steps = params["samples_per_epoch_test"]/params["batch_size"],
+                          validation_steps = params["samples_per_epoch_val"]/params["batch_size"],
                           verbose=2,
                           epochs = params["nb_epoch"],
-                          validation_data=test_gen,
+                          validation_data=val_gen,
                           # callbacks = [checkpoint, early_stop, LossPlotter(outdir)])
 						  callbacks = [checkpoint, early_stop])
 
@@ -297,7 +297,7 @@ with open(outdir + "/" + params["model_name"] + ".json", "w") as json_file: json
 model.save_weights(outdir + "/" + params["model_name"] + '_weights.h5', overwrite=True)
 
 # FINAL ROC
-nbatches = int(params["samples_per_epoch_val"]/params["batch_size"] - 1)
+nbatches = int(params["samples_per_epoch_test"]/params["batch_size"] - 1)
 
 # for layer in model.layers:
 #     weights = layer.get_weights()
@@ -309,7 +309,7 @@ df_all = pandas.DataFrame()
 # Loop over batches
 for i_batch in range(nbatches):
     
-    df = next(datagen_val)
+    df = next(datagen_test)
     
     X = image_fun(df)        
     probs = model.predict_on_batch(X)
