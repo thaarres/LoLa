@@ -11,10 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import time 
-tic = time.clock()
-
-# import pydot
-
+tic = time.time()
 
 print("Done importing Keras models and layers")
 
@@ -208,9 +205,9 @@ outdir = params["output_path"] + params["model_name"]
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=["accuracy"]) #TODO! Tried to add weighted_metrics=["accuracy"] but only works for Tensorflow backend!!
+model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=["accuracy"]) #TODO! Tried to add weighted_metrics=["accuracy"] but only works in Tensorflow
 #Note: when using  categorical_crossentropy loss, targets should be in categorical format (e.g. if have 10 classes, target for each sample should be 10-dim vector that is all-0 expect for a 1 at index corresponding to class of the sample).
-# plot_model(model, to_file= 'model.eps',show_shapes=True,show_layer_names=True)
+## import pydot; plot_model(model, to_file= 'model.eps',show_shapes=True,show_layer_names=True)
 
 print("Calling fit_generator")
 
@@ -283,30 +280,28 @@ plt.legend(['train', 'test'], loc='upper left')
 plt.savefig(outdir + "/loss.png")
 
 
-# save the architecture
-# to yaml
+# save the architecture ...
+# ...to yaml
 model_out_yaml = open(outdir + "/" + params["model_name"] + ".yaml", "w")
 model_out_yaml.write(model.to_yaml())
 model_out_yaml.close()
 
-#to h5
+#...to h5
 model.save(outdir + "/" + params["model_name"] + '.h5') 
 
-#to json
+#...to json
 model_out_json = model.to_json()
 with open(outdir + "/" + params["model_name"] + ".json", "w") as json_file: json_file.write(model_out_json)
 
 # And the weights
 model.save_weights(outdir + "/" + params["model_name"] + '_weights.h5', overwrite=True)
 
-
-
 # FINAL ROC
 nbatches = int(params["samples_per_epoch_val"]/params["batch_size"] - 1)
 
-for layer in model.layers:
-    weights = layer.get_weights()
-    print(weights)
+# for layer in model.layers:
+#     weights = layer.get_weights()
+#     print(weights)
 
 
 df_all = pandas.DataFrame()
@@ -376,5 +371,5 @@ plt.savefig(outdir + "/roc.png")
 store_df = pandas.HDFStore('output_' + params["model_name"] + '.h5')
 store_df["all"] = df_all
 
-toc = time.clock()
+toc = time.time()
 print 'TOTAL TRAINING TIME (min) == ', (toc-tic)/60
