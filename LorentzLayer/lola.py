@@ -12,7 +12,8 @@ sys.setrecursionlimit(10000)
 
 import numpy as np
 
-import theano
+import tensorflow as tf
+#import theano #theano
 
 from keras import backend as K
 from keras.engine.topology import Layer
@@ -183,7 +184,8 @@ class LoLa(Layer):
             metric_vector = [ -1., 1., 1., 1.]
             if self.n_features > 4:
                 metric_vector.extend( [0.] * (self.n_features - 4))
-            metric = K.variable(np.array(metric_vector))
+            # metric = K.variable(np.array(metric_vector)) #theano
+            metric = tf.constant(metric_vector)
 
         #spatial_metric = K.variable(np.array([0.,0.,0.,0.,0.,1.,1.,1.]))
         #spatial_metric = K.concatenate([K.variable(np.array([0.,0.,0.,0.,0.])),self.spatm[0,:]])
@@ -217,11 +219,13 @@ class LoLa(Layer):
         
         # Element wise square of x
         # bfp
-        x2 = pow(x,2)
+        # x2 = pow(x,2) #theano
+        x2 = tf.square(x) 
 
         # Mass^2 and transverse momentum^2
         # bp
-        Ms  = theano.tensor.tensordot(x2, metric, axes=[1,0])
+        # Ms  = theano.tensor.tensordot(x2, metric, axes=[1,0]) #theano
+        Ms  = tf.tensordot(x2, metric, axes=[[1], [0]])
 
         Pts = K.abs(K.sqrt(x2[:,1,:] + x2[:,2,:]))
 
@@ -263,7 +267,8 @@ class LoLa(Layer):
             out_features.append(dl)
 
         for i in range(self.n_train_es):
-            out_features.append(theano.tensor.tensordot(Es, self.w[weight_index,:,:], axes=[1,0]))
+            # out_features.append(theano.tensor.tensordot(Es, self.w[weight_index,:,:], axes=[1,0])) #theano
+            out_features.append(tf.tensordot(Es, self.w[weight_index,:,:], axes=[[1], [0]]))
             weight_index += 1
 
         for i in range(self.n_train_ms):
@@ -292,7 +297,8 @@ class LoLa(Layer):
 
         # b f p p'
         # x * magic  gives b f p^2, reshape to b f p p'
-        d2_ij = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (x.shape[0], x.shape[1], x.shape[2], x.shape[2]))
+        # d2_ij = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (x.shape[0], x.shape[1], x.shape[2], x.shape[2])) #theano
+        d2_ij   = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (tf.shape(x)[0],tf.shape(x)[1],tf.shape(x)[2],tf.shape(x)[2]))
         
         # elements squared
         d2_ij = K.pow(d2_ij, 2)
@@ -312,9 +318,11 @@ class LoLa(Layer):
                 print(K.eval(d2_ij.shape))
                 print(K.eval(d2_ij))
             
-            m_d2_ij = theano.tensor.tensordot(d2_ij, metric, axes=[1,0])
+            #m_d2_ij = theano.tensor.tensordot(d2_ij, metric, axes=[1,0]) #theano
+            m_d2_ij = tf.tensordot(d2_ij, metric, axes=[[1],[0]])
 
-            out_features.append(K.sum(theano.tensor.tensordot(m_d2_ij, self.w[weight_index,:,:], axes=[1,0]), axis=2))
+            # out_features.append(K.sum(theano.tensor.tensordot(m_d2_ij, self.w[weight_index,:,:], axes=[1,0]), axis=2))
+            out_features.append(K.sum(tf.tensordot(m_d2_ij, self.w[weight_index,:,:], axes=[[1],[0]]), axis=2))
             weight_index += 1
 
 
@@ -329,7 +337,8 @@ class LoLa(Layer):
 
         # b f p p'
         # x * magic  gives b f p^2, reshape to b f p p'
-        m2_ij = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (x.shape[0], x.shape[1], x.shape[2], x.shape[2]))
+        #m2_ij = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (x.shape[0], x.shape[1], x.shape[2], x.shape[2])) #theano
+        m2_ij = K.reshape(K.expand_dims(K.dot(x, magic_diff), -1), (tf.shape(x)[0],tf.shape(x)[1],tf.shape(x)[2],tf.shape(x)[2]))
         
         # elements squared
         m2_ij = K.pow(m2_ij, 2)
@@ -339,9 +348,11 @@ class LoLa(Layer):
 
         for i in range(self.n_train_min_dijs):
 
-            m_m2_ij = theano.tensor.tensordot(m2_ij, metric, axes=[1,0])
-
-            out_features.append(K.min(theano.tensor.tensordot(m_m2_ij, self.w[weight_index,:,:], axes=[1,0]), axis=2))
+            # m_m2_ij = theano.tensor.tensordot(m2_ij, metric, axes=[1,0]) #theano
+            m_m2_ij = tf.tensordot(m2_ij, metric, axes=[[1],[0]])
+            
+            # out_features.append(K.min(theano.tensor.tensordot(m_m2_ij, self.w[weight_index,:,:], axes=[1,0]), axis=2)) #theano
+            out_features.append(K.min(tf.tensordot(m_m2_ij, self.w[weight_index,:,:], axes=[[1],[0]]), axis=2))
             weight_index += 1
 
         #vd_m2_ij = theano.tensor.tensordot(m2_ij, spatial_metric, axes=[1,0])
